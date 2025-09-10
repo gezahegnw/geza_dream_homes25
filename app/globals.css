@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+:root {
+  --radius: 0.5rem;
+}
+
+.container { @apply mx-auto max-w-6xl px-4; }

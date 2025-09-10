@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="640" height="160" viewBox="0 0 640 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Geza Dream Homes">
+  <!-- Dark variant for dark mode headers -->
+  <defs>
+    <linearGradient id="roofGradientDark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7FB3D5"/>
+      <stop offset="100%" stop-color="#A9CCE3"/>
+    </linearGradient>
+  </defs>
+
+  <!-- House mark -->
+  <g transform="translate(10,22)">
+    <!-- Roof -->
+    <path d="M0 48 L64 0 L128 48" fill="none" stroke="url(#roofGradientDark)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- House body -->
+    <rect x="16" y="48" width="96" height="76" rx="8" stroke="#E5E7EB" stroke-width="9" fill="transparent"/>
+    <!-- Door -->
+    <rect x="70" y="80" width="22" height="44" rx="4" fill="#E5E7EB"/>
+    <!-- Window -->
+    <rect x="32" y="68" width="24" height="20" rx="3" fill="#E5E7EB"/>
+  </g>
+
+  <!-- Logotype -->
+  <g transform="translate(170,34)">
+    <text x="0" y="54" font-family="'Montserrat', Arial, sans-serif" font-weight="700" font-size="48" fill="#FFFFFF" letter-spacing="0.5">
+      Geza Dream Homes
+    </text>
+    <rect x="0" y="70" width="360" height="5" fill="#D4AF37" rx="2.5"/>
+  </g>
+</svg>

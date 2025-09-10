@@ -1,0 +1,91 @@
+// Prisma schema for Geza Dream Homes
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id           String   @id @default(cuid())
+  created_at   DateTime @default(now()) @map("created_at")
+  name         String
+  email        String   @unique
+  phone        String?
+  intent       String?
+  timeframe    String?
+  budget       String?
+  message      String?
+  user_agent   String?  @map("user_agent")
+  ip           String?
+
+  // Property preferences
+  interested_location String? @map("interested_location")
+  property_type      String? @map("property_type")
+  min_bedrooms       String? @map("min_bedrooms")
+  min_bathrooms      String? @map("min_bathrooms")
+  min_sqft           String? @map("min_sqft")
+  max_sqft           String? @map("max_sqft")
+  current_status     String? @map("current_status")
+  move_in_date       String? @map("move_in_date")
+  features           String?
+
+  // Audit & Marketing fields
+  source       String?
+  utm_source   String?
+  utm_medium   String?
+  utm_campaign String?
+  utm_term     String?
+  utm_content  String?
+  referrer     String?
+  landing_page String?
+  
+  @@map("leads")
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  created_at   DateTime @default(now()) @map("created_at")
+  name         String
+  email        String?
+  rating       Int
+  title        String?
+  content      String
+  image_url    String?  @map("image_url")
+  approved     Boolean  @default(true)
+  user_agent   String?  @map("user_agent")
+  ip           String?
+
+  @@map("reviews")
+  @@index([created_at])
+}
+
+model User {
+  id             String   @id @default(cuid())
+  created_at     DateTime @default(now()) @map("created_at")
+  name           String
+  email          String   @unique
+  password_hash  String
+  approved       Boolean  @default(false)
+  is_admin       Boolean  @default(false)
+
+  favorites      Favorite[]
+
+  @@map("users")
+  @@index([created_at])
+}
+
+model Favorite {
+  id          String   @id @default(cuid())
+  created_at  DateTime @default(now()) @map("created_at")
+  user_id     String   @map("user_id")
+  property_id String   @map("property_id")
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, property_id])
+  @@index([user_id])
+  @@map("favorites")
+}
