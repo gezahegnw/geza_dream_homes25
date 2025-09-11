@@ -33,41 +33,13 @@ export default function GalleryPage() {
 
   const fetchPhotos = async () => {
     try {
-      // Fetch both existing photos and uploaded photos
-      let allPhotos: Photo[] = [];
-
-      try {
-        const existingResponse = await fetch('/api/photos');
-        if (existingResponse.ok) {
-          const existingData = await existingResponse.json();
-          const existingPhotos = existingData.images?.map((img: string) => ({
-            id: img,
-            filename: img,
-            originalName: img,
-            album: 'Property Photos',
-            uploadedAt: new Date().toISOString(),
-            size: 0,
-            url: img
-          })) || [];
-          allPhotos = [...allPhotos, ...existingPhotos];
-        }
-      } catch (error) {
-        console.error('Failed to fetch existing photos:', error);
+      const response = await fetch('/api/admin/photos');
+      if (response.ok) {
+        const data = await response.json();
+        setPhotos(data.photos || []);
       }
-
-      try {
-        const uploadedResponse = await fetch('/api/admin/photos');
-        if (uploadedResponse.ok) {
-          const uploadedData = await uploadedResponse.json();
-          allPhotos = [...allPhotos, ...(uploadedData.photos || [])];
-        }
-      } catch (error) {
-        console.error('Failed to fetch uploaded photos:', error);
-      }
-
-      setPhotos(allPhotos);
     } catch (error) {
-      console.error('Failed to fetch photos:', error);
+      console.error('Error fetching photos:', error);
     } finally {
       setLoading(false);
     }
