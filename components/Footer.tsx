@@ -74,6 +74,7 @@ export default function Footer() {
           <nav className="space-y-2 text-right">
             <a href="/" className="block hover:text-brand">Home</a>
             <a href="/listings" className="block hover:text-brand">Listings</a>
+            <a href="/gallery" className="block hover:text-brand">Gallery</a>
             <a href="/about" className="block hover:text-brand">About</a>
             <a href="/reviews" className="block hover:text-brand">Reviews</a>
             <a href="/contact" className="block hover:text-brand">Contact</a>

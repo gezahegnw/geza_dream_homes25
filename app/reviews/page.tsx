@@ -45,24 +45,45 @@ export default function ReviewsPage() {
   // Helper to load reCAPTCHA script (if configured) and get a token
   async function getRecaptchaToken(action = "review_submit"): Promise<string | null> {
     if (!recaptchaSiteKey) return null;
-    // Inject script once
-    if (!(window as any).grecaptcha) {
-      await new Promise<void>((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
-        s.async = true;
-        s.defer = true;
-        s.onload = () => resolve();
-        s.onerror = () => reject(new Error("Failed to load reCAPTCHA"));
-        document.head.appendChild(s);
-      }).catch(() => {});
-    }
-    if (!(window as any).grecaptcha || !(window as any).grecaptcha.execute) return null;
+    
     try {
-      await (window as any).grecaptcha.ready?.();
-      const t = await (window as any).grecaptcha.execute(recaptchaSiteKey, { action });
-      return typeof t === "string" ? t : null;
-    } catch {
+      // Check if script is already loaded
+      if (!(window as any).grecaptcha) {
+        // Load reCAPTCHA script
+        await new Promise<void>((resolve, reject) => {
+          const existingScript = document.querySelector(`script[src*="recaptcha"]`);
+          if (existingScript) {
+            resolve();
+            return;
+          }
+          
+          const script = document.createElement("script");
+          script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+          script.async = true;
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("Failed to load reCAPTCHA"));
+          document.head.appendChild(script);
+        });
+      }
+
+      // Wait for grecaptcha to be ready
+      if ((window as any).grecaptcha && (window as any).grecaptcha.ready) {
+        return new Promise((resolve) => {
+          (window as any).grecaptcha.ready(async () => {
+            try {
+              const token = await (window as any).grecaptcha.execute(recaptchaSiteKey, { action });
+              resolve(token);
+            } catch (error) {
+              console.error('reCAPTCHA execution failed:', error);
+              resolve(null);
+            }
+          });
+        });
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('reCAPTCHA error:', error);
       return null;
     }
   }
@@ -102,7 +123,16 @@ export default function ReviewsPage() {
     setSubmitting(true);
     setSubmitMsg(null);
     try {
-      const token = await getRecaptchaToken();
+      let token = null;
+      if (recaptchaSiteKey) {
+        setSubmitMsg("Verifying you're not a robot...");
+        token = await getRecaptchaToken();
+        if (!token) {
+          setSubmitMsg("reCAPTCHA verification failed. Please try again.");
+          return;
+        }
+      }
+      
       const resp = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

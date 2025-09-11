@@ -93,11 +93,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               />
             </a>
             <div className="hidden items-center space-x-8 md:flex">
-              <a href="/" className="font-medium text-gray-900 hover:text-brand">Home</a>
-              <a href="/listings" className="font-medium text-gray-600 hover:text-brand">Listings</a>
-              <a href="/favorites" className="font-medium text-gray-600 hover:text-brand">Favorites</a>
-              <a href="/about" className="font-medium text-gray-600 hover:text-brand">About</a>
-              <a href="/reviews#leave-review" className="font-medium text-gray-600 hover:text-brand">Write a Review</a>
+              <a href="/" className="hover:text-brand">Home</a>
+              <a href="/listings" className="hover:text-brand">Listings</a>
+              <a href="/favorites" className="hover:text-brand">Favorites</a>
+              <a href="/gallery" className="hover:text-brand">Gallery</a>
+              <a href="/about" className="hover:text-brand">About</a>
+              <a href="/reviews" className="hover:text-brand">Write a Review</a>
               <a 
                 href="/contact" 
                 className="rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand/90"
