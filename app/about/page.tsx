@@ -13,8 +13,8 @@ export default function AboutPage() {
             looking to sell, or investing in real estate, I’m here to guide you every step of the way.
           </p>
           <p className="text-gray-700">
-            With a passion for real estate and a deep understanding of the market, I take pride in providing expert advice, strong
-            negotiation skills, and a seamless experience for my clients. My goal is simple: to turn your real estate dreams into
+            With a passion for real estate and genuine care for my clients, I bring dedication and enthusiasm to every transaction. I take pride in providing personalized service, strong
+            advocacy, and a seamless experience for my clients. My goal is simple: to turn your real estate dreams into
             reality while making the process smooth, stress-free, and even enjoyable!
           </p>
           <p className="text-gray-700">

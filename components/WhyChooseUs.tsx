@@ -32,7 +32,7 @@ export default function WhyChooseUs() {
             Why Choose Geza Dream Homes
           </h2>
           <p className="mb-12 text-lg text-gray-600">
-            With years of experience and a passion for real estate, I'm committed to helping you find your dream home or get the best value for your property.
+            With a passion for real estate and unwavering dedication to my clients, I'm committed to helping you find your dream home or get the best value for your property.
           </p>
         </div>
         
