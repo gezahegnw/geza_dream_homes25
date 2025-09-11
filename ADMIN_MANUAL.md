@@ -118,19 +118,56 @@ Contact form submissions and inquiries are captured as leads.
 
 ## Content Management
 
-### Photo Management
-Your website displays property photos from the `/public/Photos/` directory.
+### Photo Management System
+The website features a comprehensive photo management system with admin upload capabilities and public gallery display.
 
-#### Adding New Photos
-1. Upload images to `/public/Photos/` directory
-2. Use descriptive filenames (e.g., `home75.jpg`)
-3. Supported formats: JPG, PNG, AVIF
-4. Recommended size: 1200x800px or larger
+#### Admin Photo Upload (`/admin/photos`)
+Access the photo management interface to upload and organize property photos:
 
-#### Photo Organization
-- **Hero Slider**: Photos automatically appear in the homepage slider
-- **Property Listings**: Photos are used in listing displays
-- **Optimization**: Compress images for faster loading
+1. **Navigate to Photo Management**
+   - Go to `/admin/photos`
+   - View all existing photos and albums
+   - Filter photos by album or view all
+
+2. **Creating Albums**
+   - Click "Create New Album" button
+   - Enter album name (e.g., "123 Main St Closing", "Downtown Properties")
+   - Albums are automatically saved as directories
+   - Use descriptive names for easy organization
+
+3. **Uploading Photos**
+   - Select album from dropdown or create new one
+   - Click "Choose Files" or drag and drop images
+   - Upload multiple photos at once
+   - Supported formats: JPG, JPEG, PNG, WEBP, AVIF
+   - Maximum file size: 10MB per photo
+   - Photos are automatically timestamped and organized
+
+4. **Managing Photos**
+   - View photos in grid layout with album filtering
+   - Click photos to view full size
+   - Delete photos using the delete button
+   - Photos are organized by album for easy browsing
+
+#### Public Photo Gallery (`/gallery`)
+Visitors can browse all your photos in the public gallery:
+- **Album Filtering**: Filter by specific albums or view all
+- **Lightbox Viewer**: Click photos for full-size viewing
+- **Professional Display**: Responsive grid layout
+- **Photo Details**: Shows upload date and album information
+
+#### Photo Storage Structure
+- **Existing Photos**: `/public/Photos/` (legacy photos, appear in "existing" album)
+- **New Uploads**: `/public/uploads/{album}/` (organized by album)
+- **Hero Slider**: Photos from both directories appear in homepage slider
+- **Gallery Integration**: All photos appear in public gallery
+
+#### Best Practices
+- **Naming**: Use descriptive album names for properties
+- **Organization**: Create separate albums for each property closing
+- **Quality**: Upload high-resolution photos (1200x800px or larger)
+- **Formats**: JPG recommended for photos, PNG for graphics
+- **Management**: Regularly review and delete outdated photos
 
 ### Personal Photos
 Your agent photos are stored in `/public/MyPhotos/`:
@@ -231,6 +268,22 @@ Your website uses Prisma with SQLite (development) or PostgreSQL (production).
 - **Check**: Domain is registered with reCAPTCHA
 - **Solution**: Verify reCAPTCHA configuration
 
+#### Photo Upload Issues
+- **Check**: File size limits (10MB max per photo)
+- **Check**: Supported formats (JPG, JPEG, PNG, WEBP, AVIF)
+- **Check**: Album names don't contain special characters
+- **Solution**: Verify file permissions on `/public/uploads/` directory
+
+#### Photos Not Appearing in Gallery
+- **Check**: Photos uploaded to correct album
+- **Check**: File permissions and directory structure
+- **Solution**: Refresh page or check API endpoints at `/api/admin/photos`
+
+#### Album Creation Failing
+- **Check**: Album name is unique and valid
+- **Check**: Directory permissions for `/public/uploads/`
+- **Solution**: Ensure proper file system permissions
+
 ### Error Monitoring
 1. **Check Server Logs**: Monitor application logs
 2. **Database Errors**: Check database connection and queries
@@ -271,7 +324,9 @@ Your website uses Prisma with SQLite (development) or PostgreSQL (production).
 ### Weekly Tasks
 - [ ] Review user activity and engagement
 - [ ] Check API usage and quotas
-- [ ] Update property photos if needed
+- [ ] Upload new property photos to albums
+- [ ] Organize photo albums for closed properties
+- [ ] Review and clean up old photos
 - [ ] Review security logs
 
 ### Monthly Tasks
@@ -279,6 +334,8 @@ Your website uses Prisma with SQLite (development) or PostgreSQL (production).
 - [ ] Security updates and patches
 - [ ] Performance optimization review
 - [ ] Analytics and traffic review
+- [ ] Archive old photo albums
+- [ ] Review photo storage usage
 
 ---
 
