@@ -1,29 +1,48 @@
 import { NextResponse } from 'next/server';
-import { readdir } from 'fs/promises';
+import { readdir, stat } from 'fs/promises';
 import { join } from 'path';
-
-// In-memory album storage (in production, you'd use a database)
-let albums: { [key: string]: string[] } = {
-  'general': [],
-  'existing': []
-};
+import { existsSync } from 'fs';
 
 export async function GET() {
   try {
+    const albums = [];
+    
+    // Get existing photos album
     const photosDir = join(process.cwd(), 'public', 'Photos');
-    const files = await readdir(photosDir);
-    const photoFiles = files.filter(file => /\.(jpg|jpeg|png|webp|avif)$/i.test(file));
+    if (existsSync(photosDir)) {
+      const files = await readdir(photosDir);
+      const photoFiles = files.filter(file => /\.(jpg|jpeg|png|webp|avif)$/i.test(file));
+      
+      albums.push({
+        name: 'existing',
+        count: photoFiles.length,
+        coverPhoto: photoFiles.length > 0 ? `/Photos/${photoFiles[0]}` : undefined
+      });
+    }
     
-    // Count existing photos
-    albums['existing'] = photoFiles;
-    
-    const albumsWithCounts = Object.entries(albums).map(([name, photos]) => ({
-      name,
-      count: photos.length,
-      coverPhoto: photos.length > 0 ? `/Photos/${photos[0]}` : undefined
-    }));
+    // Get uploaded albums from filesystem
+    const uploadsDir = join(process.cwd(), 'public', 'uploads');
+    if (existsSync(uploadsDir)) {
+      const albumDirs = await readdir(uploadsDir);
+      
+      for (const albumName of albumDirs) {
+        const albumPath = join(uploadsDir, albumName);
+        const albumStat = await stat(albumPath);
+        
+        if (albumStat.isDirectory()) {
+          const files = await readdir(albumPath);
+          const photoFiles = files.filter(file => /\.(jpg|jpeg|png|webp|avif)$/i.test(file));
+          
+          albums.push({
+            name: albumName,
+            count: photoFiles.length,
+            coverPhoto: photoFiles.length > 0 ? `/uploads/${albumName}/${photoFiles[0]}` : undefined
+          });
+        }
+      }
+    }
 
-    return NextResponse.json({ albums: albumsWithCounts });
+    return NextResponse.json({ albums });
   } catch (error) {
     console.error('Failed to fetch albums:', error);
     return NextResponse.json({ error: 'Failed to fetch albums' }, { status: 500 });
@@ -39,11 +58,17 @@ export async function POST(req: Request) {
     }
 
     const albumName = name.trim();
-    if (albums[albumName]) {
+    const uploadsDir = join(process.cwd(), 'public', 'uploads');
+    const albumPath = join(uploadsDir, albumName);
+    
+    // Check if album already exists
+    if (existsSync(albumPath)) {
       return NextResponse.json({ error: 'Album already exists' }, { status: 400 });
     }
 
-    albums[albumName] = [];
+    // Create the album directory
+    const { mkdir } = await import('fs/promises');
+    await mkdir(albumPath, { recursive: true });
     
     return NextResponse.json({ success: true, album: { name: albumName, count: 0 } });
   } catch (error) {

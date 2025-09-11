@@ -5,38 +5,59 @@ import { existsSync } from 'fs';
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
-    const photoId = params.id;
+    const photoId = decodeURIComponent(params.id);
     
-    // Check in uploads directory first
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    const photosDir = join(process.cwd(), 'public', 'Photos');
+    // Parse the photo ID format: "album-filename" or "existing-filename"
+    let album = '';
+    let filename = '';
+    
+    if (photoId.startsWith('existing-')) {
+      album = 'existing';
+      filename = photoId.replace('existing-', '');
+    } else {
+      const parts = photoId.split('-');
+      if (parts.length >= 2) {
+        album = parts[0];
+        filename = parts.slice(1).join('-');
+      } else {
+        filename = photoId;
+      }
+    }
     
     let filePath = '';
     let found = false;
     
-    // Search in uploads subdirectories
-    if (existsSync(uploadsDir)) {
-      const { readdir } = await import('fs/promises');
-      const albums = await readdir(uploadsDir);
+    if (album === 'existing') {
+      // Delete from Photos directory
+      const photosDir = join(process.cwd(), 'public', 'Photos');
+      filePath = join(photosDir, filename);
+      found = existsSync(filePath);
+    } else {
+      // Delete from uploads directory
+      const uploadsDir = join(process.cwd(), 'public', 'uploads');
       
-      for (const album of albums) {
+      if (album) {
+        // Try specific album first
         const albumPath = join(uploadsDir, album);
-        const potentialPath = join(albumPath, photoId);
-        
-        if (existsSync(potentialPath)) {
-          filePath = potentialPath;
-          found = true;
-          break;
-        }
+        filePath = join(albumPath, filename);
+        found = existsSync(filePath);
       }
-    }
-    
-    // Check in Photos directory
-    if (!found) {
-      const photosPath = join(photosDir, photoId);
-      if (existsSync(photosPath)) {
-        filePath = photosPath;
-        found = true;
+      
+      // If not found and no album specified, search all albums
+      if (!found && existsSync(uploadsDir)) {
+        const { readdir } = await import('fs/promises');
+        const albums = await readdir(uploadsDir);
+        
+        for (const albumName of albums) {
+          const albumPath = join(uploadsDir, albumName);
+          const potentialPath = join(albumPath, filename);
+          
+          if (existsSync(potentialPath)) {
+            filePath = potentialPath;
+            found = true;
+            break;
+          }
+        }
       }
     }
     
