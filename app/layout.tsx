@@ -8,6 +8,7 @@ import FloatingCTA from "@/components/FloatingCTA";
 import MobileMenu from "../components/MobileMenu";
 import Image from "next/image";
 import AuthStatusServer from "../components/AuthStatusServer";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
