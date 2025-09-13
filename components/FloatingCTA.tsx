@@ -18,9 +18,9 @@ export default function FloatingCTA() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
       {isExpanded ? (
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 max-w-sm">
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 sm:p-6 max-w-xs sm:max-w-sm">
           <div className="flex justify-between items-start mb-4">
             <h3 className="font-semibold text-gray-900">Ready to get started?</h3>
             <button
@@ -36,14 +36,14 @@ export default function FloatingCTA() {
           <div className="space-y-2">
             <a
               href="tel:+19134078620"
-              className="flex items-center gap-3 w-full bg-brand text-white px-4 py-3 rounded-lg hover:bg-brand/90 transition-colors"
+              className="flex items-center gap-2 sm:gap-3 w-full bg-brand text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-brand/90 transition-colors text-sm sm:text-base"
             >
               <Phone className="h-4 w-4" />
               <span className="font-medium">Call Now</span>
             </a>
             <a
               href="/contact"
-              className="flex items-center gap-3 w-full bg-gray-100 text-gray-900 px-4 py-3 rounded-lg hover:bg-gray-200 transition-colors"
+              className="flex items-center gap-2 sm:gap-3 w-full bg-gray-100 text-gray-900 px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base"
             >
               <MessageCircle className="h-4 w-4" />
               <span className="font-medium">Send Message</span>
@@ -53,7 +53,7 @@ export default function FloatingCTA() {
       ) : (
         <button
           onClick={() => setIsExpanded(true)}
-          className="bg-brand text-white p-4 rounded-full shadow-2xl hover:bg-brand/90 transition-all hover:scale-105"
+          className="bg-brand text-white p-3 sm:p-4 rounded-full shadow-2xl hover:bg-brand/90 transition-all hover:scale-105"
         >
           <Phone className="h-6 w-6" />
         </button>

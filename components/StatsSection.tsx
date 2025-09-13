@@ -60,7 +60,7 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
   }, [value]);
 
   return (
-    <span className="text-4xl font-bold text-white">
+    <span className="text-2xl sm:text-4xl font-bold text-white">
       {count}{suffix}
     </span>
   );
@@ -70,23 +70,23 @@ export default function StatsSection() {
   return (
     <section className="bg-gradient-to-r from-brand to-brand/80 py-16">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
             Proven Track Record
           </h2>
-          <p className="text-white/90 text-lg max-w-2xl mx-auto">
+          <p className="text-white/90 text-base sm:text-lg max-w-2xl mx-auto px-4">
             Building trust through results and dedicated service to every client
           </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
           {stats.map((stat, index) => (
             <div key={index} className="text-center">
               <div className="flex justify-center mb-4 text-white/80">
                 {stat.icon}
               </div>
               <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-              <p className="text-white/90 mt-2 font-medium">{stat.label}</p>
+              <p className="text-white/90 mt-2 font-medium text-sm sm:text-base">{stat.label}</p>
             </div>
           ))}
         </div>

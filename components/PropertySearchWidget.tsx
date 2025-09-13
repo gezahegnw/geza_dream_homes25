@@ -77,19 +77,19 @@ export default function PropertySearchWidget() {
         </div>
 
         {/* Bedrooms */}
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           {['any', '1', '2', '3', '4+'].map((bed) => (
             <button
               key={bed}
               type="button"
               onClick={() => setSearchData({...searchData, bedrooms: bed})}
-              className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+              className={`py-2 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 searchData.bedrooms === bed
                   ? 'bg-brand text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {bed === 'any' ? 'Any' : bed === '4+' ? '4+' : `${bed} bed`}
+              {bed === 'any' ? 'Any' : bed === '4+' ? '4+' : `${bed}`}
             </button>
           ))}
         </div>

@@ -12,7 +12,7 @@ export default function Home() {
       
       {/* Property Search Widget */}
       <section className="relative -mt-20 z-10 px-4">
-        <div className="container mx-auto max-w-md">
+        <div className="container mx-auto max-w-sm sm:max-w-md">
           <PropertySearchWidget />
         </div>
       </section>
