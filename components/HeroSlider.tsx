@@ -251,6 +251,21 @@ const HeroSlider = () => {
     setCurrentSlide(prev => (prev === 0 ? total - 1 : prev - 1));
   };
 
+  // Preload next and previous images
+  useEffect(() => {
+    if (total <= 0) return;
+    const list = imageList.length > 0 ? imageList : slides.map(s => s.image);
+    const preloadImages = [
+      list[(currentSlide + 1) % total],
+      list[(currentSlide - 1 + total) % total]
+    ].filter(Boolean);
+    
+    preloadImages.forEach(src => {
+      const img = new window.Image();
+      img.src = src as string;
+    });
+  }, [currentSlide, total, imageList]);
+
   // Filter out slides with missing or errored images
   const validSlides = (imageList.length > 0 ? imageList : slides.map(s => s.image)).filter((_, index) => !error[index]);
 
@@ -267,7 +282,7 @@ const HeroSlider = () => {
             <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
           </div>
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">No Slides Available</h2>
-          <p className="text-gray-600 mb-6">We're currently updating our property listings. Please check back soon!</p>
+          <p className="text-gray-600 mb-6">We&apos;re currently updating our property listings. Please check back soon!</p>
           <a 
             href="/properties" 
             className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
@@ -278,21 +293,6 @@ const HeroSlider = () => {
       </div>
     );
   }
-
-  // Preload next and previous images
-  useEffect(() => {
-    if (total <= 0) return;
-    const list = imageList.length > 0 ? imageList : slides.map(s => s.image);
-    const preloadImages = [
-      list[(currentSlide + 1) % total],
-      list[(currentSlide - 1 + total) % total]
-    ].filter(Boolean);
-    
-    preloadImages.forEach(src => {
-      const img = new window.Image();
-      img.src = src as string;
-    });
-  }, [currentSlide, total, imageList]);
 
   return (
     <section 

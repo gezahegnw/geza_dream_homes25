@@ -33,8 +33,8 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Properties</h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Discover exceptional homes in Kansas City's most desirable neighborhoods
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Your trusted partner in finding the perfect home in Kansas City. Let&apos;s make your dream home a reality.
             </p>
           </div>
           <div className="text-center">

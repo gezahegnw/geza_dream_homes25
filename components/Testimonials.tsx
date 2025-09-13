@@ -8,7 +8,7 @@ import StarRating from '@/components/StarRating';
 type ReviewItem = {
   id: string;
   name: string;
-  content: string;
+  content: "Geza helped us find our dream home in just 2 weeks! His knowledge of the Kansas City market is incredible and he's always available to answer questions.",
   rating: number;
   title?: string | null;
 };
@@ -72,7 +72,7 @@ export default function Testimonials() {
                     <div className="mb-4">
                       <StarRating value={t.rating} readOnly />
                     </div>
-                    <p className="mb-6 text-lg italic text-gray-700">"{t.content}"</p>
+                    <p className="mb-6 text-lg italic text-gray-700">&ldquo;{t.content}&rdquo;</p>
                     <div>
                       <p className="font-semibold text-gray-900">{t.name}</p>
                       {t.title && <p className="text-sm text-gray-600">{t.title}</p>}

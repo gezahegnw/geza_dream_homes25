@@ -31,7 +31,7 @@ export default function FloatingCTA() {
             </button>
           </div>
           <p className="text-gray-600 text-sm mb-4">
-            Let's discuss your real estate goals and find your perfect home.
+            Let&apos;s discuss your real estate goals and find your perfect home.
           </p>
           <div className="space-y-2">
             <a
