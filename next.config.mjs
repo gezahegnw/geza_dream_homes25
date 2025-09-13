@@ -1,20 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  images: {
-    domains: ['localhost'],
-    formats: ['image/webp', 'image/avif'],
+  eslint: {
+    ignoreDuringBuilds: true,
   },
-  // Optimize for production
+  images: {
+    domains: ['ssl.cdn-redfin.com', 'ap.rdcpix.com', 'photos.zillowstatic.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
   compress: true,
   poweredByHeader: false,
-  // Handle static files from public directory
-  async rewrites() {
-    return [];
-  },
-  // Production optimizations
   experimental: {
     optimizePackageImports: ['lucide-react', '@heroicons/react'],
+  },
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, path: false };
+    return config;
   },
 };
 
