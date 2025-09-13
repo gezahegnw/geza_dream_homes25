@@ -54,7 +54,7 @@ export default function Testimonials() {
         <h2 className="mb-6 text-center text-3xl font-bold text-gray-900 md:text-4xl">
           What My Clients Say
         </h2>
-        <p className="mb-10 text-center text-gray-600">Real words from buyers and sellers I've helped.</p>
+        <p className="mb-10 text-center text-gray-600">Real words from buyers and sellers I&apos;ve helped.</p>
 
         <div
           className="relative mx-auto max-w-4xl"
