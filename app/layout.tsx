@@ -1,7 +1,10 @@
 import "./globals.css";
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Footer from "../components/Footer";
+import Link from "next/link";
+import { Home, Users, MessageSquare, Phone, Heart, User, LogOut, Menu, X } from "lucide-react";
+import AuthStatus from "@/components/AuthStatus";
+import Footer from "@/components/Footer";
+import FloatingCTA from "@/components/FloatingCTA";
 import MobileMenu from "../components/MobileMenu";
 import Image from "next/image";
 import AuthStatusServer from "../components/AuthStatusServer";
@@ -121,6 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </nav>
         </header>
         <main className="flex-1">{children}</main>
+        <FloatingCTA />
         <Footer />
       </body>
     </html>

@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from 'react';
+import { Heart } from 'lucide-react';
+import Image from 'next/image';
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 
@@ -137,9 +139,11 @@ export default function FavoritesPage() {
                     <a href={`/listings/${listing.id}`} className="block">
                       <div className="relative">
                         {listing.photo && (
-                          <img
+                          <Image
                             src={listing.photo}
                             alt={listing.address}
+                            width={400}
+                            height={192}
                             className="w-full h-48 object-cover rounded-t-lg"
                           />
                         )}

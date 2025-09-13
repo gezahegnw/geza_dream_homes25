@@ -1,6 +1,8 @@
 import HeroSlider from '@/components/HeroSlider';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
+import PropertySearchWidget from '@/components/PropertySearchWidget';
+import StatsSection from '@/components/StatsSection';
 
 export default function Home() {
   return (
@@ -8,11 +10,43 @@ export default function Home() {
       {/* Hero Section with Slider */}
       <HeroSlider />
       
+      {/* Property Search Widget */}
+      <section className="relative -mt-20 z-10 px-4">
+        <div className="container mx-auto max-w-md">
+          <PropertySearchWidget />
+        </div>
+      </section>
+      
       {/* Why Choose Us */}
-      <WhyChooseUs />
+      <div className="pt-16">
+        <WhyChooseUs />
+      </div>
+      
+      {/* Stats Section */}
+      <StatsSection />
       
       {/* Testimonials */}
       <Testimonials />
+
+      {/* Featured Listings Preview */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Properties</h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Discover exceptional homes in Kansas City's most desirable neighborhoods
+            </p>
+          </div>
+          <div className="text-center">
+            <a
+              href="/listings"
+              className="inline-block bg-brand text-white px-8 py-3 rounded-lg font-medium hover:bg-brand/90 transition-colors"
+            >
+              View All Properties
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* Resources for Buyers & Sellers */}
       <section className="bg-gray-50 py-12 md:py-16">
