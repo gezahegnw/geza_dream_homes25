@@ -83,10 +83,10 @@ export default function PropertySearchWidget() {
               key={bed}
               type="button"
               onClick={() => setSearchData({...searchData, bedrooms: bed})}
-              className={`py-2 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+              className={`py-3 px-3 sm:px-3 rounded-lg text-xs sm:text-sm font-medium transition-colors touch-manipulation ${
                 searchData.bedrooms === bed
                   ? 'bg-brand text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300'
               }`}
             >
               {bed === 'any' ? 'Any' : bed === '4+' ? '4+' : `${bed}`}
@@ -97,7 +97,7 @@ export default function PropertySearchWidget() {
         {/* Search Button */}
         <button
           type="submit"
-          className="w-full bg-brand text-white py-3 px-6 rounded-lg font-medium hover:bg-brand/90 transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-brand text-white py-3 px-6 rounded-lg font-medium hover:bg-brand/90 transition-colors flex items-center justify-center gap-2 touch-manipulation active:bg-brand/80"
         >
           <Search className="h-4 w-4" />
           Search Properties

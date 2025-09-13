@@ -25,7 +25,7 @@ export default function FloatingCTA() {
             <h3 className="font-semibold text-gray-900">Ready to get started?</h3>
             <button
               onClick={() => setIsExpanded(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 touch-manipulation p-1"
             >
               <X className="h-4 w-4" />
             </button>
@@ -36,14 +36,14 @@ export default function FloatingCTA() {
           <div className="space-y-2">
             <a
               href="tel:+19134078620"
-              className="flex items-center gap-2 sm:gap-3 w-full bg-brand text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-brand/90 transition-colors text-sm sm:text-base"
+              className="flex items-center gap-2 sm:gap-3 w-full bg-brand text-white px-3 sm:px-4 py-3 sm:py-3 rounded-lg hover:bg-brand/90 transition-colors text-sm sm:text-base touch-manipulation active:bg-brand/80"
             >
               <Phone className="h-4 w-4" />
               <span className="font-medium">Call Now</span>
             </a>
             <a
               href="/contact"
-              className="flex items-center gap-2 sm:gap-3 w-full bg-gray-100 text-gray-900 px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base"
+              className="flex items-center gap-2 sm:gap-3 w-full bg-gray-100 text-gray-900 px-3 sm:px-4 py-3 sm:py-3 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base touch-manipulation active:bg-gray-300"
             >
               <MessageCircle className="h-4 w-4" />
               <span className="font-medium">Send Message</span>
@@ -53,7 +53,7 @@ export default function FloatingCTA() {
       ) : (
         <button
           onClick={() => setIsExpanded(true)}
-          className="bg-brand text-white p-3 sm:p-4 rounded-full shadow-2xl hover:bg-brand/90 transition-all hover:scale-105"
+          className="bg-brand text-white p-3 sm:p-4 rounded-full shadow-2xl hover:bg-brand/90 transition-all hover:scale-105 touch-manipulation active:bg-brand/80"
         >
           <Phone className="h-6 w-6" />
         </button>
