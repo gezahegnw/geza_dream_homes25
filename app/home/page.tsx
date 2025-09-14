@@ -2,7 +2,6 @@ import HeroSlider from '@/components/HeroSlider';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
 import PropertySearchWidget from '@/components/PropertySearchWidget';
-import StatsSection from '@/components/StatsSection';
 
 export default function Home() {
   return (
@@ -22,8 +21,6 @@ export default function Home() {
         <WhyChooseUs />
       </div>
       
-      {/* Stats Section */}
-      <StatsSection />
       
       {/* Testimonials */}
       <Testimonials />
