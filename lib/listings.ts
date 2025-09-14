@@ -197,14 +197,20 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       url = `https://${host}/property/search-rent?${new URLSearchParams({ location, limit, offset })}`;
     }
 
+        console.log(`[LISTINGS_DEBUG] Provider: ${provider}, URL: ${url}`);
     const res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
+    console.log(`[LISTINGS_DEBUG] API Response Status: ${res.status}`);
 
     if (!res.ok) {
+      const errorBody = await res.text();
+      console.error(`[LISTINGS_DEBUG] API Error: ${res.status}`, errorBody);
       return [];
     }
 
     const data = await res.json();
+    console.log('[LISTINGS_DEBUG] Successfully parsed API response JSON.');
     const raw = extractArray(data);
+    console.log(`[LISTINGS_DEBUG] Extracted ${raw.length} raw items from API response.`);
     let listings = raw.slice(0, query.limit ?? 12).map((p: any, i: number): Listing => ({
       id: String(p?.propertyId || p?.listingId || i),
       address: p?.streetLine?.value || "",
