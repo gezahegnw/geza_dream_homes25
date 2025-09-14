@@ -68,6 +68,13 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
 
   if (provider === "mock") {
     const listings = mockListings();
+    if (listings.length === 0) {
+      console.warn('[LISTINGS_DEBUG] Zero listings from provider. Falling back to mock listings.');
+      const fallback = mockListings();
+      setCachedListings(cacheKey, fallback);
+      return fallback;
+    }
+
     setCachedListings(cacheKey, listings);
     return listings;
   }
@@ -204,6 +211,13 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
     if (!res.ok) {
       const errorBody = await res.text();
       console.error(`[LISTINGS_DEBUG] API Error: ${res.status}`, errorBody);
+      // Gracefully degrade if we are rate-limited or forbidden
+      if (res.status === 429 || res.status === 403) {
+        console.warn('[LISTINGS_DEBUG] Rate limited/forbidden by provider. Falling back to mock listings.');
+        const fallback = mockListings();
+        setCachedListings(cacheKey, fallback);
+        return fallback;
+      }
       return [];
     }
 
