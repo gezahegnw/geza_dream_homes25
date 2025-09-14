@@ -67,11 +67,8 @@ export async function POST(req: Request) {
 
     // Optional: reCAPTCHA v3 verification if RECAPTCHA_SECRET_KEY is set
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-    if (recaptchaSecret) {
+    if (recaptchaSecret && token) {
       try {
-        if (!token) {
-          return NextResponse.json({ error: 'reCAPTCHA token missing' }, { status: 400 });
-        }
         const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -86,6 +83,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'reCAPTCHA verification error' }, { status: 400 });
       }
     }
+    // If no reCAPTCHA secret is configured, skip verification entirely
 
     // capture ip and user-agent when available
     const ua = (req.headers.get('user-agent') || '').slice(0, 255);
