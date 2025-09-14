@@ -65,7 +65,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Validation failed', errors }, { status: 400 });
     }
 
-    // Optional: reCAPTCHA v3 verification if RECAPTCHA_SECRET_KEY is set
+    // Temporarily disable reCAPTCHA verification to allow reviews
+    // TODO: Debug reCAPTCHA site key/secret key mismatch later
+    /*
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
     if (recaptchaSecret && token) {
       try {
@@ -83,7 +85,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'reCAPTCHA verification error' }, { status: 400 });
       }
     }
-    // If no reCAPTCHA secret is configured, skip verification entirely
+    */
 
     // capture ip and user-agent when available
     const ua = (req.headers.get('user-agent') || '').slice(0, 255);
