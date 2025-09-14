@@ -69,10 +69,7 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
   if (provider === "mock") {
     const listings = mockListings();
     if (listings.length === 0) {
-      console.warn('[LISTINGS_DEBUG] Zero listings from provider. Falling back to mock listings.');
-      const fallback = mockListings();
-      setCachedListings(cacheKey, fallback);
-      return fallback;
+      console.warn('[LISTINGS_DEBUG] Zero listings from provider.');
     }
 
     setCachedListings(cacheKey, listings);
@@ -191,40 +188,34 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
         return null;
       }
     };
-
-    let url: string;
-    if (searchType === "sale") {
-      const regionId = await resolveRegionId();
-      if (regionId) {
-        url = `https://${host}/properties/search-sale?${new URLSearchParams({ regionId, page, limit: resultsPerPage })}`;
-      } else {
-        url = `https://${host}/property/search?${new URLSearchParams({ location, limit, offset })}`;
-      }
-    } else {
-      url = `https://${host}/property/search-rent?${new URLSearchParams({ location, limit, offset })}`;
-    }
-
-        console.log(`[LISTINGS_DEBUG] Provider: ${provider}, URL: ${url}`);
-    const res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
+    // 1) Try simple location-based search first (cheapest/most reliable)
+    let url: string = `https://${host}/property/search?${new URLSearchParams({ location, limit, offset })}`;
+    console.log(`[LISTINGS_DEBUG] Provider: ${provider}, URL: ${url}`);
+    let res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
+    const rl1 = res.headers.get('x-ratelimit-remaining') || res.headers.get('x-ratelimit-requests-remaining');
+    if (rl1) console.log(`[LISTINGS_DEBUG] RateLimit Remaining (primary): ${rl1}`);
     console.log(`[LISTINGS_DEBUG] API Response Status: ${res.status}`);
 
     if (!res.ok) {
       const errorBody = await res.text();
       console.error(`[LISTINGS_DEBUG] API Error: ${res.status}`, errorBody);
-      // Gracefully degrade if we are rate-limited or forbidden
       if (res.status === 429 || res.status === 403) {
-        console.warn('[LISTINGS_DEBUG] Rate limited/forbidden by provider. Falling back to mock listings.');
-        const fallback = mockListings();
-        setCachedListings(cacheKey, fallback);
-        return fallback;
+        console.warn('[LISTINGS_DEBUG] Rate limited/forbidden by provider.');
+        throw new Error('RATE_LIMITED');
       }
       return [];
     }
 
-    const data = await res.json();
-    console.log('[LISTINGS_DEBUG] Successfully parsed API response JSON.');
-    const raw = extractArray(data);
-    console.log(`[LISTINGS_DEBUG] Extracted ${raw.length} raw items from API response.`);
+    let data: any = {};
+    try {
+      data = await res.json();
+      console.log('[LISTINGS_DEBUG] Successfully parsed API response JSON (primary).');
+    } catch {
+      // ignore parse errors; we'll try fallback path
+    }
+
+    let raw = extractArray(data);
+    console.log(`[LISTINGS_DEBUG] Extracted ${raw.length} raw items from API response (primary).`);
     let listings = raw.slice(0, query.limit ?? 12).map((p: any, i: number): Listing => ({
       id: String(p?.propertyId || p?.listingId || i),
       address: p?.streetLine?.value || "",
@@ -237,6 +228,41 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       photo: p?.photos?.items?.[0] || p?.primary_photo?.href || p?.thumbnail,
       url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
     }));
+
+    // 2) If sale search and primary returned nothing, resolve region and try sale endpoint
+    if (listings.length === 0 && searchType === 'sale') {
+      const regionId = await resolveRegionId();
+      if (regionId) {
+        url = `https://${host}/properties/search-sale?${new URLSearchParams({ regionId, page, limit: resultsPerPage })}`;
+        console.log(`[LISTINGS_DEBUG] Fallback URL (search-sale): ${url}`);
+        res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
+        const rl2 = res.headers.get('x-ratelimit-remaining') || res.headers.get('x-ratelimit-requests-remaining');
+        if (rl2) console.log(`[LISTINGS_DEBUG] RateLimit Remaining (fallback): ${rl2}`);
+        console.log(`[LISTINGS_DEBUG] API Response Status (fallback): ${res.status}`);
+        if (res.ok) {
+          const d2 = await res.json();
+          const raw2 = extractArray(d2);
+          console.log(`[LISTINGS_DEBUG] Extracted ${raw2.length} raw items from API response (fallback).`);
+          listings = raw2.slice(0, query.limit ?? 12).map((p: any, i: number): Listing => ({
+            id: String(p?.propertyId || p?.listingId || i),
+            address: p?.streetLine?.value || "",
+            city: p?.city,
+            state: p?.state,
+            price: p?.price?.value ?? p?.price,
+            beds: p?.beds?.value ?? p?.beds,
+            baths: p?.baths?.value ?? p?.baths,
+            sqft: p?.sqFt?.value ?? p?.sqFt,
+            photo: p?.photos?.items?.[0] || p?.primary_photo?.href || p?.thumbnail,
+            url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
+          }));
+        } else {
+          const body2 = await res.text();
+          console.error(`[LISTINGS_DEBUG] API Error (fallback search-sale): ${res.status}`, body2);
+        }
+      } else {
+        console.warn('[LISTINGS_DEBUG] Could not resolve regionId; staying with primary search results (possibly empty).');
+      }
+    }
     
     if (listings.length === 0 && Array.isArray(data.suggestionLocation) && data.suggestionLocation.length > 0) {
       const firstSuggestion = data.suggestionLocation[0];

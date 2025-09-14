@@ -46,8 +46,16 @@ export async function GET(req: Request) {
       const { items, debug } = await fetchListingsDebug({ q, city, state_code, limit, offset, page });
       return NextResponse.json({ listings: items, provider, debug });
     }
-    const listings = await fetchListings({ q, city, state_code, limit, offset, page });
-    return NextResponse.json({ listings, provider });
+    try {
+      const listings = await fetchListings({ q, city, state_code, limit, offset, page });
+      return NextResponse.json({ listings, provider });
+    } catch (err: any) {
+      const msg = String(err?.message ?? err);
+      if (msg === 'RATE_LIMITED') {
+        return NextResponse.json({ error: 'Provider temporarily rate-limited. Please try again shortly.' }, { status: 429 });
+      }
+      throw err;
+    }
   } catch (e: any) {
     return NextResponse.json(
       { error: "Failed to fetch listings", message: String(e?.message ?? e) },
