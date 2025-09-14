@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import HeroSlider from '@/components/HeroSlider';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
