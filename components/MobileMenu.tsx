@@ -8,15 +8,15 @@ export default function MobileMenu() {
 
   // Close menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement;
       if (isOpen && !target.closest('.mobile-menu-container')) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, [isOpen]);
 
   // Disable scroll when menu is open
@@ -51,8 +51,12 @@ export default function MobileMenu() {
 
       {/* Mobile menu overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 transition-opacity">
-          <div className="absolute right-0 h-full w-4/5 max-w-sm bg-white p-6 shadow-lg">
+        <div
+          className="fixed inset-0 z-50 bg-black/50 transition-opacity"
+          aria-hidden="true"
+          onClick={() => setIsOpen(false)}
+        >
+          <div className="mobile-menu-container absolute right-0 h-full w-4/5 max-w-sm bg-white p-6 shadow-lg" role="dialog" aria-modal="true">
             <nav className="flex flex-col space-y-4">
               <Link 
                 href="/" 

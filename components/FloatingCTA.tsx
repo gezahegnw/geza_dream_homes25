@@ -18,9 +18,11 @@ export default function FloatingCTA() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+    // Disable pointer events on the wrapper so it never blocks taps behind it
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 pointer-events-none">
       {isExpanded ? (
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 sm:p-6 max-w-xs sm:max-w-sm">
+        // Re-enable pointer events for interactive content
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 sm:p-6 max-w-xs sm:max-w-sm pointer-events-auto">
           <div className="flex justify-between items-start mb-4">
             <h3 className="font-semibold text-gray-900">Ready to get started?</h3>
             <button
@@ -53,7 +55,7 @@ export default function FloatingCTA() {
       ) : (
         <button
           onClick={() => setIsExpanded(true)}
-          className="bg-brand text-white p-3 sm:p-4 rounded-full shadow-2xl hover:bg-brand/90 transition-all hover:scale-105 touch-manipulation active:bg-brand/80"
+          className="bg-brand text-white p-3 sm:p-4 rounded-full shadow-2xl hover:bg-brand/90 transition-all hover:scale-105 touch-manipulation active:bg-brand/80 pointer-events-auto"
         >
           <Phone className="h-6 w-6" />
         </button>
