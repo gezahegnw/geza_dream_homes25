@@ -65,23 +65,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Validation failed', errors }, { status: 400 });
     }
 
-    // reCAPTCHA v3 verification with new keys
+    // reCAPTCHA v3 verification with detailed logging
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
     if (recaptchaSecret && token) {
       try {
+        console.log('[RECAPTCHA_DEBUG] Starting verification, token length:', token.length);
         const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({ secret: recaptchaSecret, response: token }),
         });
         const verifyJson: any = await verifyRes.json();
+        console.log('[RECAPTCHA_DEBUG] Google response:', JSON.stringify(verifyJson));
+        
         const ok = verifyJson?.success && (verifyJson?.score ?? 0) >= 0.4;
         if (!ok) {
-          return NextResponse.json({ error: 'reCAPTCHA verification failed' }, { status: 400 });
+          console.log('[RECAPTCHA_DEBUG] Verification failed. Success:', verifyJson?.success, 'Score:', verifyJson?.score, 'Error codes:', verifyJson?.['error-codes']);
+          return NextResponse.json({ 
+            error: 'reCAPTCHA verification failed', 
+            debug: { success: verifyJson?.success, score: verifyJson?.score, errors: verifyJson?.['error-codes'] }
+          }, { status: 400 });
         }
-      } catch {
+        console.log('[RECAPTCHA_DEBUG] Verification passed with score:', verifyJson?.score);
+      } catch (err) {
+        console.error('[RECAPTCHA_DEBUG] Exception during verification:', err);
         return NextResponse.json({ error: 'reCAPTCHA verification error' }, { status: 400 });
       }
+    } else {
+      console.log('[RECAPTCHA_DEBUG] Skipping verification - secret:', !!recaptchaSecret, 'token:', !!token);
     }
 
     // capture ip and user-agent when available
