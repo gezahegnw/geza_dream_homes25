@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Image from "next/image";
 import StarRating from "@/components/StarRating";
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 interface ReviewItem {
   id: string;
@@ -22,14 +23,8 @@ interface ReviewsResponse {
   average: number;
 }
 
-export default function ReviewsPage() {
-  const [data, setData] = useState<ReviewsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
-  // form state
+// The form is extracted into its own component to use the reCAPTCHA hook
+function LeaveReviewForm({ onSuccess }: { onSuccess: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [title, setTitle] = useState("");
@@ -39,111 +34,41 @@ export default function ReviewsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitMsg, setSubmitMsg] = useState<string | null>(null);
 
-  // Optional reCAPTCHA v3 site key
-  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
-  // Helper to load reCAPTCHA script (if configured) and get a token
-  async function getRecaptchaToken(action = "review_submit"): Promise<string | null> {
-    if (!recaptchaSiteKey) return null;
-    
-    try {
-      // Check if script is already loaded
-      if (!(window as any).grecaptcha) {
-        // Load reCAPTCHA script
-        await new Promise<void>((resolve, reject) => {
-          const existingScript = document.querySelector(`script[src*="recaptcha"]`);
-          if (existingScript) {
-            resolve();
-            return;
-          }
-          
-          const script = document.createElement("script");
-          script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
-          script.async = true;
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Failed to load reCAPTCHA"));
-          document.head.appendChild(script);
-        });
-      }
-
-      // Wait for grecaptcha to be ready
-      if ((window as any).grecaptcha && (window as any).grecaptcha.ready) {
-        return new Promise((resolve) => {
-          (window as any).grecaptcha.ready(async () => {
-            try {
-              const token = await (window as any).grecaptcha.execute(recaptchaSiteKey, { action });
-              resolve(token);
-            } catch (error) {
-              console.error('reCAPTCHA execution failed:', error);
-              resolve(null);
-            }
-          });
-        });
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('reCAPTCHA error:', error);
-      return null;
-    }
-  }
-
-  const load = async (p = page, ps = pageSize) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch(`/api/reviews?page=${p}&pageSize=${ps}`, { cache: "no-store" });
-      if (!res.ok) throw new Error("Failed to load reviews");
-      const json: ReviewsResponse = await res.json();
-      setData(json);
-    } catch (e: any) {
-      setError(e?.message || "Failed to load");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    load(1, pageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageSize]);
-
-  useEffect(() => {
-    load(page, pageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-
-  const averageLabel = useMemo(() => {
-    const avg = data?.average ?? 0;
-    return avg.toFixed(1);
-  }, [data]);
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
     setSubmitMsg(null);
+
+    if (!executeRecaptcha) {
+      setSubmitMsg("reCAPTCHA not ready. Please try again in a moment.");
+      setSubmitting(false);
+      return;
+    }
+
     try {
-      let token = null;
-      if (recaptchaSiteKey) {
-        setSubmitMsg("Verifying you're not a robot...");
-        token = await getRecaptchaToken();
-        if (!token) {
-          setSubmitMsg("reCAPTCHA verification failed. Please try again.");
-          return;
-        }
+      setSubmitMsg("Verifying you're not a robot...");
+      const token = await executeRecaptcha('review_submit');
+      if (!token) {
+        setSubmitMsg("reCAPTCHA verification failed. Please try again.");
+        setSubmitting(false);
+        return;
       }
-      
+
       const resp = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, title, content, rating, imageUrl, token }),
       });
+
       const body = await resp.json().catch(() => ({}));
       if (!resp.ok) {
-        const detail = body?.error || body?.message || JSON.stringify(body) || "Unknown error";
+        const detail = body?.error || body?.message || "Unknown error";
         setSubmitMsg(`Submit failed: ${detail}`);
         return;
       }
+
       setSubmitMsg("Thanks for your review!");
       setName("");
       setEmail("");
@@ -151,14 +76,115 @@ export default function ReviewsPage() {
       setContent("");
       setRating(5);
       setImageUrl("");
-      await load(1, pageSize);
-      setPage(1);
-    } catch (e: any) {
-      setSubmitMsg(e?.message || "Network error");
+      onSuccess(); // Trigger reload in parent
+    } catch (err: any) {
+      setSubmitMsg(err?.message || "Network error");
     } finally {
       setSubmitting(false);
     }
-  }
+  }, [executeRecaptcha, name, email, title, content, rating, imageUrl, onSuccess]);
+
+  return (
+    <section id="leave-review">
+      <h2 className="mb-4 text-xl font-semibold">Leave a Review</h2>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Your Name</label>
+          <input
+            className="mt-1 w-full rounded border px-3 py-2"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Email (optional)</label>
+          <input
+            type="email"
+            className="mt-1 w-full rounded border px-3 py-2"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Title (optional)</label>
+          <input
+            className="mt-1 w-full rounded border px-3 py-2"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Amazing experience!"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Screenshot/Image URL (optional)</label>
+          <input
+            className="mt-1 w-full rounded border px-3 py-2"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="https://example.com/your-screenshot.jpg"
+          />
+          <p className="mt-1 text-xs text-gray-500">Paste a public image URL. We will display it with your review.</p>
+        </div>
+        <div>
+          <label id="rating-label" className="block text-sm font-medium">Your Rating</label>
+          <div className="mt-1">
+            <StarRating id="rating-label" value={rating} onChange={setRating} />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Your Review</label>
+          <textarea
+            className="mt-1 w-full rounded border px-3 py-2"
+            rows={5}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+          />
+        </div>
+        <button
+          disabled={submitting}
+          className="rounded bg-brand px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-60"
+        >
+          {submitting ? "Submitting…" : "Submit Review"}
+        </button>
+        {submitMsg && <p className="text-sm text-gray-600" aria-live="polite">{submitMsg}</p>}
+      </form>
+    </section>
+  );
+}
+
+function ReviewsPageContent() {
+  const [data, setData] = useState<ReviewsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const load = useCallback(async (p = 1, ps = 10) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`/api/reviews?page=${p}&pageSize=${ps}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed to load reviews");
+      const json: ReviewsResponse = await res.json();
+      setData(json);
+      setPage(p);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load(page, pageSize);
+  }, [page, pageSize, load]);
+
+  const averageLabel = useMemo(() => {
+    const avg = data?.average ?? 0;
+    return avg.toFixed(1);
+  }, [data]);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-12">
@@ -248,73 +274,23 @@ export default function ReviewsPage() {
         </section>
 
         {/* Submission form */}
-        <section id="leave-review">
-          <h2 className="mb-4 text-xl font-semibold">Leave a Review</h2>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium">Your Name</label>
-              <input
-                className="mt-1 w-full rounded border px-3 py-2"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Email (optional)</label>
-              <input
-                type="email"
-                className="mt-1 w-full rounded border px-3 py-2"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Title (optional)</label>
-              <input
-                className="mt-1 w-full rounded border px-3 py-2"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Amazing experience!"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Screenshot/Image URL (optional)</label>
-              <input
-                className="mt-1 w-full rounded border px-3 py-2"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://example.com/your-screenshot.jpg"
-              />
-              <p className="mt-1 text-xs text-gray-500">Paste a public image URL. We will display it with your review.</p>
-            </div>
-            <div>
-              <label id="rating-label" className="block text-sm font-medium">Your Rating</label>
-              <div className="mt-1">
-                <StarRating id="rating-label" value={rating} onChange={setRating} />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Your Review</label>
-              <textarea
-                className="mt-1 w-full rounded border px-3 py-2"
-                rows={5}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-              />
-            </div>
-            <button
-              disabled={submitting}
-              className="rounded bg-brand px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-60"
-            >
-              {submitting ? "Submitting…" : "Submit Review"}
-            </button>
-            {submitMsg && <p className="text-sm text-gray-600" aria-live="polite">{submitMsg}</p>}
-          </form>
-        </section>
+        <LeaveReviewForm onSuccess={() => load(1, pageSize)} />
       </div>
     </main>
+  );
+}
+
+export default function ReviewsPage() {
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+  if (!recaptchaSiteKey) {
+    console.warn("reCAPTCHA site key not found, reCAPTCHA will be disabled.");
+    return <ReviewsPageContent />;
+  }
+
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={recaptchaSiteKey}>
+      <ReviewsPageContent />
+    </GoogleReCaptchaProvider>
   );
 }
