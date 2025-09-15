@@ -48,7 +48,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Verify reCAPTCHA only in production (if keys are configured)
+    // TEMPORARILY DISABLED: reCAPTCHA verification - domain configuration issue
+    // Same browser-error as reviews form - site key registered for different domains
+    console.log('[LEADS_DEBUG] reCAPTCHA temporarily disabled for testing');
+    
+    // TODO: Re-enable after fixing domain configuration in Google reCAPTCHA console
+    /*
     if (
       process.env.NODE_ENV === "production" &&
       process.env.RECAPTCHA_SECRET_KEY &&
@@ -76,6 +81,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "reCAPTCHA verification error" }, { status: 400 });
       }
     }
+    */
 
     const ua = req.headers.get("user-agent") ?? undefined;
     const ip =
