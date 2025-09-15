@@ -65,13 +65,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Validation failed', errors }, { status: 400 });
     }
 
-    // TEMPORARILY DISABLED: reCAPTCHA v3 verification - domain configuration issue
+    // reCAPTCHA v3 verification with detailed logging
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-    console.log('[RECAPTCHA_DEBUG] reCAPTCHA temporarily disabled for testing - secret:', !!recaptchaSecret, 'token:', !!token);
-    
-    // TODO: Re-enable after fixing domain configuration in Google reCAPTCHA console
-    // The browser-error indicates the site key is registered for different domains
-    /*
     if (recaptchaSecret && token) {
       try {
         console.log('[RECAPTCHA_DEBUG] Starting verification, token length:', token.length);
@@ -99,7 +94,6 @@ export async function POST(req: Request) {
     } else {
       console.log('[RECAPTCHA_DEBUG] Skipping verification - secret:', !!recaptchaSecret, 'token:', !!token);
     }
-    */
 
     // capture ip and user-agent when available
     const ua = (req.headers.get('user-agent') || '').slice(0, 255);
