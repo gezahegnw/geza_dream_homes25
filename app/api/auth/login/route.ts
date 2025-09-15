@@ -19,6 +19,7 @@ export async function POST(req: Request) {
     res.cookies.set(sessionCookie.name, token, sessionCookie.options);
     return res;
   } catch (e: any) {
-    return NextResponse.json({ error: "Server error", message: String(e?.message ?? e) }, { status: 500 });
+    console.error("[LOGIN_ERROR]", e);
+    return NextResponse.json({ error: "Server error", message: String(e?.message ?? 'An unknown error occurred') }, { status: 500 });
   }
 }
