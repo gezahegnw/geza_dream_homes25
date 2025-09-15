@@ -59,14 +59,6 @@ function mockListings(): Listing[] {
 
 export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[]> {
   const provider = process.env.LISTINGS_PROVIDER || "mock";
-  
-  // Temporarily force mock data if API is failing
-  if (provider === "rapidapi_redfin") {
-    console.log('[LISTINGS_DEBUG] Temporarily using mock data due to API issues');
-    const listings = mockListings();
-    setCachedListings(getCacheKey("mock", query), listings);
-    return listings;
-  }
   const cacheKey = getCacheKey(provider, query);
 
   const cachedResult = getCachedListings(cacheKey);
