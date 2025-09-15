@@ -59,6 +59,14 @@ function mockListings(): Listing[] {
 
 export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[]> {
   const provider = process.env.LISTINGS_PROVIDER || "mock";
+  
+  // Temporarily force mock data if API is failing
+  if (provider === "rapidapi_redfin") {
+    console.log('[LISTINGS_DEBUG] Temporarily using mock data due to API issues');
+    const listings = mockListings();
+    setCachedListings(getCacheKey("mock", query), listings);
+    return listings;
+  }
   const cacheKey = getCacheKey(provider, query);
 
   const cachedResult = getCachedListings(cacheKey);
@@ -208,10 +216,14 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
 
     let data: any = {};
     try {
-      data = await res.json();
+      const responseText = await res.text();
+      console.log('[LISTINGS_DEBUG] Raw API response:', responseText.substring(0, 200));
+      data = JSON.parse(responseText);
       console.log('[LISTINGS_DEBUG] Successfully parsed API response JSON (primary).');
-    } catch {
-      // ignore parse errors; we'll try fallback path
+    } catch (parseError) {
+      console.error('[LISTINGS_DEBUG] Failed to parse API response as JSON:', parseError);
+      // Return empty array instead of continuing with invalid data
+      return [];
     }
 
     let raw = extractArray(data);
@@ -240,21 +252,26 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
         if (rl2) console.log(`[LISTINGS_DEBUG] RateLimit Remaining (fallback): ${rl2}`);
         console.log(`[LISTINGS_DEBUG] API Response Status (fallback): ${res.status}`);
         if (res.ok) {
-          const d2 = await res.json();
-          const raw2 = extractArray(d2);
-          console.log(`[LISTINGS_DEBUG] Extracted ${raw2.length} raw items from API response (fallback).`);
-          listings = raw2.slice(0, query.limit ?? 12).map((p: any, i: number): Listing => ({
-            id: String(p?.propertyId || p?.listingId || i),
-            address: p?.streetLine?.value || "",
-            city: p?.city,
-            state: p?.state,
-            price: p?.price?.value ?? p?.price,
-            beds: p?.beds?.value ?? p?.beds,
-            baths: p?.baths?.value ?? p?.baths,
-            sqft: p?.sqFt?.value ?? p?.sqFt,
-            photo: p?.photos?.items?.[0] || p?.primary_photo?.href || p?.thumbnail,
-            url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
-          }));
+          try {
+            const responseText2 = await res.text();
+            const d2 = JSON.parse(responseText2);
+            const raw2 = extractArray(d2);
+            console.log(`[LISTINGS_DEBUG] Extracted ${raw2.length} raw items from API response (fallback).`);
+            listings = raw2.slice(0, query.limit ?? 12).map((p: any, i: number): Listing => ({
+              id: String(p?.propertyId || p?.listingId || i),
+              address: p?.streetLine?.value || "",
+              city: p?.city,
+              state: p?.state,
+              price: p?.price?.value ?? p?.price,
+              beds: p?.beds?.value ?? p?.beds,
+              baths: p?.baths?.value ?? p?.baths,
+              sqft: p?.sqFt?.value ?? p?.sqFt,
+              photo: p?.photos?.items?.[0] || p?.primary_photo?.href || p?.thumbnail,
+              url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
+            }));
+          } catch (parseError2) {
+            console.error('[LISTINGS_DEBUG] Failed to parse fallback API response as JSON:', parseError2);
+          }
         } else {
           const body2 = await res.text();
           console.error(`[LISTINGS_DEBUG] API Error (fallback search-sale): ${res.status}`, body2);
@@ -274,20 +291,25 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
         const sRes = await fetch(suggestedUrl, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
 
         if (sRes.ok) {
-          const sData = await sRes.json();
-          const sRaw = extractArray(sData);
-          listings = sRaw.slice(0, query.limit ?? 12).map((p: any, i: number): Listing => ({
-            id: String(p?.propertyId || p?.listingId || i),
-            address: p?.streetLine?.value || "",
-            city: p?.city,
-            state: p?.state,
-            price: p?.price?.value ?? p?.price,
-            beds: p?.beds?.value ?? p?.beds,
-            baths: p?.baths?.value ?? p?.baths,
-            sqft: p?.sqFt?.value ?? p?.sqFt,
-            photo: p?.photos?.items?.[0] || p?.primary_photo?.href || p?.thumbnail,
-            url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
-          }));
+          try {
+            const responseText3 = await sRes.text();
+            const sData = JSON.parse(responseText3);
+            const sRaw = extractArray(sData);
+            listings = sRaw.slice(0, query.limit ?? 12).map((p: any, i: number): Listing => ({
+              id: String(p?.propertyId || p?.listingId || i),
+              address: p?.streetLine?.value || "",
+              city: p?.city,
+              state: p?.state,
+              price: p?.price?.value ?? p?.price,
+              beds: p?.beds?.value ?? p?.beds,
+              baths: p?.baths?.value ?? p?.baths,
+              sqft: p?.sqFt?.value ?? p?.sqFt,
+              photo: p?.photos?.items?.[0] || p?.primary_photo?.href || p?.thumbnail,
+              url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
+            }));
+          } catch (parseError3) {
+            console.error('[LISTINGS_DEBUG] Failed to parse suggestion API response as JSON:', parseError3);
+          }
         }
       }
     }
