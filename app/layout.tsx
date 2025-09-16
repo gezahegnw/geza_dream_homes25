@@ -6,6 +6,7 @@ import AuthStatus from "@/components/AuthStatus";
 import Footer from "@/components/Footer";
 import FloatingCTA from "@/components/FloatingCTA";
 import MobileMenu from "../components/MobileMenu";
+import MobileCallButton from "@/components/MobileCallButton";
 import Image from "next/image";
 import AuthStatusServer from "../components/AuthStatusServer";
 import { Metadata } from "next";
@@ -132,6 +133,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         <main className="flex-1">{children}</main>
         <FloatingCTA />
+        <MobileCallButton />
         <Footer />
       </body>
     </html>
