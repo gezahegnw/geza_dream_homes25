@@ -10,6 +10,7 @@ import HeroSlider from '@/components/HeroSlider';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
 import PropertySearchWidget from '@/components/PropertySearchWidget';
+import MortgageCalculator from '@/components/MortgageCalculator';
 
 export default function Home() {
   return (
@@ -53,8 +54,21 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Mortgage Calculator */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Calculate Your Monthly Payment</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Get an estimate of your monthly mortgage payment and see if you're ready to buy.
+            </p>
+          </div>
+          <MortgageCalculator />
+        </div>
+      </section>
+
       {/* Resources for Buyers & Sellers */}
-      <section className="bg-gray-50 py-12 md:py-16">
+      <section className="bg-white py-12 md:py-16">
         <div className="container mx-auto px-4">
           <h2 className="mb-8 text-2xl font-bold text-gray-900 md:text-3xl">Resources</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
