@@ -35,7 +35,7 @@ export default function MortgageCalculator() {
     setResult({
       monthlyPayment,
       totalInterest,
-      totalPayment: totalPayment + down
+      totalPayment: totalPayment // This is just the loan payments, not including down payment
     });
   };
 
@@ -144,8 +144,12 @@ export default function MortgageCalculator() {
                 <span>{formatCurrency(result.totalInterest)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total Payment:</span>
+                <span className="text-gray-600">Total of Loan Payments:</span>
                 <span>{formatCurrency(result.totalPayment)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Total Cost (with down payment):</span>
+                <span>{formatCurrency(result.totalPayment + parseFloat(downPayment))}</span>
               </div>
             </div>
             
