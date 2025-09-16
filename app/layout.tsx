@@ -17,23 +17,29 @@ const inter = Inter({ subsets: ["latin"] });
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
-  title: "Geza Dream Homes",
-  description: "Your trusted Remax realtor. Browse listings, get market insights, and connect for your next move.",
+  title: {
+    default: 'Geza Dream Homes | Kansas City Real Estate Agent',
+    template: '%s | Geza Dream Homes',
+  },
+  description: 'Find your dream home in the Kansas City metro area with Geza Worku, a dedicated RE/MAX real estate agent. Browse the latest property listings, get expert market insights, and start your home buying or selling journey today.',
   metadataBase: new URL(siteUrl),
   openGraph: {
-    title: "Geza Dream Homes",
-    description: "Your trusted Remax realtor.",
-    type: "website",
+    title: 'Geza Dream Homes | Kansas City Real Estate Agent',
+    description: 'Your trusted partner for buying and selling homes in the Kansas City area.',
+    type: 'website',
     url: siteUrl,
     images: [
       {
-        url: "/logo-light.svg",
-        width: 640,
-        height: 160,
-        alt: "Geza Dream Homes",
+        url: '/og-image.png', // Using a more standard OG image name
+        width: 1200,
+        height: 630,
+        alt: 'Geza Dream Homes - Kansas City Real Estate',
       },
     ],
   },
+  twitter: {
+    card: 'summary_large_image',
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -54,7 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               image: `${siteUrl}/favicon.ico`,
               url: siteUrl,
               telephone: "+1-913-407-8620",
-              email: ["gezarealesteteagent@gmail.con", "gworku@remax.net"],
+              email: ["gezarealesteteagent@gmail.com", "gworku@remax.net"],
               address: {
                 "@type": "PostalAddress",
                 streetAddress: "13470 S Arapaho Dr STE 180",
