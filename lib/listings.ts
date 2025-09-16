@@ -69,9 +69,8 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
   if (provider === "mock") {
     const listings = mockListings();
     if (listings.length === 0) {
-      console.warn('[LISTINGS_DEBUG] Zero listings from provider.');
+      console.log(`[LISTINGS_DEBUG] Final listings count: ${listings.length}`);
     }
-
     setCachedListings(cacheKey, listings);
     return listings;
   }
@@ -172,7 +171,7 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
     const limit = String(query.limit ?? 12);
     const offset = String(query.offset ?? 0);
     const page = String(query.page ?? 1);
-    const resultsPerPage = String(query.limit ?? 50);
+    const resultsPerPage = String(Math.max(query.limit ?? 50, 50)); // Request more results for pagination
     const searchType = (process.env.REDFIN_SEARCH_TYPE || "sale").toLowerCase();
 
     const resolveRegionId = async (): Promise<string | null> => {
@@ -220,7 +219,13 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
 
     let raw = extractArray(data);
     console.log(`[LISTINGS_DEBUG] Extracted ${raw.length} raw items from API response (primary).`);
-    let listings = raw.slice(0, query.limit ?? 12).map((p: any, i: number): Listing => ({
+    
+    // Apply pagination to the raw results
+    const startIndex = query.offset ?? 0;
+    const pageSize = query.limit ?? 12;
+    const paginatedRaw = raw.slice(startIndex, startIndex + pageSize);
+    
+    let listings = paginatedRaw.map((p: any, i: number): Listing => ({
       id: String(p?.propertyId || p?.listingId || i),
       address: p?.streetLine?.value || "",
       city: p?.city,

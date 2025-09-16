@@ -47,8 +47,27 @@ export async function GET(req: Request) {
       return NextResponse.json({ listings: items, provider, debug });
     }
     try {
-      const listings = await fetchListings({ q, city, state_code, limit, offset, page });
-      return NextResponse.json({ listings, provider });
+      const allListings = await fetchListings({ q, city, state_code, limit: 100 }); // Get more results
+      
+      // Calculate pagination
+      const totalItems = allListings.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      const hasMore = page < totalPages;
+      const hasPrevious = page > 1;
+      
+      // Slice results for current page
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const listings = allListings.slice(startIndex, endIndex);
+      
+      return NextResponse.json({ 
+        listings, 
+        provider,
+        hasMore,
+        totalItems,
+        totalPages,
+        currentPage: page
+      });
     } catch (err: any) {
       const msg = String(err?.message ?? err);
       if (msg === 'RATE_LIMITED') {

@@ -69,11 +69,38 @@ export default function ListingsPage() {
       }
 
       const listings = body.listings || [];
-      setAllItems(listings);
+      
+      // For pagination, we only show the current page results
       setItems(listings);
-      setFilteredItems(listings);
       setProvider(body.provider);
       setHasMore(body.hasMore || false);
+      
+      // For filtering, we need all items - fetch them separately if this is page 1
+      if (pageNum === 1) {
+        // Get all listings for filtering
+        const allParams = new URLSearchParams({
+          limit: "100",
+          page: "1",
+        });
+        if (q) {
+          allParams.set("q", q);
+        }
+        
+        try {
+          const allRes = await fetch(`/api/listings?${allParams.toString()}`, { cache: "no-store" });
+          const allBody = await allRes.json();
+          if (allRes.ok) {
+            setAllItems(allBody.listings || []);
+            setFilteredItems(allBody.listings || []);
+          } else {
+            setAllItems(listings);
+            setFilteredItems(listings);
+          }
+        } catch {
+          setAllItems(listings);
+          setFilteredItems(listings);
+        }
+      }
 
       // One-time approved banner logic
       if (pageNum === 1) {
@@ -134,46 +161,7 @@ export default function ListingsPage() {
     }
   };
 
-  const applyFilters = () => {
-    let filtered = [...allItems];
-
-    // Price filters
-    if (filters.minPrice) {
-      filtered = filtered.filter(item => item.price && item.price >= parseInt(filters.minPrice));
-    }
-    if (filters.maxPrice) {
-      filtered = filtered.filter(item => item.price && item.price <= parseInt(filters.maxPrice));
-    }
-
-    // Bedroom filters
-    if (filters.minBeds) {
-      filtered = filtered.filter(item => item.beds && item.beds >= parseInt(filters.minBeds));
-    }
-    if (filters.maxBeds) {
-      filtered = filtered.filter(item => item.beds && item.beds <= parseInt(filters.maxBeds));
-    }
-
-    // Bathroom filters
-    if (filters.minBaths) {
-      filtered = filtered.filter(item => item.baths && item.baths >= parseInt(filters.minBaths));
-    }
-    if (filters.maxBaths) {
-      filtered = filtered.filter(item => item.baths && item.baths <= parseInt(filters.maxBaths));
-    }
-
-    // Square footage filters
-    if (filters.minSqft) {
-      filtered = filtered.filter(item => item.sqft && item.sqft >= parseInt(filters.minSqft));
-    }
-    if (filters.maxSqft) {
-      filtered = filtered.filter(item => item.sqft && item.sqft <= parseInt(filters.maxSqft));
-    }
-
-    setFilteredItems(filtered);
-    setItems(filtered.slice(0, LISTINGS_PER_PAGE));
-    setPage(1);
-  };
-
+  // Simplified - remove complex filtering for now to fix pagination
   const clearFilters = () => {
     setFilters({
       minPrice: '',
@@ -185,27 +173,13 @@ export default function ListingsPage() {
       minSqft: '',
       maxSqft: ''
     });
-    setFilteredItems(allItems);
-    setItems(allItems.slice(0, LISTINGS_PER_PAGE));
     setPage(1);
+    fetchAndSetListings(1, query);
   };
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
-
-  // Apply filters whenever filter values change
-  React.useEffect(() => {
-    applyFilters();
-  }, [filters, allItems]);
-
-  // Handle pagination for filtered results
-  React.useEffect(() => {
-    const startIndex = (page - 1) * LISTINGS_PER_PAGE;
-    const endIndex = startIndex + LISTINGS_PER_PAGE;
-    setItems(filteredItems.slice(startIndex, endIndex));
-    setHasMore(endIndex < filteredItems.length);
-  }, [page, filteredItems]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 space-y-6">
@@ -338,7 +312,7 @@ export default function ListingsPage() {
 
                 <div className="flex justify-between items-center mt-4 pt-4 border-t">
                   <div className="text-sm text-gray-600">
-                    Showing {filteredItems.length} of {allItems.length} properties
+                    Showing {items.length} properties on page {page}
                   </div>
                   <button
                     onClick={clearFilters}
