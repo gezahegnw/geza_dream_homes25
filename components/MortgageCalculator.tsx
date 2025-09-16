@@ -5,6 +5,8 @@ import { Calculator, DollarSign, Percent, Calendar } from 'lucide-react';
 
 interface MortgageResult {
   monthlyPayment: number;
+  monthlyInterest: number;
+  monthlyPrincipal: number;
   totalInterest: number;
   totalPayment: number;
 }
@@ -29,13 +31,20 @@ export default function MortgageCalculator() {
     }
 
     const monthlyPayment = (principal * rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
+    
+    // Calculate first month's principal and interest breakdown
+    const firstMonthInterest = principal * rate;
+    const firstMonthPrincipal = monthlyPayment - firstMonthInterest;
+    
     const totalPayment = monthlyPayment * months;
     const totalInterest = totalPayment - principal;
 
     setResult({
       monthlyPayment,
+      monthlyInterest: firstMonthInterest,
+      monthlyPrincipal: firstMonthPrincipal,
       totalInterest,
-      totalPayment: totalPayment // This is just the loan payments, not including down payment
+      totalPayment: totalPayment
     });
   };
 
@@ -132,30 +141,30 @@ export default function MortgageCalculator() {
         {result && (
           <div className="mt-6 p-4 bg-gray-50 rounded-md">
             <h4 className="font-semibold text-gray-900 mb-3">Your Monthly Payment</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Principal & Interest:</span>
-                <span className="font-semibold text-brand text-lg">
-                  {formatCurrency(result.monthlyPayment)}
-                </span>
+            <div className="text-center mb-4">
+              <div className="text-4xl font-bold text-brand mb-2">
+                {formatCurrency(result.monthlyPayment)}
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total Interest:</span>
-                <span>{formatCurrency(result.totalInterest)}</span>
+              <p className="text-sm text-gray-600">
+                Total monthly payment
+              </p>
+            </div>
+            
+            {/* Payment Breakdown */}
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Principal:</span>
+                <span className="font-medium">{formatCurrency(result.monthlyPrincipal)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total of Loan Payments:</span>
-                <span>{formatCurrency(result.totalPayment)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total Cost (with down payment):</span>
-                <span>{formatCurrency(result.totalPayment + parseFloat(downPayment))}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Interest:</span>
+                <span className="font-medium">{formatCurrency(result.monthlyInterest)}</span>
               </div>
             </div>
             
             <div className="mt-4 pt-4 border-t border-gray-200">
               <p className="text-xs text-gray-500 mb-2">
-                *This calculation does not include taxes, insurance, or HOA fees.
+                *This calculation does not include taxes, insurance, or HOA fees. Principal/Interest amounts shown are for the first payment.
               </p>
               <a
                 href="/contact"
