@@ -68,7 +68,7 @@
     </defs>
     <rect x="0" y="90" width="280" height="3" fill="url(#underlineGradient)" rx="1.5"/>
     
-    <!-- Tagline -->
+    <!-- Updated Tagline -->
     <text x="0" y="110" font-family="'Montserrat', Arial, sans-serif" font-weight="300" font-size="14" fill="#666666" letter-spacing="0.5">
       Your Kansas City Metro Area Real Estate Partner
     </text>
