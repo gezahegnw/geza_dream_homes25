@@ -163,15 +163,9 @@ export default function MortgageCalculator() {
             </div>
             
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 mb-2">
+              <p className="text-xs text-gray-500">
                 *This calculation does not include taxes, insurance, or HOA fees. Principal/Interest amounts shown are for the first payment.
               </p>
-              <a
-                href="/contact"
-                className="block w-full text-center bg-brand text-white py-2 px-4 rounded-md hover:bg-brand/90 transition-colors text-sm font-medium"
-              >
-                Get Pre-Approved Today
-              </a>
             </div>
           </div>
         )}
