@@ -1,30 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="640" height="160" viewBox="0 0 640 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Geza Dream Homes">
-  <!-- Dark variant for dark mode headers -->
+  <!-- Enhanced dark variant -->
   <defs>
     <linearGradient id="roofGradientDark" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#7FB3D5"/>
-      <stop offset="100%" stop-color="#A9CCE3"/>
+      <stop offset="50%" stop-color="#A9CCE3"/>
+      <stop offset="100%" stop-color="#D6EAF8"/>
     </linearGradient>
+    <linearGradient id="houseGradientDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2C3E50"/>
+      <stop offset="100%" stop-color="#34495E"/>
+    </linearGradient>
+    <filter id="shadowDark" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
   </defs>
 
-  <!-- House mark -->
-  <g transform="translate(10,22)">
-    <!-- Roof -->
-    <path d="M0 48 L64 0 L128 48" fill="none" stroke="url(#roofGradientDark)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-    <!-- House body -->
-    <rect x="16" y="48" width="96" height="76" rx="8" stroke="#E5E7EB" stroke-width="9" fill="transparent"/>
-    <!-- Door -->
-    <rect x="70" y="80" width="22" height="44" rx="4" fill="#E5E7EB"/>
-    <!-- Window -->
-    <rect x="32" y="68" width="24" height="20" rx="3" fill="#E5E7EB"/>
+  <!-- Enhanced House mark -->
+  <g transform="translate(15,20)" filter="url(#shadowDark)">
+    <!-- Roof with chimney -->
+    <path d="M0 50 L60 5 L120 50" fill="url(#roofGradientDark)" stroke="#E5E7EB" stroke-width="2"/>
+    <rect x="85" y="15" width="8" height="25" fill="#8B4513" rx="2"/>
+    
+    <!-- House body with gradient -->
+    <rect x="15" y="50" width="90" height="70" rx="6" fill="url(#houseGradientDark)" stroke="#E5E7EB" stroke-width="2"/>
+    
+    <!-- Enhanced door with details -->
+    <rect x="65" y="85" width="20" height="35" rx="3" fill="#8B4513"/>
+    <circle cx="80" cy="102" r="1.5" fill="#D4AF37"/>
+    <rect x="67" y="87" width="16" height="2" fill="#A0522D"/>
+    
+    <!-- Multiple windows with frames -->
+    <g>
+      <!-- Left window -->
+      <rect x="25" y="65" width="20" height="18" rx="2" fill="#87CEEB" stroke="#E5E7EB" stroke-width="1"/>
+      <line x1="35" y1="65" x2="35" y2="83" stroke="#E5E7EB" stroke-width="1"/>
+      <line x1="25" y1="74" x2="45" y2="74" stroke="#E5E7EB" stroke-width="1"/>
+      
+      <!-- Right window -->
+      <rect x="75" y="65" width="20" height="18" rx="2" fill="#87CEEB" stroke="#E5E7EB" stroke-width="1"/>
+      <line x1="85" y1="65" x2="85" y2="83" stroke="#E5E7EB" stroke-width="1"/>
+      <line x1="75" y1="74" x2="95" y2="74" stroke="#E5E7EB" stroke-width="1"/>
+    </g>
+    
+    <!-- Landscaping elements -->
+    <ellipse cx="10" cy="115" rx="8" ry="4" fill="#90EE90"/>
+    <ellipse cx="110" cy="118" rx="6" ry="3" fill="#90EE90"/>
   </g>
 
-  <!-- Logotype -->
-  <g transform="translate(170,34)">
-    <text x="0" y="54" font-family="'Montserrat', Arial, sans-serif" font-weight="700" font-size="48" fill="#FFFFFF" letter-spacing="0.5">
-      Geza Dream Homes
+  <!-- Enhanced Logotype -->
+  <g transform="translate(160,25)">
+    <!-- Main text with improved spacing -->
+    <text x="0" y="45" font-family="'Montserrat', 'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="42" fill="#FFFFFF" letter-spacing="1">
+      GEZA
     </text>
-    <rect x="0" y="70" width="360" height="5" fill="#D4AF37" rx="2.5"/>
+    <text x="0" y="80" font-family="'Montserrat', 'Helvetica Neue', Arial, sans-serif" font-weight="400" font-size="28" fill="#E5E7EB" letter-spacing="2">
+      DREAM HOMES
+    </text>
+    
+    <!-- Elegant underline with gradient -->
+    <defs>
+      <linearGradient id="underlineGradientDark" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#D4AF37"/>
+        <stop offset="50%" stop-color="#FFD700"/>
+        <stop offset="100%" stop-color="#D4AF37"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="90" width="280" height="3" fill="url(#underlineGradientDark)" rx="1.5"/>
+    
+    <!-- Tagline -->
+    <text x="0" y="110" font-family="'Montserrat', Arial, sans-serif" font-weight="300" font-size="14" fill="#BDC3C7" letter-spacing="0.5">
+      Your Kansas City Real Estate Partner
+    </text>
   </g>
 </svg>
