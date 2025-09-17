@@ -326,7 +326,8 @@ const HeroSlider = () => {
                     <img
                       src={`${imgSrc}?v=${index}`}
                       alt={meta?.alt ?? meta?.title ?? 'Featured property'}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover shadow-none"
+                      style={{ boxShadow: 'none', filter: 'none' }}
                       loading={index < 2 ? 'eager' : 'lazy'}
                       onLoad={() => handleImageLoad(index)}
                       onError={() => handleImageError(index)}
