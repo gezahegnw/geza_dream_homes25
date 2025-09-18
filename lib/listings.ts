@@ -7,7 +7,8 @@ export interface Listing {
   beds?: number;
   baths?: number;
   sqft?: number;
-  photo?: string;
+  photos?: string[];
+  description?: string;
   url?: string;
 }
 
@@ -234,7 +235,8 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       beds: p?.beds?.value ?? p?.beds,
       baths: p?.baths?.value ?? p?.baths,
       sqft: p?.sqFt?.value ?? p?.sqFt,
-      photo: p?.photos?.items?.[0] || p?.primary_photo?.href || p?.thumbnail,
+      photos: p?.photos?.items || (p?.primary_photo?.href ? [p.primary_photo.href] : []) || (p?.thumbnail ? [p.thumbnail] : []),
+      description: p?.description || p?.remarks, // Attempt to get description
       url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
     }));
 
@@ -263,7 +265,8 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
               beds: p?.beds?.value ?? p?.beds,
               baths: p?.baths?.value ?? p?.baths,
               sqft: p?.sqFt?.value ?? p?.sqFt,
-              photo: p?.photos?.items?.[0] || p?.primary_photo?.href || p?.thumbnail,
+              photos: p?.photos?.items || (p?.primary_photo?.href ? [p.primary_photo.href] : []) || (p?.thumbnail ? [p.thumbnail] : []),
+              description: p?.description || p?.remarks, // Attempt to get description
               url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
             }));
           } catch (parseError2) {
@@ -301,7 +304,8 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
               beds: p?.beds?.value ?? p?.beds,
               baths: p?.baths?.value ?? p?.baths,
               sqft: p?.sqFt?.value ?? p?.sqFt,
-              photo: p?.photos?.items?.[0] || p?.primary_photo?.href || p?.thumbnail,
+              photos: p?.photos?.items || (p?.primary_photo?.href ? [p.primary_photo.href] : []) || (p?.thumbnail ? [p.thumbnail] : []),
+              description: p?.description || p?.remarks, // Attempt to get description
               url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
             }));
           } catch (parseError3) {

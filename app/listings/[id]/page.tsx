@@ -14,7 +14,8 @@ type PropertyDetails = {
   beds?: number;
   baths?: number;
   sqft?: number;
-  photo?: string;
+  photos?: string[];
+  description?: string;
   url?: string;
   isFavorited?: boolean;
 };
@@ -147,19 +148,38 @@ export default function PropertyDetailPage() {
         </button>
       </div>
 
-      {/* Property image */}
-      <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden mb-8">
-        {property.photo ? (
-          <img 
-            src={property.photo} 
-            alt={property.address} 
-            className="w-full h-full object-cover"
-          />
+      {/* Photo Gallery */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Photo Gallery</h2>
+        {property.photos && property.photos.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {property.photos.map((photo, index) => (
+              <div key={index} className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
+                <img 
+                  src={photo}
+                  alt={`${property.address} - photo ${index + 1}`}
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300 ease-in-out"
+                />
+              </div>
+            ))}
+          </div>
         ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-500">No image available</span>
+          <div className="w-full bg-gray-200 rounded-lg flex items-center justify-center p-8">
+            <span className="text-gray-500">No photos available for this property.</span>
           </div>
         )}
+      </div>
+
+      {/* Property Description */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4">About This Home</h2>
+        <div className="prose max-w-none text-gray-700">
+          {property.description ? (
+            <p>{property.description}</p>
+          ) : (
+            <p>A detailed description for this property is not available at this time. Please contact us for more information.</p>
+          )}
+        </div>
       </div>
 
       {/* Property details */}
@@ -225,20 +245,6 @@ export default function PropertyDetailPage() {
         </div>
       </div>
 
-      {/* External link */}
-      {property.url && (
-        <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-800 mb-2">View more details on the original listing:</p>
-          <a 
-            href={property.url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:underline font-medium"
-          >
-            View on Redfin →
-          </a>
-        </div>
-      )}
     </div>
   );
 }
