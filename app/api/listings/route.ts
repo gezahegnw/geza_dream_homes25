@@ -6,22 +6,22 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
   try {
-    // Require authenticated and approved user
-    const cookieStore = await cookies();
-    const token = cookieStore.get(sessionCookie.name)?.value;
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    const user = await verifySessionToken(token);
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // Always check live approval status from DB so approval updates take effect without requiring re-login
-    const dbUser = await prisma.user.findUnique({ where: { id: user.sub } });
-    if (!dbUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (!dbUser.approved) return NextResponse.json({ error: "Forbidden: account pending approval" }, { status: 403 });
-
     const { searchParams } = new URL(req.url);
     
-    // Check if requesting a specific listing by ID
+    // Check if requesting a specific listing by ID - this requires authentication
     const id = searchParams.get("id");
     if (id) {
+      // Require authenticated and approved user for individual listing details
+      const cookieStore = await cookies();
+      const token = cookieStore.get(sessionCookie.name)?.value;
+      if (!token) return NextResponse.json({ error: "Authentication required to view listing details" }, { status: 401 });
+      const user = await verifySessionToken(token);
+      if (!user) return NextResponse.json({ error: "Authentication required to view listing details" }, { status: 401 });
+      // Always check live approval status from DB so approval updates take effect without requiring re-login
+      const dbUser = await prisma.user.findUnique({ where: { id: user.sub } });
+      if (!dbUser) return NextResponse.json({ error: "Authentication required to view listing details" }, { status: 401 });
+      if (!dbUser.approved) return NextResponse.json({ error: "Account pending approval" }, { status: 403 });
+
       // Fetch all listings and find the one with matching ID
       const allListings = await fetchListings({ limit: 100 });
       const listing = allListings.find((l: any) => l.id === id || l.id === parseInt(id));
@@ -32,6 +32,8 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: "Listing not found" }, { status: 404 });
       }
     }
+
+    // For listing all properties, no authentication required
     
     const q = searchParams.get("q") || undefined;
     const city = searchParams.get("city") || undefined;

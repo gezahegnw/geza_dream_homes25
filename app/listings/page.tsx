@@ -133,9 +133,44 @@ export default function ListingsPage() {
     fetchAndSetListings(1, query);
   }
 
+  // Check if user is authenticated
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Check authentication status on component mount
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
+        setIsAuthenticated(res.ok);
+      } catch {
+        setIsAuthenticated(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleListingClick = (listingId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (isAuthenticated === false) {
+      // Redirect to login with return URL
+      window.location.href = `/login?redirect=/listings/${listingId}`;
+      return;
+    }
+    
+    // If authenticated, navigate to listing
+    window.location.href = `/listings/${listingId}`;
+  };
+
   const toggleFavorite = async (propertyId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (isAuthenticated === false) {
+      // Redirect to login for favorites
+      window.location.href = `/login?redirect=/listings`;
+      return;
+    }
     
     try {
       const res = await fetch('/api/favorites', {
@@ -183,7 +218,17 @@ export default function ListingsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 space-y-6">
-      <h1 className="text-3xl font-bold">Property Listings</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Property Listings</h1>
+        {isAuthenticated === false && (
+          <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-700">
+              <span className="font-medium">Browse freely!</span> Click on any listing to view details. 
+              <a href="/login" className="underline hover:text-blue-800 ml-1">Sign in</a> to save favorites and access full property information.
+            </p>
+          </div>
+        )}
+      </div>
 
       {idxUrl ? (
         <div className="w-full">
@@ -362,7 +407,7 @@ export default function ListingsPage() {
               ))}
             {!loading &&
               items.map((p) => (
-                <a key={p.id} href={`/listings/${p.id}`} className="rounded-lg border block hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out bg-white relative">
+                <div key={p.id} onClick={(e) => handleListingClick(p.id, e)} className="rounded-lg border block hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out bg-white relative cursor-pointer">
                   <button
                     onClick={(e) => toggleFavorite(p.id, e)}
                     className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 hover:bg-white transition-colors"
@@ -394,7 +439,7 @@ export default function ListingsPage() {
                     </div>
                     {p.price ? <div className="mt-1 font-semibold text-lg">${p.price.toLocaleString()}</div> : null}
                   </div>
-                </a>
+                </div>
               ))}
             </div>
 
