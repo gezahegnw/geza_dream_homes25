@@ -419,8 +419,8 @@ export default function ListingsPage() {
                     )}
                   </button>
                   <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-t-lg overflow-hidden">
-                    {p.photo ? (
-                      <img src={p.photo} alt={p.address} className="w-full h-full object-cover" />
+                    {p.photos && p.photos.length > 0 ? (
+                      <img src={p.photos[0]} alt={p.address} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-gray-200" />
                     )}
