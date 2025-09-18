@@ -13,10 +13,11 @@ type Listing = {
   beds?: number;
   baths?: number;
   sqft?: number;
-  photo?: string;
+  photos?: string[];
   url?: string;
 };
 
+// Force re-deploy to fix image caching issue
 export default function ListingsPage() {
   const [items, setItems] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
