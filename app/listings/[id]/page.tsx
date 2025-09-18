@@ -38,6 +38,11 @@ export default function PropertyDetailPage() {
       const res = await fetch(`/api/listings/${propertyId}`);
       
       if (!res.ok) {
+        if (res.status === 401) {
+          // Redirect to login page if unauthorized
+          window.location.href = `/login?redirect=/listings/${propertyId}`;
+          return;
+        }
         if (res.status === 404) {
           throw new Error('Property not found');
         }
