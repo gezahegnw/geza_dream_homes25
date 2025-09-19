@@ -177,10 +177,7 @@ export default function PropertyDetailPage() {
           {property.description ? (
             <p>{property.description}</p>
           ) : (
-            // Only show the "no description" message if there are also no photos
-            (!property.photos || property.photos.length === 0) && (
-              <p>A detailed description for this property is not available at this time. Please contact us for more information.</p>
-            )
+            <p>A detailed description for this property is not available at this time. Please contact us for more information.</p>
           )}
         </div>
       </div>
