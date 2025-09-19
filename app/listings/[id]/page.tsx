@@ -23,9 +23,10 @@ type PropertyDetails = {
 
 // Helper function to get status badge styling
 const getStatusBadge = (status?: string) => {
-  if (!status) return null;
+  // For debugging, always show a badge
+  const displayStatus = status || 'Active';
   
-  const normalizedStatus = status.toLowerCase();
+  const normalizedStatus = displayStatus.toLowerCase();
   let badgeClass = "px-3 py-1 rounded-full text-sm font-medium ";
   
   if (normalizedStatus.includes('active')) {
@@ -44,7 +45,7 @@ const getStatusBadge = (status?: string) => {
   
   return (
     <span className={badgeClass}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1)}
     </span>
   );
 };
@@ -80,6 +81,8 @@ export default function PropertyDetailPage() {
       }
       
       const data = await res.json();
+      console.log('DEBUG: Property data received:', data.property);
+      console.log('DEBUG: Status field:', data.property.status);
       setProperty(data.property);
       setIsFavorited(data.property.isFavorited || false);
     } catch (e: any) {
