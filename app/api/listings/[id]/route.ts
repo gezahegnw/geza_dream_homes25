@@ -15,7 +15,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     return NextResponse.json({ error: "API Key not configured" }, { status: 500 });
   }
 
-  const url = `https://${host}/properties/v3/detail?propertyId=${propertyId}`;
+    // Using the address to query the search endpoint, as the detail endpoint is invalid.
+  const location = "24268 W 111th Pl, Olathe, KS 66061"; // Address from user-provided link
+  const url = `https://${host}/property/search?location=${encodeURIComponent(location)}`;
 
   try {
     const apiRes = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
