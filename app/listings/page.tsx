@@ -522,7 +522,7 @@ export default function ListingsPage() {
                       {p.address}
                     </div>
                     <div className="text-sm text-gray-500">
-                      {p.city}, {p.state}
+                      {p.city}, {p.state} {p.zipCode ?? ''}
                     </div>
                     <div className="text-sm mt-1">
                       {[p.beds && `${p.beds} bed`, p.baths && `${p.baths} bath`, p.sqft && `${p.sqft.toLocaleString()} sqft`]
