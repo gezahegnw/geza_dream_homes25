@@ -29,12 +29,20 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
 
+    // Debug: Log the original property data
+    console.log('DEBUG: Original property data:', JSON.stringify(property, null, 2));
+
     // Enrich with ZIP via geocoding if missing
     if (!property.zipCode) {
+      console.log('DEBUG: No zipCode found, attempting geocoding for:', property.address, property.city, property.state);
       const zip = await geocodeZip(property.address, property.city, property.state);
+      console.log('DEBUG: Geocoding result:', zip);
       if (zip) {
         property = { ...property, zipCode: zip };
+        console.log('DEBUG: Property enriched with zipCode:', zip);
       }
+    } else {
+      console.log('DEBUG: Property already has zipCode:', property.zipCode);
     }
 
     // Check if user has favorited this property
