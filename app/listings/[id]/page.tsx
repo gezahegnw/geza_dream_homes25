@@ -205,22 +205,25 @@ export default function PropertyDetailPage() {
         )}
       </div>
 
-      {/* Property Description */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">About This Home</h2>
-        <div className="prose max-w-none text-gray-700">
-          {property.description ? (
+      {/* Property Description - Only show if there's actual content */}
+      {property.description ? (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">About This Home</h2>
+          <div className="prose max-w-none text-gray-700">
             <p>{property.description}</p>
-          ) : (
-            // Only show contact message if there are fewer than 3 photos
-            (!property.photos || property.photos.length < 3) ? (
-              <p>A detailed description for this property is not available at this time. Please contact us for more information.</p>
-            ) : (
-              <p>This beautiful property offers excellent features and amenities. Please contact us to schedule a viewing and learn more about this opportunity.</p>
-            )
-          )}
+          </div>
         </div>
-      </div>
+      ) : (
+        // Only show "About This Home" section with contact message if there are few photos
+        (!property.photos || property.photos.length < 3) && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">About This Home</h2>
+            <div className="prose max-w-none text-gray-700">
+              <p>A detailed description for this property is not available at this time. Please contact us for more information.</p>
+            </div>
+          </div>
+        )
+      )}
 
       {/* Property details */}
       <div className="grid md:grid-cols-2 gap-8">
