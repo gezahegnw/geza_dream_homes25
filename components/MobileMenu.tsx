@@ -3,8 +3,42 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  approved: boolean;
+  is_admin: boolean;
+} | null;
+
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<User>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user authentication status
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store", credentials: "include" });
+        const body = await res.json();
+        setUser(body.user ?? null);
+      } catch (e) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    } catch {}
+    setIsOpen(false);
+    window.location.href = "/";
+  };
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -103,6 +137,49 @@ export default function MobileMenu() {
                 </svg>
                 (913) 407-8620
               </a>
+
+              {/* Authentication Section */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                {!loading && (
+                  <>
+                    {user ? (
+                      <div className="space-y-3">
+                        <div className="text-sm text-gray-700">
+                          <div className="font-medium">Hello, {user.name.split(" ")[0]}</div>
+                          {!user.approved && (
+                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 ring-1 ring-amber-200 mt-1">
+                              Account Pending Approval
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full rounded-lg bg-red-600 px-4 py-3 text-center font-medium text-white hover:bg-red-700"
+                        >
+                          Log Out
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <Link
+                          href="/login"
+                          className="block w-full rounded-lg border border-gray-300 px-4 py-3 text-center font-medium text-gray-700 hover:bg-gray-50"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Log In
+                        </Link>
+                        <Link
+                          href="/signup"
+                          className="block w-full rounded-lg bg-emerald-600 px-4 py-3 text-center font-medium text-white hover:bg-emerald-700"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Sign Up
+                        </Link>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </nav>
           </div>
         </div>
