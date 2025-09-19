@@ -10,6 +10,7 @@ type PropertyDetails = {
   address: string;
   city?: string;
   state?: string;
+  zipCode?: string;
   price?: number;
   beds?: number;
   baths?: number;
@@ -17,6 +18,12 @@ type PropertyDetails = {
   photos?: string[];
   description?: string;
   status?: string;
+  propertyType?: string;
+  yearBuilt?: number;
+  pricePerSqft?: number;
+  hoaDues?: number;
+  lotSize?: number;
+  garage?: number;
   url?: string;
   isFavorited?: boolean;
 };
@@ -169,7 +176,9 @@ export default function PropertyDetailPage() {
             <h1 className="text-3xl font-bold text-gray-900">{property.address}</h1>
             {getStatusBadge(property.status)}
           </div>
-          <p className="text-lg text-gray-600">{property.city}, {property.state}</p>
+          <p className="text-lg text-gray-600">
+            {property.city}, {property.state} {property.zipCode}
+          </p>
         </div>
         <button
           onClick={toggleFavorite}
@@ -246,8 +255,44 @@ export default function PropertyDetailPage() {
             </div>
             <div className="flex justify-between py-2 border-b">
               <span className="font-medium">Square Feet</span>
-              <span>{property.sqft ? `${property.sqft.toLocaleString()} sqft` : 'N/A'}</span>
+              <span>{property.sqft ? `${property.sqft.toLocaleString()} sqft` : 'Not available'}</span>
             </div>
+            {property.propertyType && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">Property Type</span>
+                <span>{property.propertyType}</span>
+              </div>
+            )}
+            {property.yearBuilt && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">Year Built</span>
+                <span>{property.yearBuilt}</span>
+              </div>
+            )}
+            {property.pricePerSqft && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">Price/Sq.Ft.</span>
+                <span>${property.pricePerSqft}</span>
+              </div>
+            )}
+            {property.hoaDues && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">HOA Dues</span>
+                <span>${property.hoaDues}/mo</span>
+              </div>
+            )}
+            {property.lotSize && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">Lot Size</span>
+                <span>{property.lotSize.toLocaleString()} sqft</span>
+              </div>
+            )}
+            {property.garage && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">Garage</span>
+                <span>{property.garage} {property.garage === 1 ? 'space' : 'spaces'}</span>
+              </div>
+            )}
           </div>
         </div>
 

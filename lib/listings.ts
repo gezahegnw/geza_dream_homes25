@@ -3,6 +3,7 @@ export interface Listing {
   address: string;
   city?: string;
   state?: string;
+  zipCode?: string;
   price?: number;
   beds?: number;
   baths?: number;
@@ -10,6 +11,12 @@ export interface Listing {
   photos?: string[];
   description?: string;
   status?: string;
+  propertyType?: string;
+  yearBuilt?: number;
+  pricePerSqft?: number;
+  hoaDues?: number;
+  lotSize?: number;
+  garage?: number;
   url?: string;
 }
 
@@ -232,6 +239,7 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       address: p?.streetLine?.value || "",
       city: p?.city,
       state: p?.state,
+      zipCode: p?.zipCode || p?.zip || p?.postalCode,
       price: p?.price?.value ?? p?.price,
       beds: p?.beds?.value ?? p?.beds,
       baths: p?.baths?.value ?? p?.baths,
@@ -239,6 +247,12 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       photos: p?.photos?.items || (p?.primary_photo?.href ? [p.primary_photo.href] : []) || (p?.thumbnail ? [p.thumbnail] : []),
       description: p?.description || p?.remarks, // Attempt to get description
       status: p?.status || p?.listingStatus || p?.mlsStatus || p?.propertyStatus || 'Active', // Try multiple status field names
+      propertyType: p?.propertyType || p?.property_type || p?.type,
+      yearBuilt: p?.yearBuilt || p?.year_built || p?.built_year,
+      pricePerSqft: p?.pricePerSqft || p?.price_per_sqft || (p?.price && p?.sqFt ? Math.round(p.price / p.sqFt) : undefined),
+      hoaDues: p?.hoaDues || p?.hoa_dues || p?.hoa || p?.hoaFee,
+      lotSize: p?.lotSize || p?.lot_size || p?.lotSqft,
+      garage: p?.garage || p?.garageSpaces || p?.parking,
       url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
     }));
 
@@ -263,6 +277,7 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
               address: p?.streetLine?.value || "",
               city: p?.city,
               state: p?.state,
+              zipCode: p?.zipCode || p?.zip || p?.postalCode,
               price: p?.price?.value ?? p?.price,
               beds: p?.beds?.value ?? p?.beds,
               baths: p?.baths?.value ?? p?.baths,
@@ -270,6 +285,12 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
               photos: p?.photos?.items || (p?.primary_photo?.href ? [p.primary_photo.href] : []) || (p?.thumbnail ? [p.thumbnail] : []),
               description: p?.description || p?.remarks, // Attempt to get description
               status: p?.status || p?.listingStatus || p?.mlsStatus || p?.propertyStatus || 'Active', // Try multiple status field names
+              propertyType: p?.propertyType || p?.property_type || p?.type,
+              yearBuilt: p?.yearBuilt || p?.year_built || p?.built_year,
+              pricePerSqft: p?.pricePerSqft || p?.price_per_sqft || (p?.price && p?.sqFt ? Math.round(p.price / p.sqFt) : undefined),
+              hoaDues: p?.hoaDues || p?.hoa_dues || p?.hoa || p?.hoaFee,
+              lotSize: p?.lotSize || p?.lot_size || p?.lotSqft,
+              garage: p?.garage || p?.garageSpaces || p?.parking,
               url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
             }));
           } catch (parseError2) {

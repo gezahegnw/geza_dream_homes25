@@ -9,12 +9,19 @@ type Listing = {
   address: string;
   city?: string;
   state?: string;
+  zipCode?: string;
   price?: number;
   beds?: number;
   baths?: number;
   sqft?: number;
   photos?: string[];
   status?: string;
+  propertyType?: string;
+  yearBuilt?: number;
+  pricePerSqft?: number;
+  hoaDues?: number;
+  lotSize?: number;
+  garage?: number;
   url?: string;
 };
 
