@@ -18,6 +18,34 @@ type Listing = {
   url?: string;
 };
 
+// Helper function to get status badge styling for main listings
+const getStatusBadge = (status?: string) => {
+  const displayStatus = status || 'Active';
+  
+  const normalizedStatus = displayStatus.toLowerCase();
+  let badgeClass = "absolute top-2 left-2 px-2 py-1 rounded text-xs font-medium z-10 ";
+  
+  if (normalizedStatus.includes('active')) {
+    badgeClass += "bg-green-100 text-green-800";
+  } else if (normalizedStatus.includes('pending')) {
+    badgeClass += "bg-yellow-100 text-yellow-800";
+  } else if (normalizedStatus.includes('sold') || normalizedStatus.includes('closed')) {
+    badgeClass += "bg-red-100 text-red-800";
+  } else if (normalizedStatus.includes('coming soon') || normalizedStatus.includes('coming_soon')) {
+    badgeClass += "bg-blue-100 text-blue-800";
+  } else if (normalizedStatus.includes('off market') || normalizedStatus.includes('withdrawn')) {
+    badgeClass += "bg-gray-100 text-gray-800";
+  } else {
+    badgeClass += "bg-gray-100 text-gray-800";
+  }
+  
+  return (
+    <span className={badgeClass}>
+      {displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1)}
+    </span>
+  );
+};
+
 // Force re-deploy to fix image caching issue
 export default function ListingsPage() {
   const [items, setItems] = useState<Listing[]>([]);
@@ -417,6 +445,7 @@ export default function ListingsPage() {
             {!loading &&
               items.map((p) => (
                 <div key={p.id} onClick={(e) => handleListingClick(p.id, e)} className="rounded-lg border block hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out bg-white relative cursor-pointer">
+                  {getStatusBadge(p.status)}
                   <button
                     onClick={(e) => toggleFavorite(p.id, e)}
                     className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 hover:bg-white transition-colors"
