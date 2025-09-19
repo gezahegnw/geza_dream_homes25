@@ -16,8 +16,37 @@ type PropertyDetails = {
   sqft?: number;
   photos?: string[];
   description?: string;
+  status?: string;
   url?: string;
   isFavorited?: boolean;
+};
+
+// Helper function to get status badge styling
+const getStatusBadge = (status?: string) => {
+  if (!status) return null;
+  
+  const normalizedStatus = status.toLowerCase();
+  let badgeClass = "px-3 py-1 rounded-full text-sm font-medium ";
+  
+  if (normalizedStatus.includes('active')) {
+    badgeClass += "bg-green-100 text-green-800";
+  } else if (normalizedStatus.includes('pending')) {
+    badgeClass += "bg-yellow-100 text-yellow-800";
+  } else if (normalizedStatus.includes('sold') || normalizedStatus.includes('closed')) {
+    badgeClass += "bg-red-100 text-red-800";
+  } else if (normalizedStatus.includes('coming soon') || normalizedStatus.includes('coming_soon')) {
+    badgeClass += "bg-blue-100 text-blue-800";
+  } else if (normalizedStatus.includes('off market') || normalizedStatus.includes('withdrawn')) {
+    badgeClass += "bg-gray-100 text-gray-800";
+  } else {
+    badgeClass += "bg-gray-100 text-gray-800";
+  }
+  
+  return (
+    <span className={badgeClass}>
+      {status.charAt(0).toUpperCase() + status.slice(1)}
+    </span>
+  );
 };
 
 export default function PropertyDetailPage() {
@@ -133,7 +162,10 @@ export default function PropertyDetailPage() {
       {/* Property header */}
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{property.address}</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">{property.address}</h1>
+            {getStatusBadge(property.status)}
+          </div>
           <p className="text-lg text-gray-600">{property.city}, {property.state}</p>
         </div>
         <button

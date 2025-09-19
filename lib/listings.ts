@@ -9,6 +9,7 @@ export interface Listing {
   sqft?: number;
   photos?: string[];
   description?: string;
+  status?: string;
   url?: string;
 }
 
@@ -237,6 +238,7 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       sqft: p?.sqFt?.value ?? p?.sqFt,
       photos: p?.photos?.items || (p?.primary_photo?.href ? [p.primary_photo.href] : []) || (p?.thumbnail ? [p.thumbnail] : []),
       description: p?.description || p?.remarks, // Attempt to get description
+      status: p?.status || p?.listingStatus || p?.mlsStatus || p?.propertyStatus || 'Active', // Try multiple status field names
       url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
     }));
 
@@ -267,6 +269,7 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
               sqft: p?.sqFt?.value ?? p?.sqFt,
               photos: p?.photos?.items || (p?.primary_photo?.href ? [p.primary_photo.href] : []) || (p?.thumbnail ? [p.thumbnail] : []),
               description: p?.description || p?.remarks, // Attempt to get description
+              status: p?.status || p?.listingStatus || p?.mlsStatus || p?.propertyStatus || 'Active', // Try multiple status field names
               url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
             }));
           } catch (parseError2) {
@@ -306,6 +309,7 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
               sqft: p?.sqFt?.value ?? p?.sqFt,
               photos: p?.photos?.items || (p?.primary_photo?.href ? [p.primary_photo.href] : []) || (p?.thumbnail ? [p.thumbnail] : []),
               description: p?.description || p?.remarks, // Attempt to get description
+              status: p?.status || p?.listingStatus || p?.mlsStatus || p?.propertyStatus || 'Active', // Try multiple status field names
               url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
             }));
           } catch (parseError3) {

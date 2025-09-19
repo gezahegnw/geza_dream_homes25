@@ -14,6 +14,7 @@ type Listing = {
   baths?: number;
   sqft?: number;
   photos?: string[];
+  status?: string;
   url?: string;
 };
 
