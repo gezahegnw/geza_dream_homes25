@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { fetchListings } from "@/lib/listings";
+import { fetchListingById } from "@/lib/listings";
 import { sessionCookie, verifySessionToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -20,14 +20,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     const propertyId = params.id;
     
-    // For now, we'll fetch all listings and find the one that matches
-    // In a real implementation, you'd want a more efficient single-property API call
-    const provider = process.env.LISTINGS_PROVIDER || "mock";
-    
-    // Try to get a larger set of listings to increase chances of finding the property
-    const allListings = await fetchListings({ limit: 100 });
-    
-    const property = allListings.find(listing => listing.id === propertyId);
+    // Use the new function to fetch detailed data for a single property
+    const property = await fetchListingById(propertyId);
     
     if (!property) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 });

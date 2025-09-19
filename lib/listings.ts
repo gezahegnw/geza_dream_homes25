@@ -352,3 +352,66 @@ export async function fetchListingsDebug(query: ListingsQuery = {}): Promise<{ i
   const items = await fetchListings(query);
   return { items, debug: { provider, itemCount: items.length } };
 }
+
+// Fetch a single listing by its ID with full details
+export async function fetchListingById(propertyId: string): Promise<Listing | null> {
+  const provider = process.env.LISTINGS_PROVIDER || "mock";
+
+  if (provider !== "rapidapi_redfin") {
+    // Fallback for mock or other providers: find from the main list
+    const allListings = await fetchListings({ limit: 200 }); // Fetch a larger list to increase chances
+    return allListings.find(listing => listing.id === propertyId) || null;
+  }
+
+  // Specific implementation for Redfin to get full details
+  const key = process.env.RAPIDAPI_REDFIN_KEY;
+  const host = process.env.RAPIDAPI_REDFIN_HOST || "redfin-com-data.p.rapidapi.com";
+  if (!key) throw new Error("RAPIDAPI_REDFIN_KEY not set");
+
+  const url = `https://${host}/properties/v3/detail?propertyId=${propertyId}`;
+  console.log(`[LISTING_DETAIL_DEBUG] Fetching detailed data from: ${url}`);
+
+  const res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
+
+  if (!res.ok) {
+    console.error(`[LISTING_DETAIL_DEBUG] API Error: ${res.status}`, await res.text());
+    return null;
+  }
+
+  try {
+    const data = await res.json();
+    const p = data?.data;
+    if (!p) {
+      console.error('[LISTING_DETAIL_DEBUG] No data object in response');
+      return null;
+    }
+
+    // Map the detailed response to our Listing interface
+    const listing: Listing = {
+      id: String(p?.propertyId || propertyId),
+      address: p?.streetAddress?.formattedStreetLine || p?.streetAddress?.streetAddress,
+      city: p?.city,
+      state: p?.state,
+      zipCode: p?.zip,
+      price: p?.price?.value ?? p?.price,
+      beds: p?.beds,
+      baths: p?.baths,
+      sqft: p?.sqFt?.value,
+      photos: p?.photos?.map((photo: any) => photo.url) || [],
+      description: p?.propertyHistory?.[0]?.eventDescription || p?.remarks,
+      status: p?.listingMetadata?.listingStatus || 'Active',
+      propertyType: p?.propertyType,
+      yearBuilt: p?.yearBuilt,
+      pricePerSqft: p?.pricePerSqFt?.value,
+      hoaDues: p?.hoa?.fee,
+      lotSize: p?.lotSize?.value,
+      garage: p?.garage?.garageSpaces,
+      url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
+    };
+
+    return listing;
+  } catch (e) {
+    console.error('[LISTING_DETAIL_DEBUG] Failed to parse detailed response:', e);
+    return null;
+  }
+}
