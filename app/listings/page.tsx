@@ -233,7 +233,46 @@ export default function ListingsPage() {
     }
   };
 
-  // Simplified - remove complex filtering for now to fix pagination
+  // Apply filters to the listings
+  const applyFilters = () => {
+    let filtered = [...allItems];
+
+    // Price filters
+    if (filters.minPrice) {
+      filtered = filtered.filter(item => (item.price || 0) >= parseInt(filters.minPrice));
+    }
+    if (filters.maxPrice) {
+      filtered = filtered.filter(item => (item.price || 0) <= parseInt(filters.maxPrice));
+    }
+
+    // Bedroom filters
+    if (filters.minBeds) {
+      filtered = filtered.filter(item => (item.beds || 0) >= parseInt(filters.minBeds));
+    }
+    if (filters.maxBeds) {
+      filtered = filtered.filter(item => (item.beds || 0) <= parseInt(filters.maxBeds));
+    }
+
+    // Bathroom filters
+    if (filters.minBaths) {
+      filtered = filtered.filter(item => (item.baths || 0) >= parseFloat(filters.minBaths));
+    }
+    if (filters.maxBaths) {
+      filtered = filtered.filter(item => (item.baths || 0) <= parseFloat(filters.maxBaths));
+    }
+
+    // Square footage filters
+    if (filters.minSqft) {
+      filtered = filtered.filter(item => (item.sqft || 0) >= parseInt(filters.minSqft));
+    }
+    if (filters.maxSqft) {
+      filtered = filtered.filter(item => (item.sqft || 0) <= parseInt(filters.maxSqft));
+    }
+
+    setFilteredItems(filtered);
+    setPage(1); // Reset to first page when filtering
+  };
+
   const clearFilters = () => {
     setFilters({
       minPrice: '',
@@ -245,8 +284,8 @@ export default function ListingsPage() {
       minSqft: '',
       maxSqft: ''
     });
+    setFilteredItems(allItems);
     setPage(1);
-    fetchAndSetListings(1, query);
   };
 
   const handleFilterChange = (key: string, value: string) => {
@@ -392,16 +431,24 @@ export default function ListingsPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center mt-4 pt-4 border-t">
+                <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
                   <div className="text-sm text-gray-600">
-                    Showing {items.length} properties on page {page}
+                    Showing {filteredItems.length} properties
                   </div>
-                  <button
-                    onClick={clearFilters}
-                    className="text-sm text-blue-600 hover:text-blue-800 underline"
-                  >
-                    Clear all filters
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={clearFilters}
+                      className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50"
+                    >
+                      Clear Filters
+                    </button>
+                    <button
+                      onClick={applyFilters}
+                      className="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded"
+                    >
+                      Apply Filters
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -443,7 +490,7 @@ export default function ListingsPage() {
                 </div>
               ))}
             {!loading &&
-              items.map((p) => (
+              filteredItems.slice((page - 1) * LISTINGS_PER_PAGE, page * LISTINGS_PER_PAGE).map((p) => (
                 <div key={p.id} onClick={(e) => handleListingClick(p.id, e)} className="rounded-lg border block hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out bg-white relative cursor-pointer">
                   {getStatusBadge(p.status)}
                   <button
@@ -481,7 +528,7 @@ export default function ListingsPage() {
               ))}
             </div>
 
-            {items.length > 0 && (
+            {filteredItems.length > 0 && (
               <div className="flex justify-center items-center gap-4 mt-8">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -490,10 +537,10 @@ export default function ListingsPage() {
                 >
                   Previous
                 </button>
-                <span className="font-medium">Page {page}</span>
+                <span className="font-medium">Page {page} of {Math.ceil(filteredItems.length / LISTINGS_PER_PAGE)}</span>
                 <button
                   onClick={() => setPage((p) => p + 1)}
-                  disabled={!hasMore || loading}
+                  disabled={page >= Math.ceil(filteredItems.length / LISTINGS_PER_PAGE) || loading}
                   className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
                 >
                   Next
