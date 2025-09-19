@@ -4,48 +4,33 @@ import { fetchListingById } from "@/lib/listings";
 import { sessionCookie, verifySessionToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// --- TEMPORARY DEBUGGING ROUTE --- //
+// This route will be restored after inspecting the raw API data.
 export async function GET(req: Request, { params }: { params: { id: string } }) {
+  const propertyId = params.id;
+  const key = process.env.RAPIDAPI_REDFIN_KEY;
+  const host = process.env.RAPIDAPI_REDFIN_HOST || "redfin-com-data.p.rapidapi.com";
+
+  if (!key) {
+    return NextResponse.json({ error: "API Key not configured" }, { status: 500 });
+  }
+
+  const url = `https://${host}/properties/v3/detail?propertyId=${propertyId}`;
+
   try {
-    // Require authenticated and approved user
-    const cookieStore = await cookies();
-    const token = cookieStore.get(sessionCookie.name)?.value;
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    const user = await verifySessionToken(token);
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    
-    // Always check live approval status from DB
-    const dbUser = await prisma.user.findUnique({ where: { id: user.sub } });
-    if (!dbUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (!dbUser.approved) return NextResponse.json({ error: "Forbidden: account pending approval" }, { status: 403 });
-
-    const propertyId = params.id;
-    
-    // Use the new function to fetch detailed data for a single property
-    const property = await fetchListingById(propertyId);
-    
-    if (!property) {
-      return NextResponse.json({ error: "Property not found" }, { status: 404 });
+    const apiRes = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
+    if (!apiRes.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch from Redfin API", status: apiRes.status, body: await apiRes.text() },
+        { status: 502 }
+      );
     }
-
-    // Check if user has favorited this property
-    const favorite = await prisma.favorite.findUnique({
-      where: {
-        user_id_property_id: {
-          user_id: user.sub,
-          property_id: propertyId
-        }
-      }
-    });
-
-    return NextResponse.json({ 
-      property: {
-        ...property,
-        isFavorited: !!favorite
-      }
-    });
+    const rawData = await apiRes.json();
+    // Return the raw, unprocessed data directly for inspection
+    return NextResponse.json(rawData);
   } catch (e: any) {
     return NextResponse.json(
-      { error: "Failed to fetch property details", message: String(e?.message ?? e) },
+      { error: "An unexpected error occurred", message: e.message },
       { status: 500 }
     );
   }
