@@ -32,11 +32,26 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     // Debug: Log the original property data
     console.log('DEBUG: Original property data:', JSON.stringify(property, null, 2));
 
-    // Enrich with ZIP via geocoding if missing
+    // Enrich with ZIP - first try to extract from Redfin URL, then fallback to geocoding
     if (!property.zipCode) {
-      console.log('DEBUG: No zipCode found, attempting geocoding for:', property.address, property.city, property.state);
-      const zip = await geocodeZip(property.address, property.city, property.state);
-      console.log('DEBUG: Geocoding result:', zip);
+      let zip: string | undefined;
+      
+      // Try to extract zip from Redfin URL first (more accurate)
+      if (property.url) {
+        const urlMatch = property.url.match(/\/([0-9]{5})\/home\//);
+        if (urlMatch) {
+          zip = urlMatch[1];
+          console.log('DEBUG: Extracted zipCode from Redfin URL:', zip);
+        }
+      }
+      
+      // Fallback to geocoding if URL extraction failed
+      if (!zip) {
+        console.log('DEBUG: No zipCode found in URL, attempting geocoding for:', property.address, property.city, property.state);
+        zip = await geocodeZip(property.address, property.city, property.state);
+        console.log('DEBUG: Geocoding result:', zip);
+      }
+      
       if (zip) {
         property = { ...property, zipCode: zip };
         console.log('DEBUG: Property enriched with zipCode:', zip);
