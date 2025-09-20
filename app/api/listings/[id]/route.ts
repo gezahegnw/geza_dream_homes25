@@ -31,6 +31,14 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     // Debug: Log the original property data
     console.log('DEBUG: Original property data:', JSON.stringify(property, null, 2));
+    console.log('DEBUG: Available URL fields:', {
+      url: property.url,
+      // Check if there are other URL-like fields
+      detailUrl: (property as any).detailUrl,
+      propertyUrl: (property as any).propertyUrl,
+      redfinUrl: (property as any).redfinUrl,
+      webUrl: (property as any).webUrl
+    });
 
     // Enrich with ZIP - first try to extract from Redfin URL, then fallback to geocoding
     if (!property.zipCode) {
