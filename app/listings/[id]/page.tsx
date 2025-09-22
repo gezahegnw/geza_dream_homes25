@@ -43,16 +43,31 @@ export default function PropertyDetailPage() {
       </div>
 
       {data.photos && data.photos.length > 0 && (
-        <div>
-          <h2>Photos</h2>
-          {data.photos.map((photo: any, i: number) => (
-            <img 
-              key={i}
-              src={photo}
-              alt={`Photo ${i + 1}`}
-              style={{width: '300px', height: '200px', objectFit: 'cover', margin: '10px'}}
-            />
-          ))}
+        <div style={{marginBottom: '30px'}}>
+          <h2 style={{marginBottom: '20px'}}>Photos</h2>
+          <div style={{
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: '15px',
+            '@media (max-width: 768px)': {
+              gridTemplateColumns: '1fr'
+            }
+          }}>
+            {data.photos.map((photo: any, i: number) => (
+              <img 
+                key={i}
+                src={photo}
+                alt={`Photo ${i + 1}`}
+                style={{
+                  width: '100%', 
+                  height: '250px', 
+                  objectFit: 'cover', 
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}
+              />
+            ))}
+          </div>
         </div>
       )}
 
