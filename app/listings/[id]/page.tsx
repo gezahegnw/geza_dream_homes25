@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 
 export default function PropertyDetailPage() {
   const params = useParams();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
