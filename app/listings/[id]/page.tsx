@@ -198,7 +198,7 @@ export default function PropertyDetailPage() {
         {property.photos && property.photos.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {property.photos.map((photo, index) => (
-              <div key={index} className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
+              <div key={`photo-${index}`} className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
                 <img 
                   src={photo}
                   alt={`${property.address} - photo ${index + 1}`}
