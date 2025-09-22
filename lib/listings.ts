@@ -173,10 +173,19 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
     };
 
     // Prefer city-only searches for better data quality (includes zip codes)
-    const location = query.q || 
+    let location = query.q || 
       (query.city || [query.city, query.state_code].filter(Boolean).join(", ")) ||
       process.env.REDFIN_DEFAULT_LOCATION ||
       "Los Angeles, CA";
+    
+    // If query.q contains "city, state" pattern, extract just the city for better data
+    if (query.q && query.q.includes(",")) {
+      const parts = query.q.split(",").map(part => part.trim());
+      if (parts.length === 2 && parts[1].length <= 3) { // Likely "City, ST" format
+        location = parts[0]; // Use just the city
+        console.log(`[LISTINGS_DEBUG] Converted "${query.q}" to city-only: "${location}"`);
+      }
+    }
     const limit = String(query.limit ?? 12);
     const offset = String(query.offset ?? 0);
     const page = String(query.page ?? 1);
