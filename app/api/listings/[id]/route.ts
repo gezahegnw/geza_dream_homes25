@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { fetchListings } from "@/lib/listings";
 import { sessionCookie, verifySessionToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { geocodeZip } from "@/lib/geo";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -29,13 +28,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
 
-    // Enrich with ZIP via geocoding if missing
-    if (!property.zipCode) {
-      const zip = await geocodeZip(property.address, property.city, property.state);
-      if (zip) {
-        property = { ...property, zipCode: zip };
-      }
-    }
+    // Note: ZIP codes are now handled in the main listings fetch
 
     // Check if user has favorited this property
     const favorite = await prisma.favorite.findUnique({
