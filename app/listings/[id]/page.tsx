@@ -48,10 +48,7 @@ export default function PropertyDetailPage() {
           <div style={{
             display: 'grid', 
             gridTemplateColumns: 'repeat(3, 1fr)', 
-            gap: '15px',
-            '@media (max-width: 768px)': {
-              gridTemplateColumns: '1fr'
-            }
+            gap: '15px'
           }}>
             {data.photos.map((photo: any, i: number) => (
               <img 
