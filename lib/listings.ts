@@ -172,9 +172,9 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       return [];
     };
 
-    const location =
-      query.q ||
-      [query.city, query.state_code].filter(Boolean).join(", ") ||
+    // Prefer city-only searches for better data quality (includes zip codes)
+    const location = query.q || 
+      (query.city || [query.city, query.state_code].filter(Boolean).join(", ")) ||
       process.env.REDFIN_DEFAULT_LOCATION ||
       "Los Angeles, CA";
     const limit = String(query.limit ?? 12);
