@@ -20,8 +20,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     const propertyId = params.id;
     
-    // Fetch a larger set of listings and find the one that matches by id
-    const allListings = await fetchListings({ limit: 200 });
+    // Fetch a larger set of listings using the same search approach as main page
+    // Use city-only search to match the main listings page behavior
+    const allListings = await fetchListings({ q: "Olathe", limit: 200 });
     console.log(`[DETAIL_DEBUG] Looking for property ID: ${propertyId}`);
     console.log(`[DETAIL_DEBUG] Available property IDs: ${allListings.map(l => l.id).slice(0, 10).join(', ')}...`);
     
