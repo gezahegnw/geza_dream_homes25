@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 export default function PropertyDetailPage() {
@@ -105,19 +105,26 @@ export default function PropertyDetailPage() {
         </div>
 
         {/* Photo Gallery */}
-        {property.photos && property.photos.length > 0 && (
+        {property.photos && Array.isArray(property.photos) && property.photos.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h2 className="text-2xl font-semibold mb-4">Property Photos</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {property.photos.map((photo: string, index: number) => (
-                <div key={index} className="aspect-w-16 aspect-h-12 rounded-lg overflow-hidden">
-                  <img 
-                    src={photo}
-                    alt={`Property photo ${index + 1}`}
-                    className="w-full h-64 object-cover rounded-lg hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              ))}
+              {property.photos.map((photo: any, index: number) => {
+                if (!photo || typeof photo !== 'string') return null;
+                return (
+                  <div key={`photo-${index}`} className="rounded-lg overflow-hidden">
+                    <img 
+                      src={photo}
+                      alt={`Property photo ${index + 1}`}
+                      className="w-full h-64 object-cover rounded-lg hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
