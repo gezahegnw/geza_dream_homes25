@@ -22,13 +22,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     
     // Fetch a larger set of listings and find the one that matches by id
     const allListings = await fetchListings({ limit: 200 });
-    let property = allListings.find(listing => listing.id === propertyId);
+    const property = allListings.find(listing => listing.id === propertyId);
     
     if (!property) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
-
-    // Note: ZIP codes are now handled in the main listings fetch
 
     // Check if user has favorited this property
     const favorite = await prisma.favorite.findUnique({
