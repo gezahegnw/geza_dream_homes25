@@ -22,11 +22,17 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     
     // Fetch a larger set of listings and find the one that matches by id
     const allListings = await fetchListings({ limit: 200 });
+    console.log(`[DETAIL_DEBUG] Looking for property ID: ${propertyId}`);
+    console.log(`[DETAIL_DEBUG] Available property IDs: ${allListings.map(l => l.id).slice(0, 10).join(', ')}...`);
+    
     const property = allListings.find(listing => listing.id === propertyId);
     
     if (!property) {
+      console.log(`[DETAIL_DEBUG] Property ${propertyId} not found in ${allListings.length} listings`);
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
+    
+    console.log(`[DETAIL_DEBUG] Found property: ${property.address}`);
 
     // Check if user has favorited this property
     const favorite = await prisma.favorite.findUnique({
