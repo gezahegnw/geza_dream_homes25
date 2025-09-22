@@ -52,7 +52,7 @@ export default function PropertyDetailPage() {
       {property.photos && property.photos.length > 0 && (
         <div>
           <h2>Photos</h2>
-          {property.photos.map((photo, index) => (
+          {property.photos.map((photo: string, index: number) => (
             <img 
               key={index}
               src={photo}
