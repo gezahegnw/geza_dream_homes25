@@ -156,6 +156,12 @@ export default function PropertyDetailPage() {
           Ready to schedule a viewing? Contact me today!
         </p>
       </div>
+
+      <div style={{textAlign: 'center', marginTop: '40px', paddingBottom: '20px'}}>
+        <p style={{fontSize: '0.8rem', color: '#9ca3af'}}>
+          Listing data powered by <a href="https://rapidapi.com" target="_blank" rel="noopener noreferrer" style={{color: '#6b7280', textDecoration: 'underline'}}>RapidAPI</a>.
+        </p>
+      </div>
     </div>
   );
 }
