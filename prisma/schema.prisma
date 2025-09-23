@@ -45,6 +45,20 @@ model Lead {
   @@map("leads")
 }
 
+model SavedSearch {
+  id          String   @id @default(cuid())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  name        String
+  filters     Json
+  last_run    DateTime? // When the search was last run for notifications
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@unique([userId, name])
+}
+
 model Review {
   id           String   @id @default(cuid())
   created_at   DateTime @default(now()) @map("created_at")
@@ -57,6 +71,9 @@ model Review {
   approved     Boolean  @default(true)
   user_agent   String?  @map("user_agent")
   ip           String?
+  user_id      String?  @map("user_id")
+
+  user         User?    @relation("UserReviews", fields: [user_id], references: [id], onDelete: SetNull)
 
   @@map("reviews")
   @@index([created_at])
@@ -72,6 +89,8 @@ model User {
   is_admin       Boolean  @default(false)
 
   favorites      Favorite[]
+  savedSearches  SavedSearch[]
+  reviews        Review[] @relation("UserReviews")
 
   @@map("users")
   @@index([created_at])

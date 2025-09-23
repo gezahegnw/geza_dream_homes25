@@ -206,6 +206,28 @@ export default function ListingsPage() {
     }
   };
 
+  const handleSaveSearch = async () => {
+    const name = prompt('Please enter a name for this search:');
+    if (!name) return;
+
+    try {
+      const res = await fetch('/api/saved-searches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, filters }),
+      });
+
+      if (res.ok) {
+        alert('Search saved successfully!');
+      } else {
+        const data = await res.json();
+        alert(`Failed to save search: ${data.error}`);
+      }
+    } catch (error) {
+      alert('An error occurred while saving the search.');
+    }
+  };
+
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
     setPage(1);
     const updatedFilters = { ...filters, ...newFilters };
@@ -249,7 +271,7 @@ export default function ListingsPage() {
 
             <FilterPanel onFilterChange={handleFilterChange} />
 
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center">
               <div className="inline-flex rounded-md shadow-sm">
                 <button
                   onClick={() => setViewMode('list')}
@@ -262,6 +284,15 @@ export default function ListingsPage() {
                   Map View
                 </button>
               </div>
+
+              {Object.values(filters).some(v => v) && (
+                <button 
+                  onClick={handleSaveSearch}
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+                >
+                  Save Search
+                </button>
+              )}
             </div>
           </div>
           {approvedBanner && (
