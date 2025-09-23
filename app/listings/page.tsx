@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import { FunnelIcon } from "@heroicons/react/24/outline";
+import FilterPanel from "@/components/FilterPanel";
 
 type Listing = {
   id: string;
@@ -64,28 +64,14 @@ export default function ListingsPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [allItems, setAllItems] = useState<Listing[]>([]);
-  const [filteredItems, setFilteredItems] = useState<Listing[]>([]);
-  
-  // Filter states
-  const [filters, setFilters] = useState({
-    minPrice: '',
-    maxPrice: '',
-    minBeds: '',
-    maxBeds: '',
-    minBaths: '',
-    maxBaths: '',
-    minSqft: '',
-    maxSqft: ''
-  });
-  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<Partial<{ minPrice: string; maxPrice: string; beds: string; baths: string; sortBy: string; }>>({});
 
   const LISTINGS_PER_PAGE = 9;
 
   // Optional IDX iframe override
   const idxUrl = process.env.NEXT_PUBLIC_IDX_IFRAME_URL;
 
-  const fetchAndSetListings = async (pageNum: number, q: string) => {
+  const fetchAndSetListings = async (pageNum: number, q: string, currentFilters: typeof filters) => {
     setLoading(true);
     setError(null);
     try {
@@ -93,9 +79,14 @@ export default function ListingsPage() {
         limit: String(LISTINGS_PER_PAGE),
         page: String(pageNum),
       });
-      if (q) {
-        params.set("q", q);
-      }
+      if (q) params.set("q", q);
+
+      // Add filters to params
+      Object.entries(currentFilters).forEach(([key, value]) => {
+        if (value) {
+          params.set(key, value as string);
+        }
+      });
 
       const res = await fetch(`/api/listings?${params.toString()}`, { cache: "no-store" });
       const body = await res.json();
@@ -113,32 +104,6 @@ export default function ListingsPage() {
       setProvider(body.provider);
       setHasMore(body.hasMore || false);
       
-      // For filtering, we need all items - fetch them separately if this is page 1
-      if (pageNum === 1) {
-        // Get all listings for filtering
-        const allParams = new URLSearchParams({
-          limit: "100",
-          page: "1",
-        });
-        if (q) {
-          allParams.set("q", q);
-        }
-        
-        try {
-          const allRes = await fetch(`/api/listings?${allParams.toString()}`, { cache: "no-store" });
-          const allBody = await allRes.json();
-          if (allRes.ok) {
-            setAllItems(allBody.listings || []);
-            setFilteredItems(allBody.listings || []);
-          } else {
-            setAllItems(listings);
-            setFilteredItems(listings);
-          }
-        } catch {
-          setAllItems(listings);
-          setFilteredItems(listings);
-        }
-      }
 
       // One-time approved banner logic
       if (pageNum === 1) {
@@ -160,7 +125,7 @@ export default function ListingsPage() {
 
   useEffect(() => {
     if (idxUrl) return;
-    fetchAndSetListings(page, query);
+    fetchAndSetListings(page, query, filters);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idxUrl, page]);
 
@@ -168,7 +133,7 @@ export default function ListingsPage() {
     e.preventDefault();
     if (idxUrl) return; // iframe mode
     setPage(1); // Reset to first page on new search
-    fetchAndSetListings(1, query);
+    fetchAndSetListings(1, query, filters);
   }
 
   // Check if user is authenticated
@@ -234,63 +199,11 @@ export default function ListingsPage() {
     }
   };
 
-  // Apply filters to the listings
-  const applyFilters = () => {
-    let filtered = [...allItems];
-
-    // Price filters
-    if (filters.minPrice) {
-      filtered = filtered.filter(item => (item.price || 0) >= parseInt(filters.minPrice));
-    }
-    if (filters.maxPrice) {
-      filtered = filtered.filter(item => (item.price || 0) <= parseInt(filters.maxPrice));
-    }
-
-    // Bedroom filters
-    if (filters.minBeds) {
-      filtered = filtered.filter(item => (item.beds || 0) >= parseInt(filters.minBeds));
-    }
-    if (filters.maxBeds) {
-      filtered = filtered.filter(item => (item.beds || 0) <= parseInt(filters.maxBeds));
-    }
-
-    // Bathroom filters
-    if (filters.minBaths) {
-      filtered = filtered.filter(item => (item.baths || 0) >= parseFloat(filters.minBaths));
-    }
-    if (filters.maxBaths) {
-      filtered = filtered.filter(item => (item.baths || 0) <= parseFloat(filters.maxBaths));
-    }
-
-    // Square footage filters
-    if (filters.minSqft) {
-      filtered = filtered.filter(item => (item.sqft || 0) >= parseInt(filters.minSqft));
-    }
-    if (filters.maxSqft) {
-      filtered = filtered.filter(item => (item.sqft || 0) <= parseInt(filters.maxSqft));
-    }
-
-    setFilteredItems(filtered);
-    setPage(1); // Reset to first page when filtering
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      minPrice: '',
-      maxPrice: '',
-      minBeds: '',
-      maxBeds: '',
-      minBaths: '',
-      maxBaths: '',
-      minSqft: '',
-      maxSqft: ''
-    });
-    setFilteredItems(allItems);
+  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
     setPage(1);
-  };
-
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    const updatedFilters = { ...filters, ...newFilters };
+    setFilters(updatedFilters);
+    fetchAndSetListings(1, query, updatedFilters);
   };
 
   return (
@@ -314,7 +227,7 @@ export default function ListingsPage() {
       ) : (
         <>
           <div className="space-y-4">
-            <form onSubmit={handleSearch} className="flex gap-2">
+            <form onSubmit={handleSearch} className="flex gap-2 mb-4">
               <input
                 type="text"
                 placeholder="Search location (e.g., Overland Park, KS)"
@@ -325,134 +238,9 @@ export default function ListingsPage() {
               <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50" disabled={loading}>
                 {loading ? "Searching..." : "Search"}
               </button>
-              <button
-                type="button"
-                onClick={() => setShowFilters(!showFilters)}
-                className="rounded border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-              >
-                <FunnelIcon className="w-4 h-4" />
-                Filters
-              </button>
             </form>
 
-            {/* Filter Panel */}
-            {showFilters && (
-              <div className="bg-gray-50 p-6 rounded-lg border">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Price Range */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
-                    <div className="space-y-2">
-                      <input
-                        type="number"
-                        placeholder="Min Price"
-                        value={filters.minPrice}
-                        onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                        className="w-full rounded border px-3 py-2 text-sm"
-                      />
-                      <input
-                        type="number"
-                        placeholder="Max Price"
-                        value={filters.maxPrice}
-                        onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                        className="w-full rounded border px-3 py-2 text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Bedrooms */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
-                    <div className="space-y-2">
-                      <input
-                        type="number"
-                        placeholder="Min Beds"
-                        value={filters.minBeds}
-                        onChange={(e) => handleFilterChange('minBeds', e.target.value)}
-                        className="w-full rounded border px-3 py-2 text-sm"
-                        min="0"
-                      />
-                      <input
-                        type="number"
-                        placeholder="Max Beds"
-                        value={filters.maxBeds}
-                        onChange={(e) => handleFilterChange('maxBeds', e.target.value)}
-                        className="w-full rounded border px-3 py-2 text-sm"
-                        min="0"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Bathrooms */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
-                    <div className="space-y-2">
-                      <input
-                        type="number"
-                        placeholder="Min Baths"
-                        value={filters.minBaths}
-                        onChange={(e) => handleFilterChange('minBaths', e.target.value)}
-                        className="w-full rounded border px-3 py-2 text-sm"
-                        min="0"
-                        step="0.5"
-                      />
-                      <input
-                        type="number"
-                        placeholder="Max Baths"
-                        value={filters.maxBaths}
-                        onChange={(e) => handleFilterChange('maxBaths', e.target.value)}
-                        className="w-full rounded border px-3 py-2 text-sm"
-                        min="0"
-                        step="0.5"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Square Footage */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Square Feet</label>
-                    <div className="space-y-2">
-                      <input
-                        type="number"
-                        placeholder="Min Sqft"
-                        value={filters.minSqft}
-                        onChange={(e) => handleFilterChange('minSqft', e.target.value)}
-                        className="w-full rounded border px-3 py-2 text-sm"
-                        min="0"
-                      />
-                      <input
-                        type="number"
-                        placeholder="Max Sqft"
-                        value={filters.maxSqft}
-                        onChange={(e) => handleFilterChange('maxSqft', e.target.value)}
-                        className="w-full rounded border px-3 py-2 text-sm"
-                        min="0"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
-                  <div className="text-sm text-gray-600">
-                    Showing {filteredItems.length} properties
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={clearFilters}
-                      className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      Clear Filters
-                    </button>
-                    <button
-                      onClick={applyFilters}
-                      className="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded"
-                    >
-                      Apply Filters
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            <FilterPanel onFilterChange={handleFilterChange} />
           </div>
           {approvedBanner && (
             <div className="rounded border border-green-200 bg-green-50 p-4 text-green-800">
@@ -491,7 +279,7 @@ export default function ListingsPage() {
                 </div>
               ))}
             {!loading &&
-              filteredItems.slice((page - 1) * LISTINGS_PER_PAGE, page * LISTINGS_PER_PAGE).map((p) => (
+              items.map((p) => (
                 <div key={p.id} onClick={(e) => handleListingClick(p.id, e)} className="rounded-lg border block hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out bg-white relative cursor-pointer">
                   {getStatusBadge(p.status)}
                   <button
@@ -529,7 +317,7 @@ export default function ListingsPage() {
               ))}
             </div>
 
-            {filteredItems.length > 0 && (
+            {items.length > 0 && (
               <div className="flex justify-center items-center gap-4 mt-8">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -538,10 +326,10 @@ export default function ListingsPage() {
                 >
                   Previous
                 </button>
-                <span className="font-medium">Page {page} of {Math.ceil(filteredItems.length / LISTINGS_PER_PAGE)}</span>
+                <span className="font-medium">Page {page}</span>
                 <button
                   onClick={() => setPage((p) => p + 1)}
-                  disabled={page >= Math.ceil(filteredItems.length / LISTINGS_PER_PAGE) || loading}
+                  disabled={!hasMore || loading}
                   className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
                 >
                   Next

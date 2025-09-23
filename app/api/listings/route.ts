@@ -42,14 +42,41 @@ export async function GET(req: Request) {
     const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1;
     const offset = (page - 1) * limit;
 
+    // Extract filter and sort parameters
+    const minPrice = searchParams.get("minPrice") || undefined;
+    const maxPrice = searchParams.get("maxPrice") || undefined;
+    const beds = searchParams.get("beds") || undefined;
+    const baths = searchParams.get("baths") || undefined;
+    const sortBy = searchParams.get("sortBy") || undefined;
+
     const provider = process.env.LISTINGS_PROVIDER || "mock";
     const debugFlag = new URL(req.url).searchParams.get("debug") === "1";
     if (debugFlag) {
-      const { items, debug } = await fetchListingsDebug({ q, city, state_code, limit, offset, page });
+      const { items, debug } = await fetchListingsDebug({ q, city, state_code, limit, offset, page, minPrice, maxPrice, beds, baths, sortBy });
       return NextResponse.json({ listings: items, provider, debug });
     }
     try {
-      const allListings = await fetchListings({ q, city, state_code, limit: 100 }); // Get more results
+      let allListings = await fetchListings({ q, city, state_code, limit: 200 }); // Get more results
+
+      // Apply filters and sorting on the server
+      if (minPrice) {
+        allListings = allListings.filter(l => l.price && l.price >= parseInt(minPrice));
+      }
+      if (maxPrice) {
+        allListings = allListings.filter(l => l.price && l.price <= parseInt(maxPrice));
+      }
+      if (beds) {
+        allListings = allListings.filter(l => l.beds && l.beds >= parseInt(beds));
+      }
+      if (baths) {
+        allListings = allListings.filter(l => l.baths && l.baths >= parseInt(baths));
+      }
+
+      if (sortBy === 'price_asc') {
+        allListings.sort((a, b) => (a.price || Infinity) - (b.price || Infinity));
+      } else if (sortBy === 'price_desc') {
+        allListings.sort((a, b) => (b.price || 0) - (a.price || 0));
+      }
       
       // Calculate pagination
       const totalItems = allListings.length;

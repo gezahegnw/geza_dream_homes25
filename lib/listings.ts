@@ -27,6 +27,11 @@ export type ListingsQuery = {
   limit?: number;
   offset?: number;
   page?: number;
+  minPrice?: string;
+  maxPrice?: string;
+  beds?: string;
+  baths?: string;
+  sortBy?: string;
 };
 
 // Simple in-memory cache for API responses
