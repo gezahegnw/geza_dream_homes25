@@ -107,6 +107,20 @@ export default function MobileMenu() {
                 Listings
               </Link>
               <Link 
+                href="/favorites" 
+                className="block py-2 text-lg text-gray-600 hover:text-brand"
+                onClick={() => setIsOpen(false)}
+              >
+                Favorites
+              </Link>
+              <Link 
+                href="/gallery" 
+                className="block py-2 text-lg text-gray-600 hover:text-brand"
+                onClick={() => setIsOpen(false)}
+              >
+                Gallery
+              </Link>
+              <Link 
                 href="/about" 
                 className="block py-2 text-lg text-gray-600 hover:text-brand"
                 onClick={() => setIsOpen(false)}
