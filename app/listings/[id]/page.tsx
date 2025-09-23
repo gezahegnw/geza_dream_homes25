@@ -45,11 +45,7 @@ export default function PropertyDetailPage() {
       {data.photos && data.photos.length > 0 && (
         <div style={{marginBottom: '30px'}}>
           <h2 style={{marginBottom: '20px'}}>Photos</h2>
-          <div style={{
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(3, 1fr)', 
-            gap: '15px'
-          }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.photos.map((photo: any, i: number) => (
               <img 
                 key={i}
