@@ -28,23 +28,78 @@ export default function PropertyDetailPage() {
   if (!data) return <div>Property not found</div>;
 
   return (
-    <div style={{padding: '20px', maxWidth: '1000px', margin: '0 auto'}}>
-      <a href="/listings">← Back to Listings</a>
+    <div style={{padding: '20px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'Arial, sans-serif'}}>
+      <div style={{marginBottom: '20px'}}>
+        <a href="/listings" style={{color: '#2563eb', textDecoration: 'none', fontSize: '16px'}}>
+          ← Back to Listings
+        </a>
+      </div>
       
-      <h1>{data.address || 'Property Address'}</h1>
-      <p>{data.city}, {data.state} {data.zipCode}</p>
+      <div style={{marginBottom: '30px', borderBottom: '2px solid #e5e7eb', paddingBottom: '20px'}}>
+        <h1 style={{fontSize: '2.5rem', fontWeight: 'bold', margin: '0 0 10px 0', color: '#1f2937'}}>
+          {data.address || 'Property Address'}
+        </h1>
+        <p style={{fontSize: '1.2rem', color: '#6b7280', margin: '0'}}>
+          {data.city}, {data.state} {data.zipCode}
+        </p>
+      </div>
       
-      <div>
-        <p>Price: {data.price ? `$${data.price.toLocaleString()}` : 'N/A'}</p>
-        <p>Beds: {data.beds || 'N/A'}</p>
-        <p>Baths: {data.baths || 'N/A'}</p>
-        <p>Sq Ft: {data.sqft ? `${data.sqft.toLocaleString()}` : 'N/A'}</p>
-        <p>Status: {data.status || 'Active'}</p>
+      <div style={{
+        backgroundColor: '#f8fafc', 
+        padding: '25px', 
+        borderRadius: '12px', 
+        marginBottom: '30px',
+        border: '1px solid #e2e8f0'
+      }}>
+        <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '20px', color: '#1e293b'}}>
+          Property Details
+        </h2>
+        <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px'}}>
+          <div style={{minWidth: '150px'}}>
+            <span style={{fontSize: '2rem', fontWeight: 'bold', color: '#059669'}}>
+              {data.price ? `$${data.price.toLocaleString()}` : 'N/A'}
+            </span>
+            <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Price</p>
+          </div>
+          <div style={{minWidth: '100px'}}>
+            <span style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937'}}>
+              {data.beds || 'N/A'}
+            </span>
+            <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Beds</p>
+          </div>
+          <div style={{minWidth: '100px'}}>
+            <span style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937'}}>
+              {data.baths || 'N/A'}
+            </span>
+            <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Baths</p>
+          </div>
+          <div style={{minWidth: '120px'}}>
+            <span style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937'}}>
+              {data.sqft ? `${data.sqft.toLocaleString()}` : 'N/A'}
+            </span>
+            <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Sq Ft</p>
+          </div>
+          <div style={{minWidth: '100px'}}>
+            <span style={{
+              fontSize: '1rem', 
+              fontWeight: '600', 
+              color: '#ffffff',
+              backgroundColor: '#10b981',
+              padding: '4px 12px',
+              borderRadius: '20px'
+            }}>
+              {data.status || 'Active'}
+            </span>
+            <p style={{margin: '5px 0 0 0', color: '#6b7280', fontSize: '0.9rem'}}>Status</p>
+          </div>
+        </div>
       </div>
 
       {data.photos && data.photos.length > 0 && (
-        <div style={{marginBottom: '30px'}}>
-          <h2 style={{marginBottom: '20px'}}>Photos</h2>
+        <div style={{marginBottom: '40px'}}>
+          <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '20px', color: '#1e293b'}}>
+            Property Photos
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.photos.map((photo: any, i: number) => (
               <img 
@@ -71,11 +126,51 @@ export default function PropertyDetailPage() {
         </div>
       )}
 
-      <div>
-        <h2>Contact</h2>
-        <p>Gezahegn Worku - RE/MAX Beyond</p>
-        <p>Phone: (913) 407-8620</p>
-        <p>Email: gezarealesteteagent@gmail.com</p>
+      <div style={{
+        backgroundColor: '#1e40af', 
+        color: 'white',
+        padding: '30px', 
+        borderRadius: '12px',
+        textAlign: 'center'
+      }}>
+        <h2 style={{fontSize: '1.8rem', fontWeight: '600', marginBottom: '15px', margin: '0 0 15px 0'}}>
+          Contact Your Agent
+        </h2>
+        <div style={{marginBottom: '20px'}}>
+          <p style={{fontSize: '1.2rem', fontWeight: '500', margin: '0 0 5px 0'}}>
+            Gezahegn Worku
+          </p>
+          <p style={{fontSize: '1rem', opacity: '0.9', margin: '0'}}>
+            RE/MAX Beyond
+          </p>
+        </div>
+        <div style={{display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap'}}>
+          <a 
+            href="tel:+19134078620" 
+            style={{
+              color: 'white', 
+              textDecoration: 'none',
+              fontSize: '1.1rem',
+              fontWeight: '500'
+            }}
+          >
+            📞 (913) 407-8620
+          </a>
+          <a 
+            href="mailto:gezarealesteteagent@gmail.com" 
+            style={{
+              color: 'white', 
+              textDecoration: 'none',
+              fontSize: '1.1rem',
+              fontWeight: '500'
+            }}
+          >
+            📧 Email Me
+          </a>
+        </div>
+        <p style={{fontSize: '0.95rem', opacity: '0.9', marginTop: '15px', margin: '15px 0 0 0'}}>
+          Ready to schedule a viewing? Contact me today!
+        </p>
       </div>
     </div>
   );
