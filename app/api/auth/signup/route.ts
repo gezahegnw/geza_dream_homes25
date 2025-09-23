@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, createSessionToken, sessionCookie } from "@/lib/auth";
+import { sendEmail } from "@/lib/resend";
 
 export async function POST(req: Request) {
   try {
@@ -20,6 +21,27 @@ export async function POST(req: Request) {
 
     const password_hash = await hashPassword(password);
     const user = await prisma.user.create({ data: { name, email, password_hash, approved: false } });
+
+    // Send notification email to admin
+    const notifyEmail = process.env.SIGNUP_NOTIFICATION_EMAIL;
+    if (notifyEmail) {
+      try {
+        await sendEmail({
+          to: notifyEmail,
+          subject: 'New User Sign-Up on Geza Dream Homes',
+          html: `<h1>New User Registration</h1>
+                 <p>A new user has signed up and is awaiting approval.</p>
+                 <ul>
+                   <li><strong>Name:</strong> ${user.name}</li>
+                   <li><strong>Email:</strong> ${user.email}</li>
+                 </ul>
+                 <p>You can approve them in the admin dashboard.</p>`,
+        });
+      } catch (emailError) {
+        console.error("[SIGNUP_EMAIL_ERROR]", emailError);
+        // Do not block the user creation process if email fails
+      }
+    }
 
     // Optionally issue a session so user can see their status
     const token = await createSessionToken({ sub: user.id, email: user.email, name: user.name, approved: user.approved, is_admin: user.is_admin });

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendEmail } from '@/lib/resend';
 
 // GET /api/reviews?page=1&pageSize=10
 export async function GET(req: Request) {
@@ -97,7 +98,7 @@ export async function POST(req: Request) {
       .trim()
       .slice(0, 64);
 
-    const created = await prisma.review.create({
+    const review = await prisma.review.create({
       data: {
         name,
         email: email || null,
@@ -109,10 +110,34 @@ export async function POST(req: Request) {
         ip: ip || null,
         image_url: imageUrl ? imageUrl : null,
       },
-      select: { id: true },
+      select: { id: true, name: true, rating: true, title: true, content: true },
     });
 
-    return NextResponse.json({ id: created.id }, { status: 201 });
+    // Send notification email to admin
+    const notifyEmail = process.env.REVIEW_NOTIFICATION_EMAIL;
+    if (notifyEmail) {
+      try {
+        await sendEmail({
+          to: notifyEmail,
+          subject: `New Review Submitted: ${review.rating} ★ by ${review.name}`,
+          html: `<h1>New Review Submitted</h1>
+                 <p>A new review has been submitted and is awaiting approval.</p>
+                 <ul>
+                   <li><strong>Name:</strong> ${review.name}</li>
+                   <li><strong>Rating:</strong> ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</li>
+                   <li><strong>Title:</strong> ${review.title || 'N/A'}</li>
+                 </ul>
+                 <p><strong>Content:</strong></p>
+                 <p>${review.content}</p>
+                 <p>You can approve or delete this review in the admin dashboard.</p>`,
+        });
+      } catch (emailError) {
+        console.error("[REVIEW_EMAIL_ERROR]", emailError);
+        // Do not block the review creation process if email fails
+      }
+    }
+
+    return NextResponse.json({ id: review.id }, { status: 201 });
   } catch (e) {
     return NextResponse.json({ error: 'Failed to create review' }, { status: 500 });
   }
