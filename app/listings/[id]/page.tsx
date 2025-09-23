@@ -34,12 +34,56 @@ export default function PropertyDetailPage() {
       <h1>{data.address || 'Property Address'}</h1>
       <p>{data.city}, {data.state} {data.zipCode}</p>
       
-      <div>
-        <p>Price: {data.price ? `$${data.price.toLocaleString()}` : 'N/A'}</p>
-        <p>Beds: {data.beds || 'N/A'}</p>
-        <p>Baths: {data.baths || 'N/A'}</p>
-        <p>Sq Ft: {data.sqft ? `${data.sqft.toLocaleString()}` : 'N/A'}</p>
-        <p>Status: {data.status || 'Active'}</p>
+      {/* Property Overview */}
+      <div style={{backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', marginBottom: '20px'}}>
+        <h2 style={{marginBottom: '15px', fontSize: '1.5rem'}}>Property Overview</h2>
+        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px'}}>
+          <div>
+            <strong>Price:</strong> {data.price ? `$${data.price.toLocaleString()}` : 'N/A'}
+          </div>
+          <div>
+            <strong>Beds:</strong> {data.beds || 'N/A'}
+          </div>
+          <div>
+            <strong>Baths:</strong> {data.baths || 'N/A'}
+          </div>
+          <div>
+            <strong>Square Feet:</strong> {data.sqft ? `${data.sqft.toLocaleString()} sq ft` : 'N/A'}
+          </div>
+          {data.pricePerSqft && (
+            <div>
+              <strong>Price/Sq Ft:</strong> ${data.pricePerSqft}
+            </div>
+          )}
+          <div>
+            <strong>Status:</strong> {data.status || 'Active'}
+          </div>
+          {data.propertyType && (
+            <div>
+              <strong>Property Type:</strong> {data.propertyType}
+            </div>
+          )}
+          {data.yearBuilt && (
+            <div>
+              <strong>Year Built:</strong> {data.yearBuilt}
+            </div>
+          )}
+          {data.lotSize && (
+            <div>
+              <strong>Lot Size:</strong> {data.lotSize.toLocaleString()} sq ft
+            </div>
+          )}
+          {data.garage && (
+            <div>
+              <strong>Garage:</strong> {data.garage} spaces
+            </div>
+          )}
+          {data.hoaDues && (
+            <div>
+              <strong>HOA Dues:</strong> ${data.hoaDues}/month
+            </div>
+          )}
+        </div>
       </div>
 
       {data.photos && data.photos.length > 0 && (
@@ -71,11 +115,32 @@ export default function PropertyDetailPage() {
         </div>
       )}
 
-      <div>
-        <h2>Contact</h2>
-        <p>Gezahegn Worku - RE/MAX Beyond</p>
-        <p>Phone: (913) 407-8620</p>
-        <p>Email: gezarealesteteagent@gmail.com</p>
+      {/* Additional Links */}
+      {data.url && (
+        <div style={{marginBottom: '20px', padding: '15px', backgroundColor: '#e3f2fd', borderRadius: '8px'}}>
+          <h3>View Original Listing</h3>
+          <a 
+            href={data.url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{color: '#1976d2', textDecoration: 'underline'}}
+          >
+            View on Redfin →
+          </a>
+        </div>
+      )}
+
+      {/* Contact Information */}
+      <div style={{backgroundColor: '#f1f8e9', padding: '20px', borderRadius: '8px'}}>
+        <h2>Contact Your Agent</h2>
+        <div style={{marginTop: '10px'}}>
+          <p><strong>Gezahegn Worku</strong> - RE/MAX Beyond</p>
+          <p>📞 Phone: <a href="tel:+19134078620" style={{color: '#2e7d32'}}>(913) 407-8620</a></p>
+          <p>📧 Email: <a href="mailto:gezarealesteteagent@gmail.com" style={{color: '#2e7d32'}}>gezarealesteteagent@gmail.com</a></p>
+          <p style={{marginTop: '10px', fontStyle: 'italic'}}>
+            Ready to schedule a viewing or have questions? Contact me today!
+          </p>
+        </div>
       </div>
     </div>
   );
