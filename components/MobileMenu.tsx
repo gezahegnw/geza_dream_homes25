@@ -86,7 +86,7 @@ export default function MobileMenu() {
       {/* Mobile menu overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 transition-opacity"
+          className="fixed inset-0 z-[9999] bg-black/50 transition-opacity"
           aria-hidden="true"
           onClick={() => setIsOpen(false)}
         >

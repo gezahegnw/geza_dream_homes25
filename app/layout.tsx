@@ -79,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${inter.className} bg-white min-h-screen flex flex-col`}>
-        <header className="sticky top-0 z-50 bg-white shadow-sm">
+        <header className="sticky top-0 z-40 bg-white shadow-sm">
           <nav className="w-full flex h-20 items-center justify-between px-0 md:px-0">
             <a href="/" className="flex items-center leading-tight pl-4 pr-2" aria-label="Geza Dream Homes">
               {/* Light theme SVG logo */}
