@@ -92,6 +92,7 @@ export default function MobileMenu() {
         >
           <div className="mobile-menu-container absolute right-0 h-full w-4/5 max-w-sm bg-white p-6 shadow-lg" role="dialog" aria-modal="true">
             <nav className="flex flex-col space-y-4">
+              {/* Mobile navigation menu with all pages */}
               <Link 
                 href="/" 
                 className="block py-2 text-lg font-medium text-gray-900 hover:text-brand"
