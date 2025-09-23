@@ -3,6 +3,12 @@ import React, { useEffect, useState } from "react";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import FilterPanel from "@/components/FilterPanel";
+import dynamic from 'next/dynamic';
+
+const MapView = dynamic(() => import('@/components/MapView'), {
+  ssr: false,
+  loading: () => <div className="h-96 flex items-center justify-center bg-gray-100 rounded-lg">Loading map...</div>
+});
 
 type Listing = {
   id: string;
@@ -65,6 +71,7 @@ export default function ListingsPage() {
   const [hasMore, setHasMore] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<Partial<{ minPrice: string; maxPrice: string; beds: string; baths: string; sortBy: string; }>>({});
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   const LISTINGS_PER_PAGE = 9;
 
@@ -241,6 +248,21 @@ export default function ListingsPage() {
             </form>
 
             <FilterPanel onFilterChange={handleFilterChange} />
+
+            <div className="flex justify-end">
+              <div className="inline-flex rounded-md shadow-sm">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-4 py-2 text-sm font-medium rounded-l-lg border ${viewMode === 'list' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+                  List View
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`px-4 py-2 text-sm font-medium rounded-r-lg border ${viewMode === 'map' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+                  Map View
+                </button>
+              </div>
+            </div>
           </div>
           {approvedBanner && (
             <div className="rounded border border-green-200 bg-green-50 p-4 text-green-800">
@@ -268,7 +290,8 @@ export default function ListingsPage() {
               )}
             </div>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {viewMode === 'list' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {loading &&
               Array.from({ length: 9 }).map((_, i) => (
                 <div key={i} className="rounded-lg border p-4 animate-pulse bg-white">
@@ -316,6 +339,9 @@ export default function ListingsPage() {
                 </div>
               ))}
             </div>
+          ) : (
+            <MapView listings={items} />
+          )}
 
             {items.length > 0 && (
               <div className="flex justify-center items-center gap-4 mt-8">

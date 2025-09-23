@@ -18,6 +18,8 @@ export interface Listing {
   lotSize?: number;
   garage?: number;
   url?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export type ListingsQuery = {
@@ -258,6 +260,8 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       lotSize: p?.lotSize || p?.lot_size || p?.lotSqft,
       garage: p?.garage || p?.garageSpaces || p?.parking,
       url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
+      lat: p?.latLong?.latitude || p?.latLong?.value?.latitude,
+      lng: p?.latLong?.longitude || p?.latLong?.value?.longitude,
     }));
 
     // 2) If sale search and primary returned nothing, resolve region and try sale endpoint
