@@ -40,12 +40,6 @@ export default function PropertyDetailPage() {
         <p>Baths: {data.baths || 'N/A'}</p>
         <p>Sq Ft: {data.sqft ? `${data.sqft.toLocaleString()}` : 'N/A'}</p>
         <p>Status: {data.status || 'Active'}</p>
-        {data.propertyType && <p>Property Type: {data.propertyType}</p>}
-        {data.yearBuilt && <p>Year Built: {data.yearBuilt}</p>}
-        {data.pricePerSqft && <p>Price/Sq Ft: ${data.pricePerSqft}</p>}
-        {data.lotSize && <p>Lot Size: {data.lotSize.toLocaleString()} sq ft</p>}
-        {data.garage && <p>Garage: {data.garage} spaces</p>}
-        {data.hoaDues && <p>HOA Dues: ${data.hoaDues}/month</p>}
       </div>
 
       {data.photos && data.photos.length > 0 && (
