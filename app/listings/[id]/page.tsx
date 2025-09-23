@@ -145,27 +145,11 @@ export default function PropertyDetailPage() {
           </p>
         </div>
         <div style={{display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap'}}>
-          <a 
-            href="tel:+19134078620" 
-            style={{
-              color: 'white', 
-              textDecoration: 'none',
-              fontSize: '1.1rem',
-              fontWeight: '500'
-            }}
-          >
-            📞 (913) 407-8620
+          <a href="tel:+19134078620" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
+            📞 Call (913) 407-8620
           </a>
-          <a 
-            href="mailto:gezarealesteteagent@gmail.com" 
-            style={{
-              color: 'white', 
-              textDecoration: 'none',
-              fontSize: '1.1rem',
-              fontWeight: '500'
-            }}
-          >
-            📧 Email Me
+          <a href="mailto:gezarealesteteagent@gmail.com" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
+            📧 Email Geza
           </a>
         </div>
         <p style={{fontSize: '0.95rem', opacity: '0.9', marginTop: '15px', margin: '15px 0 0 0'}}>
