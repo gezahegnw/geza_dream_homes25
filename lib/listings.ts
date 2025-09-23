@@ -78,7 +78,7 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
   if (provider === "mock") {
     const listings = mockListings();
     if (listings.length === 0) {
-      console.log(`[LISTINGS_DEBUG] Final listings count: ${listings.length}`);
+      // No-op, just to have a line for potential future logging
     }
     setCachedListings(cacheKey, listings);
     return listings;
@@ -183,7 +183,6 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       const parts = query.q.split(",").map(part => part.trim());
       if (parts.length === 2 && parts[1].length <= 3) { // Likely "City, ST" format
         location = parts[0]; // Use just the city
-        console.log(`[LISTINGS_DEBUG] Converted "${query.q}" to city-only: "${location}"`);
       }
     }
     const limit = String(query.limit ?? 12);
@@ -207,17 +206,12 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
     };
     // 1) Try simple location-based search first (cheapest/most reliable)
     let url: string = `https://${host}/property/search?${new URLSearchParams({ location, limit, offset })}`;
-    console.log(`[LISTINGS_DEBUG] Provider: ${provider}, URL: ${url}`);
     let res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
     const rl1 = res.headers.get('x-ratelimit-remaining') || res.headers.get('x-ratelimit-requests-remaining');
-    if (rl1) console.log(`[LISTINGS_DEBUG] RateLimit Remaining (primary): ${rl1}`);
-    console.log(`[LISTINGS_DEBUG] API Response Status: ${res.status}`);
 
     if (!res.ok) {
       const errorBody = await res.text();
-      console.error(`[LISTINGS_DEBUG] API Error: ${res.status}`, errorBody);
       if (res.status === 429 || res.status === 403) {
-        console.warn('[LISTINGS_DEBUG] Rate limited/forbidden by provider.');
         throw new Error('RATE_LIMITED');
       }
       return [];
@@ -226,17 +220,13 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
     let data: any = {};
     try {
       const responseText = await res.text();
-      console.log('[LISTINGS_DEBUG] Raw API response:', responseText.substring(0, 200));
       data = JSON.parse(responseText);
-      console.log('[LISTINGS_DEBUG] Successfully parsed API response JSON (primary).');
     } catch (parseError) {
-      console.error('[LISTINGS_DEBUG] Failed to parse API response as JSON:', parseError);
       // Return empty array instead of continuing with invalid data
       return [];
     }
 
     let raw = extractArray(data);
-    console.log(`[LISTINGS_DEBUG] Extracted ${raw.length} raw items from API response (primary).`);
     
     // Apply pagination to the raw results
     const startIndex = query.offset ?? 0;
@@ -270,17 +260,13 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       const regionId = await resolveRegionId();
       if (regionId) {
         url = `https://${host}/properties/search-sale?${new URLSearchParams({ regionId, page, limit: resultsPerPage })}`;
-        console.log(`[LISTINGS_DEBUG] Fallback URL (search-sale): ${url}`);
         res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
         const rl2 = res.headers.get('x-ratelimit-remaining') || res.headers.get('x-ratelimit-requests-remaining');
-        if (rl2) console.log(`[LISTINGS_DEBUG] RateLimit Remaining (fallback): ${rl2}`);
-        console.log(`[LISTINGS_DEBUG] API Response Status (fallback): ${res.status}`);
         if (res.ok) {
           try {
             const responseText2 = await res.text();
             const d2 = JSON.parse(responseText2);
             const raw2 = extractArray(d2);
-            console.log(`[LISTINGS_DEBUG] Extracted ${raw2.length} raw items from API response (fallback).`);
             listings = raw2.slice(0, query.limit ?? 12).map((p: any, i: number): Listing => ({
               id: String(p?.propertyId || p?.listingId || i),
               address: p?.streetLine?.value || "",
@@ -303,14 +289,12 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
               url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
             }));
           } catch (parseError2) {
-            console.error('[LISTINGS_DEBUG] Failed to parse fallback API response as JSON:', parseError2);
+            // Silently fail
           }
         } else {
           const body2 = await res.text();
-          console.error(`[LISTINGS_DEBUG] API Error (fallback search-sale): ${res.status}`, body2);
         }
       } else {
-        console.warn('[LISTINGS_DEBUG] Could not resolve regionId; staying with primary search results (possibly empty).');
       }
     }
     
@@ -343,7 +327,7 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
               url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
             }));
           } catch (parseError3) {
-            console.error('[LISTINGS_DEBUG] Failed to parse suggestion API response as JSON:', parseError3);
+            // Silently fail
           }
         }
       }
@@ -378,12 +362,10 @@ export async function fetchListingById(propertyId: string): Promise<Listing | nu
   if (!key) throw new Error("RAPIDAPI_REDFIN_KEY not set");
 
   const url = `https://${host}/properties/v3/detail?propertyId=${propertyId}`;
-  console.log(`[LISTING_DETAIL_DEBUG] Fetching detailed data from: ${url}`);
 
   const res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
 
   if (!res.ok) {
-    console.error(`[LISTING_DETAIL_DEBUG] API Error: ${res.status}`, await res.text());
     return null;
   }
 
@@ -391,7 +373,6 @@ export async function fetchListingById(propertyId: string): Promise<Listing | nu
     const data = await res.json();
     const p = data?.data;
     if (!p) {
-      console.error('[LISTING_DETAIL_DEBUG] No data object in response');
       return null;
     }
 
@@ -420,7 +401,6 @@ export async function fetchListingById(propertyId: string): Promise<Listing | nu
 
     return listing;
   } catch (e) {
-    console.error('[LISTING_DETAIL_DEBUG] Failed to parse detailed response:', e);
     return null;
   }
 }

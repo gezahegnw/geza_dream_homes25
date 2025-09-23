@@ -107,12 +107,6 @@ export default function ListingsPage() {
 
       const listings = body.listings || [];
       
-      // Debug: Log the first listing to see its structure
-      if (listings.length > 0) {
-        console.log('DEBUG: First listing data:', listings[0]);
-        console.log('DEBUG: Photos field:', listings[0].photos);
-        console.log('DEBUG: Photo field (old):', listings[0].photo);
-      }
       
       // For pagination, we only show the current page results
       setItems(listings);
