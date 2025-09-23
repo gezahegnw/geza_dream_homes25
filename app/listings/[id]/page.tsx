@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import MortgageCalculator from "@/components/MortgageCalculator";
 
 export default function PropertyDetailPage() {
   const params = useParams();
@@ -47,80 +48,93 @@ export default function PropertyDetailPage() {
         </p>
       </div>
       
-      <div style={{
-        backgroundColor: '#f8fafc', 
-        padding: '25px', 
-        borderRadius: '12px', 
-        marginBottom: '30px',
-        border: '1px solid #e2e8f0'
-      }}>
-        <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '20px', color: '#1e293b'}}>
-          Property Details
-        </h2>
-        <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px'}}>
-          <div style={{minWidth: '150px'}}>
-            <span style={{fontSize: '2rem', fontWeight: 'bold', color: '#059669'}}>
-              {data.price ? `$${data.price.toLocaleString()}` : 'N/A'}
-            </span>
-            <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Price</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          {/* Property Details Card */}
+          <div style={{
+            backgroundColor: '#f8fafc', 
+            padding: '25px', 
+            borderRadius: '12px', 
+            border: '1px solid #e2e8f0'
+          }}>
+            <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '20px', color: '#1e293b'}}>
+              Property Details
+            </h2>
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px'}}>
+              <div style={{minWidth: '150px'}}>
+                <span style={{fontSize: '2rem', fontWeight: 'bold', color: '#059669'}}>
+                  {data.price ? `$${data.price.toLocaleString()}` : 'N/A'}
+                </span>
+                <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Price</p>
+              </div>
+              <div style={{minWidth: '100px'}}>
+                <span style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937'}}>
+                  {data.beds || 'N/A'}
+                </span>
+                <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Beds</p>
+              </div>
+              <div style={{minWidth: '100px'}}>
+                <span style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937'}}>
+                  {data.baths || 'N/A'}
+                </span>
+                <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Baths</p>
+              </div>
+              <div style={{minWidth: '120px'}}>
+                <span style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937'}}>
+                  {data.sqft ? `${data.sqft.toLocaleString()}` : 'N/A'}
+                </span>
+                <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Sq Ft</p>
+              </div>
+              <div style={{minWidth: '100px'}}>
+                <span style={{
+                  fontSize: '1rem', 
+                  fontWeight: '600', 
+                  color: '#ffffff',
+                  backgroundColor: '#10b981',
+                  padding: '4px 12px',
+                  borderRadius: '20px'
+                }}>
+                  {data.status || 'Active'}
+                </span>
+                <p style={{margin: '5px 0 0 0', color: '#6b7280', fontSize: '0.9rem'}}>Status</p>
+              </div>
+            </div>
           </div>
-          <div style={{minWidth: '100px'}}>
-            <span style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937'}}>
-              {data.beds || 'N/A'}
-            </span>
-            <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Beds</p>
-          </div>
-          <div style={{minWidth: '100px'}}>
-            <span style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937'}}>
-              {data.baths || 'N/A'}
-            </span>
-            <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Baths</p>
-          </div>
-          <div style={{minWidth: '120px'}}>
-            <span style={{fontSize: '1.5rem', fontWeight: '600', color: '#1f2937'}}>
-              {data.sqft ? `${data.sqft.toLocaleString()}` : 'N/A'}
-            </span>
-            <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Sq Ft</p>
-          </div>
-          <div style={{minWidth: '100px'}}>
-            <span style={{
-              fontSize: '1rem', 
-              fontWeight: '600', 
-              color: '#ffffff',
-              backgroundColor: '#10b981',
-              padding: '4px 12px',
-              borderRadius: '20px'
-            }}>
-              {data.status || 'Active'}
-            </span>
-            <p style={{margin: '5px 0 0 0', color: '#6b7280', fontSize: '0.9rem'}}>Status</p>
+
+          {/* Photos Section */}
+          {data.photos && data.photos.length > 0 && (
+            <div style={{marginBottom: '40px'}}>
+              <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '20px', color: '#1e293b'}}>
+                Property Photos
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {data.photos.map((photo: any, i: number) => (
+                  <img 
+                    key={i}
+                    src={photo}
+                    alt={`Photo ${i + 1}`}
+                    style={{
+                      width: '100%', 
+                      height: '250px', 
+                      objectFit: 'cover', 
+                      borderRadius: '8px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column for Calculator */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-24">
+            <MortgageCalculator price={data.price} />
           </div>
         </div>
       </div>
 
-      {data.photos && data.photos.length > 0 && (
-        <div style={{marginBottom: '40px'}}>
-          <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '20px', color: '#1e293b'}}>
-            Property Photos
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.photos.map((photo: any, i: number) => (
-              <img 
-                key={i}
-                src={photo}
-                alt={`Photo ${i + 1}`}
-                style={{
-                  width: '100%', 
-                  height: '250px', 
-                  objectFit: 'cover', 
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
       {data.description && (
         <div>

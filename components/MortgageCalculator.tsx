@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calculator, DollarSign, Percent, Calendar } from 'lucide-react';
 
 interface MortgageResult {
@@ -11,12 +11,21 @@ interface MortgageResult {
   totalPayment: number;
 }
 
-export default function MortgageCalculator() {
-  const [homePrice, setHomePrice] = useState<string>('400000');
+interface MortgageCalculatorProps {
+  price: number;
+}
+
+export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
+  const [homePrice, setHomePrice] = useState<string>(String(price || 400000));
   const [downPayment, setDownPayment] = useState<string>('80000');
   const [interestRate, setInterestRate] = useState<string>('7.0');
   const [loanTerm, setLoanTerm] = useState<string>('30');
   const [result, setResult] = useState<MortgageResult | null>(null);
+
+  useEffect(() => {
+    calculateMortgage();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const calculateMortgage = () => {
     const price = parseFloat(homePrice);
