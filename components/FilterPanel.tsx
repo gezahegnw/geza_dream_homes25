@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 interface FilterValues {
   minPrice: string;
