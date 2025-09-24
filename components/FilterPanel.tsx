@@ -29,10 +29,10 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-6">
+    <div className="bg-slate-50 border border-slate-200 rounded-xl shadow-sm p-6 mb-6">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-lg transition-colors"
+        className="flex items-center justify-between w-full text-left group hover:bg-slate-100 -m-2 p-2 rounded-lg transition-colors"
       >
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-blue-100 rounded-lg">
