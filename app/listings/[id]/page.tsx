@@ -130,7 +130,7 @@ export default function PropertyDetailPage() {
         {/* Right Column for Calculator */}
         <div className="lg:col-span-1">
           <div className="sticky top-24">
-            <MortgageCalculator price={data.price} />
+            <MortgageCalculator price={data.price || 400000} />
           </div>
         </div>
       </div>

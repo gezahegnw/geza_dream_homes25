@@ -22,7 +22,7 @@ export async function sendEmail(params: EmailParams) {
       subject: params.subject,
       html: params.html,
     });
-    console.log('Email sent successfully via Resend:', data.id);
+    console.log('Email sent successfully via Resend:', data);
     return data;
   } catch (error) {
     console.error('Failed to send email via Resend:', error);

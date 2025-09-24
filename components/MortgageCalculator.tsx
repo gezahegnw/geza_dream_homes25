@@ -12,7 +12,7 @@ interface MortgageResult {
 }
 
 interface MortgageCalculatorProps {
-  price: number;
+  price?: number;
 }
 
 export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
