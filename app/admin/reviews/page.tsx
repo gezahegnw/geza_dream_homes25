@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { AdminAuth } from '@/lib/admin-auth';
 
 type Review = {
   id: string;
@@ -32,7 +33,14 @@ export default function AdminReviewsPage() {
   const [data, setData] = useState<ApiList | null>(null);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production") {
+    // Check if already authenticated
+    if (AdminAuth.isAuthenticated()) {
+      const savedToken = AdminAuth.getToken();
+      if (savedToken) {
+        setToken(savedToken);
+        load(1); // Auto-load data if authenticated
+      }
+    } else if (process.env.NODE_ENV !== "production") {
       const t = (process.env as any).ADMIN_TOKEN as string | undefined;
       if (t && !token) setToken(t);
     }
@@ -102,6 +110,38 @@ export default function AdminReviewsPage() {
   }
 
   const rows = useMemo(() => data?.reviews ?? [], [data]);
+
+  // Show authentication screen if not authenticated and no token
+  if (!AdminAuth.isAuthenticated() && !token) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-16">
+        <div className="bg-white rounded-lg border p-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Admin Authentication Required</h1>
+          <p className="text-gray-600 mb-6">Please enter your admin token to access review management.</p>
+          
+          <div className="space-y-4">
+            <input
+              type="password"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              placeholder="Enter admin token"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            />
+            <button
+              onClick={() => {
+                AdminAuth.setToken(token);
+                load(1);
+              }}
+              disabled={!token.trim()}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Access Review Management
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
