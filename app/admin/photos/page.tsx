@@ -32,8 +32,10 @@ export default function AdminPhotosPage() {
   const [loading, setLoading] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [uploadAlbum, setUploadAlbum] = useState('general');
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     // Check if already authenticated
     if (AdminAuth.isAuthenticated()) {
       const savedToken = AdminAuth.getToken();
@@ -169,6 +171,11 @@ export default function AdminPhotosPage() {
   const filteredPhotos = selectedAlbum === 'all' 
     ? photos 
     : photos.filter(photo => photo.album === selectedAlbum);
+
+  // Wait for client-side mount to avoid hydration mismatch
+  if (!isClient) {
+    return null; // or a loading spinner
+  }
 
   // Authentication check
   if (!authenticated) {

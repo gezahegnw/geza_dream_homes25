@@ -12,8 +12,10 @@ export default function AdminLeadsPage() {
   const [pageSize, setPageSize] = useState<number>(20);
   const [total, setTotal] = useState<number>(0);
   const [pages, setPages] = useState<number>(1);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     // Check if already authenticated
     if (AdminAuth.isAuthenticated()) {
       const savedToken = AdminAuth.getToken();
@@ -85,6 +87,11 @@ export default function AdminLeadsPage() {
   };
 
   const rows = useMemo(() => leads ?? [], [leads]);
+
+  // Wait for client-side mount to avoid hydration mismatch
+  if (!isClient) {
+    return null; // or a loading spinner
+  }
 
   // Show authentication screen if not authenticated and no token
   if (!AdminAuth.isAuthenticated() && !token) {

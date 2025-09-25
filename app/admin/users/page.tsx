@@ -28,8 +28,10 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ApiList | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     // Check if already authenticated
     if (AdminAuth.isAuthenticated()) {
       const savedToken = AdminAuth.getToken();
@@ -109,6 +111,11 @@ export default function AdminUsersPage() {
   }
 
   const rows = useMemo(() => data?.users ?? [], [data]);
+
+  // Wait for client-side mount to avoid hydration mismatch
+  if (!isClient) {
+    return null; // or a loading spinner
+  }
 
   // Show authentication screen if not authenticated and no token
   if (!AdminAuth.isAuthenticated() && !token) {
