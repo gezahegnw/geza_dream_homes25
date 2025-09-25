@@ -82,25 +82,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="sticky top-0 z-40 bg-white shadow-sm">
           <nav className="w-full flex h-20 items-center justify-between px-0 md:px-0">
             <a href="/" className="flex items-center leading-tight pl-4 pr-2" aria-label="Geza Dream Homes">
-              {/* Light theme SVG logo */}
+              {/* Modern Light theme SVG logo */}
               <Image
-                src="/logo-light.svg"
+                src="/logo-modern-light.svg"
                 alt="Geza Dream Homes"
-                width={300}
-                height={80}
+                width={200}
+                height={50}
                 priority
-                sizes="(max-width: 768px) 240px, 300px"
-                className="block dark:hidden h-16 md:h-20 w-auto"
+                className="block dark:hidden h-12 w-auto"
               />
-              {/* Dark theme SVG logo */}
+              {/* Modern Dark theme SVG logo */}
               <Image
-                src="/logo-dark.svg"
+                src="/logo-modern-dark.svg"
                 alt="Geza Dream Homes"
-                width={300}
-                height={80}
+                width={200}
+                height={50}
                 priority
-                sizes="(max-width: 768px) 240px, 300px"
-                className="hidden dark:block h-16 md:h-20 w-auto"
+                className="hidden dark:block h-12 w-auto"
               />
             </a>
             <div className="hidden items-center space-x-8 md:flex">

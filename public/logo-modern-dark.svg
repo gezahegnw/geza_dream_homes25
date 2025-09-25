@@ -1,0 +1,30 @@
+<svg width="200" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Modern, minimalist logo for dark backgrounds -->
+  <style>
+    .logo-text {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      letter-spacing: -0.5px;
+      fill: #edf2f7; /* Light gray for text */
+    }
+    .logo-highlight {
+      fill: #63b3ed; /* Lighter, vibrant blue for highlight */
+    }
+  </style>
+
+  <!-- Simplified House Icon -->
+  <g transform="translate(0, 4)">
+    <!-- Roof -->
+    <path d="M0 15 L18 0 L36 15 Z" class="logo-highlight" />
+    <!-- Base -->
+    <rect x="4" y="15" width="28" height="20" fill="#2d3748" />
+    <!-- Door -->
+    <rect x="14" y="25" width="8" height="10" fill="#63b3ed" />
+  </g>
+
+  <!-- Logotype -->
+  <text x="48" y="32" class="logo-text">
+    Geza<tspan class="logo-highlight">Homes</tspan>
+  </text>
+</svg>
