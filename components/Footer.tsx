@@ -13,21 +13,24 @@ export default function Footer() {
       {/* Brand logo in footer */}
       <div className="mx-auto max-w-6xl px-4 pt-8">
         <a href="/" className="inline-flex items-center" aria-label="Geza Dream Homes" title="Geza Dream Homes">
-          {/* Modern Light theme SVG logo */}
+          {/* Match header behavior: show light logo on light mode, dark logo on dark mode */}
           <Image
-            src="/logo-modern-light.svg"
+            src="/logo-light.svg"
             alt="Geza Dream Homes"
-            width={200}
-            height={50}
-            className="block dark:hidden h-12 w-auto"
+            width={300}
+            height={80}
+            sizes="(max-width: 768px) 240px, 300px"
+            className="block dark:hidden h-16 md:h-20 w-auto"
+            priority
           />
-          {/* Modern Dark theme SVG logo */}
           <Image
-            src="/logo-modern-dark.svg"
+            src="/logo-dark.svg"
             alt="Geza Dream Homes"
-            width={200}
-            height={50}
-            className="hidden dark:block h-12 w-auto"
+            width={300}
+            height={80}
+            sizes="(max-width: 768px) 240px, 300px"
+            className="hidden dark:block h-16 md:h-20 w-auto"
+            priority
           />
         </a>
       </div>
