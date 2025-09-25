@@ -150,83 +150,198 @@ export default function AdminUsersPage() {
           <p className="text-gray-600">Manage user accounts and permissions</p>
         </div>
 
-      <div className="flex flex-wrap items-end gap-2 mb-4">
-        {!AdminAuth.isAuthenticated() && (
-          <div>
-            <label className="block text-sm">Admin Token</label>
-            <input value={token} onChange={(e) => setToken(e.target.value)} className="border rounded px-2 py-1 w-[320px]" placeholder="Set ADMIN_TOKEN in .env for prod" />
+        {/* Search and Filters */}
+        <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-6 mb-8 border border-white/20">
+          <div className="flex items-center mb-4">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg mr-3 flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-gray-800">Search & Filter Users</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {!AdminAuth.isAuthenticated() && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Admin Token</label>
+                <input 
+                  value={token} 
+                  onChange={(e) => setToken(e.target.value)} 
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                  placeholder="Set ADMIN_TOKEN in .env for prod" 
+                />
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+              <input 
+                value={q} 
+                onChange={(e) => setQ(e.target.value)} 
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                placeholder="Search by name or email" 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <select 
+                value={approved} 
+                onChange={(e) => setApproved(e.target.value as any)} 
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              >
+                <option value="all">All Users</option>
+                <option value="true">Approved</option>
+                <option value="false">Pending</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Page Size</label>
+              <select 
+                value={pageSize} 
+                onChange={(e) => setPageSize(parseInt(e.target.value, 10))} 
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              >
+                {[10,20,50,100].map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+          </div>
+          
+          <div className="mt-4 flex justify-end">
+            <button 
+              onClick={() => load(1)} 
+              disabled={loading} 
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg"
+            >
+              {loading ? 'Searching...' : 'Search Users'}
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-red-800 font-medium">{error}</p>
           </div>
         )}
-        <div>
-          <label className="block text-sm">Search</label>
-          <input value={q} onChange={(e) => setQ(e.target.value)} className="border rounded px-2 py-1 w-[240px]" placeholder="name, email" />
-        </div>
-        <div>
-          <label className="block text-sm">Status</label>
-          <select value={approved} onChange={(e) => setApproved(e.target.value as any)} className="border rounded px-2 py-1">
-            <option value="all">All</option>
-            <option value="true">Approved</option>
-            <option value="false">Pending</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm">Page size</label>
-          <select value={pageSize} onChange={(e) => setPageSize(parseInt(e.target.value, 10))} className="border rounded px-2 py-1">
-            {[10,20,50,100].map(n => <option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-        <button onClick={() => load(1)} disabled={loading} className="px-3 py-2 rounded bg-blue-600 text-white disabled:opacity-60">{loading ? "Loading..." : "Search"}</button>
-      </div>
 
-      {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
-
-      <div className="overflow-auto border rounded">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              {["created_at","approved","name","email","role","actions"].map(h => (
-                <th key={h} className="text-left px-3 py-2 border-b">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.id} className="odd:bg-white even:bg-gray-50 align-top">
-                <td className="px-3 py-2 border-b whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</td>
-                <td className="px-3 py-2 border-b">{r.approved ? <span className="text-green-700">Approved</span> : <span className="text-amber-700">Pending</span>}</td>
-                <td className="px-3 py-2 border-b">{r.name}</td>
-                <td className="px-3 py-2 border-b">{r.email}</td>
-                <td className="px-3 py-2 border-b">{r.is_admin ? "Admin" : "User"}</td>
-                <td className="px-3 py-2 border-b">
-                  <div className="flex gap-2">
-                    {r.approved ? (
-                      <button onClick={() => onToggleApprove(r.id, false)} className="px-2 py-1 border rounded">Unapprove</button>
-                    ) : (
-                      <button onClick={() => onToggleApprove(r.id, true)} className="px-2 py-1 border rounded bg-green-600 text-white">Approve</button>
-                    )}
-                    <button onClick={() => onDelete(r.id, r.name)} className="px-2 py-1 border rounded bg-red-600 text-white">Delete</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-3 py-8 text-center text-gray-600">No users found.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex items-center justify-between mt-3 text-sm">
-        <div>
-          Page {data?.page ?? page} of {data?.pages ?? 1} • Total {data?.total ?? 0}
+        {/* Users Table */}
+        <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl overflow-hidden border border-white/20">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4">
+            <h3 className="text-xl font-bold text-white">Users Directory</h3>
+            <p className="text-blue-100 text-sm">Manage all user accounts and permissions</p>
+          </div>
+          
+          <div className="overflow-auto">
+            <table className="min-w-full">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <tr>
+                  {[
+                    { key: "created_at", label: "Created" },
+                    { key: "approved", label: "Status" },
+                    { key: "name", label: "Name" },
+                    { key: "email", label: "Email" },
+                    { key: "role", label: "Role" },
+                    { key: "actions", label: "Actions" }
+                  ].map(h => (
+                    <th key={h.key} className="text-left px-6 py-4 font-semibold text-gray-700 border-b border-gray-200">{h.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {rows.map((r) => (
+                  <tr key={r.id} className="hover:bg-blue-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {new Date(r.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {r.approved ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          ✓ Approved
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          ⏳ Pending
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{r.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{r.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        r.is_admin ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {r.is_admin ? "👑 Admin" : "👤 User"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <div className="flex gap-2">
+                        {r.approved ? (
+                          <button 
+                            onClick={() => onToggleApprove(r.id, false)} 
+                            className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 transform hover:scale-105"
+                          >
+                            Unapprove
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => onToggleApprove(r.id, true)} 
+                            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 transform hover:scale-105"
+                          >
+                            Approve
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => onDelete(r.id, r.name)} 
+                          className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 transform hover:scale-105"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {rows.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center">
+                      <div className="flex flex-col items-center">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500 font-medium">No users found</p>
+                        <p className="text-sm text-gray-400">Try adjusting your search criteria</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Pagination */}
+          <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
+            <div className="text-sm text-gray-700">
+              Page <span className="font-medium">{data?.page ?? page}</span> of <span className="font-medium">{data?.pages ?? 1}</span> • 
+              Total <span className="font-medium">{data?.total ?? 0}</span> users
+            </div>
+            <div className="flex gap-2">
+              <button 
+                className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
+                disabled={(data?.page ?? page) <= 1 || loading} 
+                onClick={() => load((data?.page ?? page) - 1)}
+              >
+                Previous
+              </button>
+              <button 
+                className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
+                disabled={(data?.page ?? page) >= (data?.pages ?? 1) || loading} 
+                onClick={() => load((data?.page ?? page) + 1)}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <button className="px-3 py-1 border rounded disabled:opacity-50" disabled={(data?.page ?? page) <= 1 || loading} onClick={() => load((data?.page ?? page) - 1)}>Prev</button>
-          <button className="px-3 py-1 border rounded disabled:opacity-50" disabled={(data?.page ?? page) >= (data?.pages ?? 1) || loading} onClick={() => load((data?.page ?? page) + 1)}>Next</button>
-        </div>
-      </div>
       </div>
     </div>
   );
