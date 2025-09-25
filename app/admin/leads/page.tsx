@@ -37,7 +37,7 @@ export default function AdminLeadsPage() {
       url.searchParams.set("page", String(nextPage));
       url.searchParams.set("pageSize", String(pageSize));
       const res = await fetch(url.toString(), {
-        headers: token ? { "x-admin-token": token } : undefined,
+        headers: AdminAuth.getHeaders(),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error || body?.message || "Failed to load");
@@ -52,14 +52,36 @@ export default function AdminLeadsPage() {
     }
   }
 
-  const onExportCsv = () => {
-    const url = new URL(`/api/admin/leads`, window.location.origin);
-    url.searchParams.set("format", "csv");
-    if (q.trim()) url.searchParams.set("q", q.trim());
-    url.searchParams.set("page", String(page));
-    url.searchParams.set("pageSize", String(pageSize));
-    if (token) url.searchParams.set("token", token);
-    window.location.href = url.toString();
+  const onExportCsv = async () => {
+    try {
+      const url = new URL(`/api/admin/leads`, window.location.origin);
+      url.searchParams.set("format", "csv");
+      if (q.trim()) url.searchParams.set("q", q.trim());
+      url.searchParams.set("page", String(page));
+      url.searchParams.set("pageSize", String(pageSize));
+
+      const res = await fetch(url.toString(), {
+        headers: AdminAuth.getHeaders(),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error || body?.message || "Failed to export CSV");
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = `leads-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      a.remove();
+
+    } catch (e: any) {
+      alert(`Error exporting CSV: ${String(e?.message ?? e)}`);
+    }
   };
 
   const rows = useMemo(() => leads ?? [], [leads]);

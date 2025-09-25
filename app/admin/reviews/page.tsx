@@ -56,7 +56,7 @@ export default function AdminReviewsPage() {
       if (approved !== "all") url.searchParams.set("approved", approved);
       url.searchParams.set("page", String(nextPage));
       url.searchParams.set("pageSize", String(pageSize));
-      const res = await fetch(url.toString(), { headers: token ? { "x-admin-token": token } : undefined });
+      const res = await fetch(url.toString(), { headers: AdminAuth.getHeaders() });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error || body?.message || "Failed to load");
       setData(body as ApiList);
@@ -75,7 +75,7 @@ export default function AdminReviewsPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { "x-admin-token": token } : {}),
+          ...AdminAuth.getHeaders(),
         },
         body: JSON.stringify({ id, approved }),
       });
@@ -97,7 +97,7 @@ export default function AdminReviewsPage() {
       url.searchParams.set("id", id);
       const res = await fetch(url.toString(), {
         method: "DELETE",
-        headers: token ? { "x-admin-token": token } : undefined,
+        headers: AdminAuth.getHeaders(),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body?.error || body?.message || "Failed to delete");
