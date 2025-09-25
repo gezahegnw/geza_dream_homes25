@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { AdminAuth } from '@/lib/admin-auth';
 
 interface User {
   id: string;
@@ -25,7 +26,14 @@ export default function AdminPage() {
   const [pendingReviews, setPendingReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production") {
+    // Check if already authenticated
+    if (AdminAuth.isAuthenticated()) {
+      const savedToken = AdminAuth.getToken();
+      if (savedToken) {
+        setToken(savedToken);
+        setAuthenticated(true);
+      }
+    } else if (process.env.NODE_ENV !== "production") {
       const t = (process.env as any).ADMIN_TOKEN as string | undefined;
       if (t && !token) setToken(t);
     }
@@ -43,14 +51,14 @@ export default function AdminPage() {
       
       // Fetch pending users
       const usersRes = await fetch('/api/admin/users?approved=false', {
-        headers: token ? { "x-admin-token": token } : undefined
+        headers: AdminAuth.getHeaders()
       });
       const usersData = await usersRes.json();
       if (usersRes.ok) setPendingUsers(usersData.users || []);
 
       // Fetch pending reviews
       const reviewsRes = await fetch('/api/admin/reviews?approved=false', {
-        headers: token ? { "x-admin-token": token } : undefined
+        headers: AdminAuth.getHeaders()
       });
       const reviewsData = await reviewsRes.json();
       if (reviewsRes.ok) setPendingReviews(reviewsData.reviews || []);
@@ -79,7 +87,10 @@ export default function AdminPage() {
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
             />
             <button
-              onClick={() => setAuthenticated(true)}
+              onClick={() => {
+                AdminAuth.setToken(token);
+                setAuthenticated(true);
+              }}
               disabled={!token.trim()}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -101,7 +112,7 @@ export default function AdminPage() {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
-          ...(token ? { "x-admin-token": token } : {})
+          ...AdminAuth.getHeaders()
         },
         body: JSON.stringify({ id: userId, approved: true }),
       });
@@ -119,7 +130,7 @@ export default function AdminPage() {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
-          ...(token ? { "x-admin-token": token } : {})
+          ...AdminAuth.getHeaders()
         },
         body: JSON.stringify({ id: reviewId, approved: true }),
       });
@@ -136,7 +147,7 @@ export default function AdminPage() {
     try {
       const res = await fetch(`/api/admin/reviews?id=${reviewId}`, { 
         method: 'DELETE',
-        headers: token ? { "x-admin-token": token } : undefined
+        headers: AdminAuth.getHeaders()
       });
       if (res.ok) {
         setPendingReviews(prev => prev.filter(r => r.id !== reviewId));

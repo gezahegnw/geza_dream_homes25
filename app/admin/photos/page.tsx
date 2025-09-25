@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Upload, Image as ImageIcon, Trash2, Eye, Plus, FolderPlus, Folder } from 'lucide-react';
 import Image from 'next/image';
+import { AdminAuth } from '@/lib/admin-auth';
 
 interface Photo {
   id: string;
@@ -33,7 +34,14 @@ export default function AdminPhotosPage() {
   const [uploadAlbum, setUploadAlbum] = useState('general');
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production") {
+    // Check if already authenticated
+    if (AdminAuth.isAuthenticated()) {
+      const savedToken = AdminAuth.getToken();
+      if (savedToken) {
+        setToken(savedToken);
+        setAuthenticated(true);
+      }
+    } else if (process.env.NODE_ENV !== "production") {
       const t = (process.env as any).ADMIN_TOKEN as string | undefined;
       if (t && !token) setToken(t);
     }
@@ -179,7 +187,10 @@ export default function AdminPhotosPage() {
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
             />
             <button
-              onClick={() => setAuthenticated(true)}
+              onClick={() => {
+                AdminAuth.setToken(token);
+                setAuthenticated(true);
+              }}
               disabled={!token.trim()}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
