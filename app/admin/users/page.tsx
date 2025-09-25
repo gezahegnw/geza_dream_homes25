@@ -53,7 +53,7 @@ export default function AdminUsersPage() {
       if (approved !== "all") url.searchParams.set("approved", approved);
       url.searchParams.set("page", String(nextPage));
       url.searchParams.set("pageSize", String(pageSize));
-      const res = await fetch(url.toString(), { headers: token ? { "x-admin-token": token } : undefined });
+      const res = await fetch(url.toString(), { headers: AdminAuth.getHeaders() });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error || body?.message || "Failed to load");
       setData(body as ApiList);
@@ -73,7 +73,7 @@ export default function AdminUsersPage() {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { "x-admin-token": token } : {}),
+          ...AdminAuth.getHeaders(),
         },
         body: JSON.stringify({ id }),
       });
@@ -94,7 +94,7 @@ export default function AdminUsersPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { "x-admin-token": token } : {}),
+          ...AdminAuth.getHeaders(),
         },
         body: JSON.stringify({ id, approved }),
       });
