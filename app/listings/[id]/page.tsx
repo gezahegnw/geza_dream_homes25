@@ -7,6 +7,7 @@ export default function PropertyDetailPage() {
   const params = useParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProperty() {
@@ -16,6 +17,10 @@ export default function PropertyDetailPage() {
         if (response.ok) {
           const result = await response.json();
           setData(result.property);
+        } else if (response.status === 401 || response.status === 403) {
+          setError('Your account is pending approval. You will be able to view property details once your account is activated.');
+        } else {
+          setError('Failed to load property data.');
         }
       } catch (error) {
         console.error('Error loading property:', error);
@@ -26,6 +31,18 @@ export default function PropertyDetailPage() {
   }, [params?.id]);
 
   if (loading) return <div>Loading...</div>;
+  if (error) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded-lg shadow-md max-w-lg">
+          <h2 className="text-2xl font-bold mb-3">Access Denied</h2>
+          <p className="text-base">{error}</p>
+          <p className="mt-4 text-sm">If you believe this is an error, please contact support.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!data) return <div>Property not found</div>;
 
   return (
