@@ -57,7 +57,7 @@ export default function AdminPhotosPage() {
   const fetchPhotos = async () => {
     try {
       const response = await fetch('/api/admin/photos', {
-        headers: token ? { "x-admin-token": token } : undefined
+        headers: AdminAuth.getHeaders()
       });
       if (response.ok) {
         const data = await response.json();
@@ -73,7 +73,7 @@ export default function AdminPhotosPage() {
   const fetchAlbums = async () => {
     try {
       const response = await fetch('/api/admin/photos/albums', {
-        headers: token ? { "x-admin-token": token } : undefined
+        headers: AdminAuth.getHeaders()
       });
       if (response.ok) {
         const data = await response.json();
@@ -102,7 +102,7 @@ export default function AdminPhotosPage() {
     try {
       const response = await fetch('/api/admin/photos/upload', {
         method: 'POST',
-        headers: token ? { "x-admin-token": token } : undefined,
+        headers: AdminAuth.getHeaders(),
         body: formData,
       });
 
@@ -133,7 +133,7 @@ export default function AdminPhotosPage() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          ...(token ? { "x-admin-token": token } : {})
+          ...AdminAuth.getHeaders()
         },
         body: JSON.stringify({ name: newAlbumName.trim() }),
       });
@@ -154,7 +154,7 @@ export default function AdminPhotosPage() {
     try {
       const response = await fetch(`/api/admin/photos/${photoId}`, {
         method: 'DELETE',
-        headers: token ? { "x-admin-token": token } : undefined,
+        headers: AdminAuth.getHeaders(),
       });
 
       if (response.ok) {
