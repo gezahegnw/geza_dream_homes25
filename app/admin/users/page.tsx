@@ -147,10 +147,12 @@ export default function AdminUsersPage() {
       <h1 className="text-2xl font-semibold mb-4">Users (Admin)</h1>
 
       <div className="flex flex-wrap items-end gap-2 mb-4">
-        <div>
-          <label className="block text-sm">Admin Token</label>
-          <input value={token} onChange={(e) => setToken(e.target.value)} className="border rounded px-2 py-1 w-[320px]" placeholder="Set ADMIN_TOKEN in .env for prod" />
-        </div>
+        {!AdminAuth.isAuthenticated() && (
+          <div>
+            <label className="block text-sm">Admin Token</label>
+            <input value={token} onChange={(e) => setToken(e.target.value)} className="border rounded px-2 py-1 w-[320px]" placeholder="Set ADMIN_TOKEN in .env for prod" />
+          </div>
+        )}
         <div>
           <label className="block text-sm">Search</label>
           <input value={q} onChange={(e) => setQ(e.target.value)} className="border rounded px-2 py-1 w-[240px]" placeholder="name, email" />
