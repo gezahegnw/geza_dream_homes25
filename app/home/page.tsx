@@ -9,7 +9,6 @@ export const dynamic = "force-dynamic";
 import HeroSlider from '@/components/HeroSlider';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
-import PropertySearchWidget from '@/components/PropertySearchWidget';
 import MortgageCalculator from '@/components/MortgageCalculator';
 
 export default function Home() {
@@ -18,12 +17,6 @@ export default function Home() {
       {/* Hero Section with Slider */}
       <HeroSlider />
       
-      {/* Property Search Widget */}
-      <section className="relative -mt-20 z-10 px-4">
-        <div className="container mx-auto max-w-sm sm:max-w-md">
-          <PropertySearchWidget />
-        </div>
-      </section>
       
       {/* Why Choose Us */}
       <div className="pt-16">
