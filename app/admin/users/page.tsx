@@ -143,8 +143,12 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-semibold mb-4">Users (Admin)</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">User Management</h1>
+          <p className="text-gray-600">Manage user accounts and permissions</p>
+        </div>
 
       <div className="flex flex-wrap items-end gap-2 mb-4">
         {!AdminAuth.isAuthenticated() && (
@@ -222,6 +226,7 @@ export default function AdminUsersPage() {
           <button className="px-3 py-1 border rounded disabled:opacity-50" disabled={(data?.page ?? page) <= 1 || loading} onClick={() => load((data?.page ?? page) - 1)}>Prev</button>
           <button className="px-3 py-1 border rounded disabled:opacity-50" disabled={(data?.page ?? page) >= (data?.pages ?? 1) || loading} onClick={() => load((data?.page ?? page) + 1)}>Next</button>
         </div>
+      </div>
       </div>
     </div>
   );
