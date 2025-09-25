@@ -144,8 +144,12 @@ export default function AdminReviewsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-semibold mb-4">Reviews (Admin)</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50">
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">Review Management</h1>
+          <p className="text-gray-600">Moderate and manage customer reviews</p>
+        </div>
 
       <div className="flex flex-wrap items-end gap-2 mb-4">
         {!AdminAuth.isAuthenticated() && (
@@ -225,6 +229,7 @@ export default function AdminReviewsPage() {
           <button className="px-3 py-1 border rounded disabled:opacity-50" disabled={(data?.page ?? page) <= 1 || loading} onClick={() => load((data?.page ?? page) - 1)}>Prev</button>
           <button className="px-3 py-1 border rounded disabled:opacity-50" disabled={(data?.page ?? page) >= (data?.pages ?? 1) || loading} onClick={() => load((data?.page ?? page) + 1)}>Next</button>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -97,8 +97,12 @@ export default function AdminLeadsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-semibold mb-4">Leads (Admin)</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50">
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent mb-2">Lead Management</h1>
+          <p className="text-gray-600">Track and manage customer leads</p>
+        </div>
 
       <div className="flex flex-wrap items-end gap-2 mb-4">
         {!AdminAuth.isAuthenticated() && (
@@ -180,6 +184,7 @@ export default function AdminLeadsPage() {
             Next
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
