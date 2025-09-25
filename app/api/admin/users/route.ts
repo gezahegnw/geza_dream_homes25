@@ -69,3 +69,19 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Server error", message: String(e?.message ?? e) }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    if (!checkToken(req)) return unauthorized();
+    const body = await req.json().catch(() => ({}));
+    const id = String(body?.id || "").trim();
+    if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
+    await prisma.user.delete({ where: { id } });
+
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    console.error(e);
+    return NextResponse.json({ error: "Server error", message: String(e?.message ?? e) }, { status: 500 });
+  }
+}

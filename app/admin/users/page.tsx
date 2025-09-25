@@ -57,6 +57,28 @@ export default function AdminUsersPage() {
     }
   }
 
+  async function onDelete(id: string, name: string) {
+    if (!confirm(`Are you sure you want to delete user "${name}"? This action is permanent.`)) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/admin/users`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "x-admin-token": token } : {}),
+        },
+        body: JSON.stringify({ id }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body?.error || body?.message || "Failed to delete");
+      await load(page);
+    } catch (e: any) {
+      alert(`Error: ${String(e?.message ?? e)}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function onToggleApprove(id: string, approved: boolean) {
     try {
       setLoading(true);
@@ -136,6 +158,7 @@ export default function AdminUsersPage() {
                     ) : (
                       <button onClick={() => onToggleApprove(r.id, true)} className="px-2 py-1 border rounded bg-green-600 text-white">Approve</button>
                     )}
+                    <button onClick={() => onDelete(r.id, r.name)} className="px-2 py-1 border rounded bg-red-600 text-white">Delete</button>
                   </div>
                 </td>
               </tr>
