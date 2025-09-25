@@ -20,6 +20,8 @@ interface Album {
 }
 
 export default function AdminPhotosPage() {
+  const [token, setToken] = useState("");
+  const [authenticated, setAuthenticated] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<string>('all');
@@ -31,13 +33,24 @@ export default function AdminPhotosPage() {
   const [uploadAlbum, setUploadAlbum] = useState('general');
 
   useEffect(() => {
-    fetchPhotos();
-    fetchAlbums();
+    if (process.env.NODE_ENV !== "production") {
+      const t = (process.env as any).ADMIN_TOKEN as string | undefined;
+      if (t && !token) setToken(t);
+    }
   }, []);
+
+  useEffect(() => {
+    if (authenticated) {
+      fetchPhotos();
+      fetchAlbums();
+    }
+  }, [authenticated]);
 
   const fetchPhotos = async () => {
     try {
-      const response = await fetch('/api/admin/photos');
+      const response = await fetch('/api/admin/photos', {
+        headers: token ? { "x-admin-token": token } : undefined
+      });
       if (response.ok) {
         const data = await response.json();
         setPhotos(data.photos || []);
@@ -51,7 +64,9 @@ export default function AdminPhotosPage() {
 
   const fetchAlbums = async () => {
     try {
-      const response = await fetch('/api/admin/photos/albums');
+      const response = await fetch('/api/admin/photos/albums', {
+        headers: token ? { "x-admin-token": token } : undefined
+      });
       if (response.ok) {
         const data = await response.json();
         setAlbums(data.albums || []);
@@ -79,6 +94,7 @@ export default function AdminPhotosPage() {
     try {
       const response = await fetch('/api/admin/photos/upload', {
         method: 'POST',
+        headers: token ? { "x-admin-token": token } : undefined,
         body: formData,
       });
 
@@ -107,7 +123,10 @@ export default function AdminPhotosPage() {
     try {
       const response = await fetch('/api/admin/photos/albums', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { "x-admin-token": token } : {})
+        },
         body: JSON.stringify({ name: newAlbumName.trim() }),
       });
 
@@ -127,6 +146,7 @@ export default function AdminPhotosPage() {
     try {
       const response = await fetch(`/api/admin/photos/${photoId}`, {
         method: 'DELETE',
+        headers: token ? { "x-admin-token": token } : undefined,
       });
 
       if (response.ok) {
@@ -141,6 +161,35 @@ export default function AdminPhotosPage() {
   const filteredPhotos = selectedAlbum === 'all' 
     ? photos 
     : photos.filter(photo => photo.album === selectedAlbum);
+
+  // Authentication check
+  if (!authenticated) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-16">
+        <div className="bg-white rounded-lg border p-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Admin Authentication Required</h1>
+          <p className="text-gray-600 mb-6">Please enter your admin token to access photo management.</p>
+          
+          <div className="space-y-4">
+            <input
+              type="password"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              placeholder="Enter admin token"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            />
+            <button
+              onClick={() => setAuthenticated(true)}
+              disabled={!token.trim()}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Access Photo Management
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
