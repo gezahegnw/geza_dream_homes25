@@ -203,11 +203,37 @@ export default function AdminPhotosPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Photo Management</h1>
-        <p className="text-gray-600">Upload and organize photos for your real estate listings</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex-1 text-center">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">Photo Management</h1>
+            <p className="text-gray-600">Upload and organize photos for your real estate listings</p>
+          </div>
+          <div className="flex gap-3">
+            <a
+              href="/admin"
+              className="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              Dashboard
+            </a>
+            <button
+              onClick={() => {
+                AdminAuth.logout();
+                window.location.href = '/admin';
+              }}
+              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Sign Out
+            </button>
+          </div>
+        </div>
 
       {/* Upload Section */}
       <div className="bg-white rounded-lg border p-6 mb-8">
@@ -399,6 +425,7 @@ export default function AdminPhotosPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
