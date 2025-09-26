@@ -216,7 +216,23 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
     if (query.maxPrice) searchParams.max_price = query.maxPrice;
     if (query.beds) searchParams.beds = query.beds;
     if (query.baths) searchParams.baths = query.baths;
-    if (query.sortBy) searchParams.sort_by = query.sortBy;
+    
+    // Map our sort values to what Redfin API expects
+    if (query.sortBy) {
+      switch (query.sortBy) {
+        case 'price_asc':
+          searchParams.sort = 'price_low_to_high';
+          break;
+        case 'price_desc':
+          searchParams.sort = 'price_high_to_low';
+          break;
+        case 'newest':
+          searchParams.sort = 'newest';
+          break;
+        default:
+          searchParams.sort = query.sortBy;
+      }
+    }
 
     // 1) Try simple location-based search first (cheapest/most reliable)
     let url: string = `https://${host}/property/search?${new URLSearchParams(searchParams)}`;
