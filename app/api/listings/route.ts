@@ -56,46 +56,31 @@ export async function GET(req: Request) {
       return NextResponse.json({ listings: items, provider, debug });
     }
     try {
-      let allListings = await fetchListings({ q, city, state_code, limit: 200 }); // Get more results
+      // Delegate all filtering and pagination to the fetchListings function
+      const listings = await fetchListings({
+        q,
+        city,
+        state_code,
+        limit,
+        offset,
+        page,
+        minPrice,
+        maxPrice,
+        beds,
+        baths,
+        sortBy,
+      });
 
-      // Apply filters and sorting on the server
-      if (minPrice) {
-        allListings = allListings.filter(l => l.price && l.price >= parseInt(minPrice));
-      }
-      if (maxPrice) {
-        allListings = allListings.filter(l => l.price && l.price <= parseInt(maxPrice));
-      }
-      if (beds) {
-        allListings = allListings.filter(l => l.beds && l.beds >= parseInt(beds));
-      }
-      if (baths) {
-        allListings = allListings.filter(l => l.baths && l.baths >= parseInt(baths));
-      }
+      // The external API response may not give us the total count, 
+      // so we determine 'hasMore' based on if we received a full page of results.
+      const hasMore = listings.length === limit;
 
-      if (sortBy === 'price_asc') {
-        allListings.sort((a, b) => (a.price || Infinity) - (b.price || Infinity));
-      } else if (sortBy === 'price_desc') {
-        allListings.sort((a, b) => (b.price || 0) - (a.price || 0));
-      }
-      
-      // Calculate pagination
-      const totalItems = allListings.length;
-      const totalPages = Math.ceil(totalItems / limit);
-      const hasMore = page < totalPages;
-      const hasPrevious = page > 1;
-      
-      // Slice results for current page
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      const listings = allListings.slice(startIndex, endIndex);
-      
       return NextResponse.json({ 
         listings, 
         provider,
         hasMore,
-        totalItems,
-        totalPages,
         currentPage: page
+        // totalItems and totalPages are no longer calculated here as the API doesn't provide them
       });
     } catch (err: any) {
       const msg = String(err?.message ?? err);
