@@ -365,6 +365,21 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
       }
     }
 
+    // Apply client-side sorting since API sorting may not work reliably
+    if (query.sortBy && listings.length > 0) {
+      switch (query.sortBy) {
+        case 'price_asc':
+          listings.sort((a, b) => (a.price || 0) - (b.price || 0));
+          break;
+        case 'price_desc':
+          listings.sort((a, b) => (b.price || 0) - (a.price || 0));
+          break;
+        case 'newest':
+          // Keep original order for newest (API should handle this)
+          break;
+      }
+    }
+
     setCachedListings(cacheKey, listings);
     return listings;
   }
