@@ -211,8 +211,15 @@ export async function fetchListings(query: ListingsQuery = {}): Promise<Listing[
         return null;
       }
     };
+    const searchParams: Record<string, string> = { location, limit, offset };
+    if (query.minPrice) searchParams.min_price = query.minPrice;
+    if (query.maxPrice) searchParams.max_price = query.maxPrice;
+    if (query.beds) searchParams.beds = query.beds;
+    if (query.baths) searchParams.baths = query.baths;
+    if (query.sortBy) searchParams.sort_by = query.sortBy;
+
     // 1) Try simple location-based search first (cheapest/most reliable)
-    let url: string = `https://${host}/property/search?${new URLSearchParams({ location, limit, offset })}`;
+    let url: string = `https://${host}/property/search?${new URLSearchParams(searchParams)}`;
     let res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
     const rl1 = res.headers.get('x-ratelimit-remaining') || res.headers.get('x-ratelimit-requests-remaining');
 
