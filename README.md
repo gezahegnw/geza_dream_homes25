@@ -35,3 +35,5 @@ Next.js (App Router) starter for a realtor website.
 - Wire email notifications (Resend/SendGrid)
 - Add IDX/RESO integration for listings
 - Add mortgage calculator & market data widgets
+
+<!-- Force Vercel redeploy -->
