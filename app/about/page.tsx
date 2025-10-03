@@ -44,12 +44,12 @@ export default function AboutPage() {
 
         {/* Photo (reused from Contact page) */}
         <div className="order-1 md:order-2">
-          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl border shadow-lg bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900">
+          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl border shadow-lg bg-slate-800">
             <Image
               src="/my-photo.png"
               alt="Gezahegn Worku — RE/MAX Beyond"
               fill
-              className="object-cover object-center mix-blend-lighten"
+              className="object-cover object-center"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
