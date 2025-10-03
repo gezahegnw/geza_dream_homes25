@@ -46,7 +46,7 @@ export default function AboutPage() {
         <div className="order-1 md:order-2">
           <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl border bg-gray-50 shadow-lg">
             <Image
-              src="/geza3.jpg"
+              src="/my-photo.png"
               alt="Gezahegn Worku — RE/MAX Beyond"
               fill
               className="object-cover object-top"
