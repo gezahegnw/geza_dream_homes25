@@ -44,7 +44,9 @@ export default function AboutPage() {
 
         {/* Photo (reused from Contact page) */}
         <div className="order-1 md:order-2">
-          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl border shadow-lg bg-slate-800">
+          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl shadow-2xl ring-4 ring-blue-100">
+            {/* Gradient overlay for professional effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-blue-900/10 z-10 pointer-events-none"></div>
             <Image
               src="/my-photo.png"
               alt="Gezahegn Worku — RE/MAX Beyond"
