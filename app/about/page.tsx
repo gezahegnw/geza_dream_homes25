@@ -49,7 +49,7 @@ export default function AboutPage() {
               src="/my-photo.png"
               alt="Gezahegn Worku — RE/MAX Beyond"
               fill
-              className="object-cover object-top"
+              className="object-contain"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
