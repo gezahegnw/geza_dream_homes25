@@ -236,7 +236,7 @@ export default function PropertyDetailPage() {
       </div>
 
       <div style={{
-        backgroundColor: '#1e40af', 
+        backgroundColor: '#059669', 
         color: 'white',
         padding: '30px', 
         borderRadius: '12px',
