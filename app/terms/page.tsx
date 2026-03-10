@@ -44,8 +44,8 @@ export default function TermsPage() {
         <ul>
           <li>Phone: (913) 407-8620</li>
           <li>Email: <a href="mailto:gezarealesteteagent@gmail.com">gezarealesteteagent@gmail.com</a></li>
-          <li>Work Email: <a href="mailto:gworku@remax.net">gworku@remax.net</a></li>
-          <li>Office: RE/MAX Beyond, 13470 S Arapaho Dr STE 180, Olathe, KS 66062</li>
+          <li>Work Email: <a href="mailto:gezahegnw@knasascityhomes.com">gezahegnw@knasascityhomes.com</a></li>
+          <li>Office: Better Homes and Gardens Kansas City, 8300 College Blvd, Ste 130, Overland Park, KS 66210</li>
         </ul>
       </section>
     </main>

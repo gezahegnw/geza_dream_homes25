@@ -61,18 +61,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               image: `${siteUrl}/favicon.ico`,
               url: siteUrl,
               telephone: "+1-913-407-8620",
-              email: ["gezarealesteteagent@gmail.com", "gworku@remax.net"],
+              email: ["gezarealesteteagent@gmail.com", "gezahegnw@knasascityhomes.com"],
               address: {
                 "@type": "PostalAddress",
-                streetAddress: "13470 S Arapaho Dr STE 180",
-                addressLocality: "Olathe",
+                streetAddress: "8300 College Blvd, Ste 130",
+                addressLocality: "Overland Park",
                 addressRegion: "KS",
-                postalCode: "66062",
+                postalCode: "66210",
                 addressCountry: "US",
               },
               brand: {
                 "@type": "Organization",
-                name: "RE/MAX Beyond",
+                name: "Better Homes and Gardens Kansas City",
               },
             }),
           }}

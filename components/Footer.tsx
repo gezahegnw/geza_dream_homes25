@@ -39,9 +39,10 @@ export default function Footer() {
         {!isContactPage && (
           <div>
             <p className="font-semibold text-gray-700">Gezahegn Worku</p>
-            <p>RE/MAX Beyond</p>
-            <p>13470 S Arapaho Dr STE 180</p>
-            <p>Olathe, KS 66062</p>
+            <p>Better Homes and Gardens Kansas City</p>
+            <p>8300 College Blvd, Ste 130</p>
+            <p>Overland Park, KS 66210</p>
+            <p>913-981-6050</p>
           </div>
         )}
 
@@ -62,8 +63,8 @@ export default function Footer() {
             </p>
             <p>
               <span className="font-semibold">Work Email:</span>{" "}
-              <a className="hover:text-brand" href="mailto:gworku@remax.net">
-                gworku@remax.net
+              <a className="hover:text-brand" href="mailto:gezahegnw@knasascityhomes.com">
+                gezahegnw@knasascityhomes.com
               </a>
             </p>
           </div>

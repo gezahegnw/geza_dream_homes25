@@ -406,7 +406,7 @@ export default function ContactPage() {
                 </p>
                 <p className="sm:col-span-2">
                   <span className="font-semibold">Work Email:</span>{' '}
-                  <a href="mailto:gworku@remax.net" className="hover:text-brand">gworku@remax.net</a>
+                  <a href="mailto:gezahegnw@knasascityhomes.com" className="hover:text-brand">gezahegnw@knasascityhomes.com</a>
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 pt-1">
@@ -418,7 +418,7 @@ export default function ContactPage() {
                   Call
                 </a>
                 <a
-                  href="mailto:gworku@remax.net"
+                  href="mailto:gezahegnw@knasascityhomes.com"
                   className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-900 ring-1 ring-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
                   aria-label="Email Gezahegn Worku"
                 >
