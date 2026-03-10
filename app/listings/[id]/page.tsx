@@ -256,10 +256,10 @@ export default function PropertyDetailPage() {
               Gezahegn Worku
             </p>
             <a href="tel:+19134078620" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
-              📞 Call (913) 407-8620
+              📞 Cell (913) 407-8620
             </a>
             <a href="tel:+19139816050" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500', marginTop: '5px'}}>
-              📞 Call (913) 981-6050
+              📞 Office (913) 981-6050
             </a>
           </div>
           <a href="mailto:gezarealestateagent@gmail.com" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
