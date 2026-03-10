@@ -251,9 +251,14 @@ export default function PropertyDetailPage() {
           </p>
         </div>
         <div style={{display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap'}}>
-          <a href="tel:+19134078620" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
-            📞 Call (913) 407-8620
-          </a>
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+            <p style={{fontSize: '1.1rem', fontWeight: '500', margin: '0 0 5px 0', color: 'white'}}>
+              Gezahegn Worku
+            </p>
+            <a href="tel:+19134078620" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
+              📞 Call (913) 407-8620
+            </a>
+          </div>
           <a href="mailto:gezarealesteteagent@gmail.com" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
             📧 Email Geza
           </a>
