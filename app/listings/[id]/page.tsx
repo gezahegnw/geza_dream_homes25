@@ -250,7 +250,7 @@ export default function PropertyDetailPage() {
             Gezahegn Worku
           </p>
           <p style={{fontSize: '1rem', opacity: '0.9', margin: '0'}}>
-            RE/MAX Beyond
+            Better Homes and Gardens Kansas City
           </p>
         </div>
         <div style={{display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap'}}>
