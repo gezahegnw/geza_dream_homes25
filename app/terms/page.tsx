@@ -43,7 +43,7 @@ export default function TermsPage() {
         </p>
         <ul>
           <li>Phone: (913) 407-8620</li>
-          <li>Email: <a href="mailto:gezarealesteteagent@gmail.com">gezarealesteteagent@gmail.com</a></li>
+          <li>Email: <a href="mailto:gezarealestateagent@gmail.com">gezarealestateagent@gmail.com</a></li>
           <li>Work Email: <a href="mailto:gezahegnw@knasascityhomes.com">gezahegnw@knasascityhomes.com</a></li>
           <li>Office: Better Homes and Gardens Kansas City, 8300 College Blvd, Ste 130, Overland Park, KS 66210</li>
         </ul>

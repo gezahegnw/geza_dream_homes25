@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               image: `${siteUrl}/favicon.ico`,
               url: siteUrl,
               telephone: "+1-913-407-8620",
-              email: ["gezarealesteteagent@gmail.com", "gezahegnw@knasascityhomes.com"],
+              email: ["gezarealestateagent@gmail.com", "gezahegnw@knasascityhomes.com"],
               address: {
                 "@type": "PostalAddress",
                 streetAddress: "8300 College Blvd, Ste 130",

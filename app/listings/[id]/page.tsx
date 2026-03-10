@@ -259,8 +259,8 @@ export default function PropertyDetailPage() {
               📞 Call (913) 407-8620
             </a>
           </div>
-          <a href="mailto:gezarealesteteagent@gmail.com" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
-            📧 gezarealesteteagent@gmail.com
+          <a href="mailto:gezarealestateagent@gmail.com" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
+            📧 gezarealestateagent@gmail.com
           </a>
         </div>
         <p style={{fontSize: '0.95rem', opacity: '0.9', marginTop: '15px', margin: '15px 0 0 0'}}>

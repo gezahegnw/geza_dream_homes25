@@ -57,8 +57,8 @@ export default function Footer() {
             </p>
             <p>
               <span className="font-semibold">Email:</span>{" "}
-              <a className="hover:text-brand" href="mailto:gezarealesteteagent@gmail.com">
-                gezarealesteteagent@gmail.com
+              <a className="hover:text-brand" href="mailto:gezarealestateagent@gmail.com">
+                gezarealestateagent@gmail.com
               </a>
             </p>
             <p>

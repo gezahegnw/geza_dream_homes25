@@ -402,7 +402,7 @@ export default function ContactPage() {
                 </p>
                 <p>
                   <span className="font-semibold">Email:</span>{' '}
-                  <a href="mailto:gezarealesteteagent@gmail.com" className="hover:text-brand">gezarealesteteagent@gmail.com</a>
+                  <a href="mailto:gezarealestateagent@gmail.com" className="hover:text-brand">gezarealestateagent@gmail.com</a>
                 </p>
                 <p className="sm:col-span-2">
                   <span className="font-semibold">Work Email:</span>{' '}
