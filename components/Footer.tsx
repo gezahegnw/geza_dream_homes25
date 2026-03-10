@@ -38,7 +38,6 @@ export default function Footer() {
         {/* Left column: Address (hidden on contact page) */}
         {!isContactPage && (
           <div>
-            <p className="font-semibold text-gray-700">Gezahegn Worku</p>
             <p>Better Homes and Gardens Kansas City</p>
             <p>8300 College Blvd, Ste 130</p>
             <p>Overland Park, KS 66210</p>

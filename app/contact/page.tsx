@@ -392,7 +392,6 @@ export default function ContactPage() {
           <div className="rounded-xl border bg-white p-4 text-sm text-gray-700 shadow-sm">
             <div className="flex flex-col gap-3">
               <div>
-                <p className="text-base font-semibold leading-none text-gray-900">Gezahegn Worku</p>
                 <p className="mt-1 text-sm text-gray-600">RE/MAX Beyond</p>
               </div>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -413,14 +412,14 @@ export default function ContactPage() {
                 <a
                   href="tel:+19134078620"
                   className="inline-flex items-center gap-2 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-white shadow hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-brand/40"
-                  aria-label="Call Gezahegn Worku"
+                  aria-label="Call"
                 >
                   Call
                 </a>
                 <a
                   href="mailto:gezahegnw@knasascityhomes.com"
                   className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-900 ring-1 ring-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
-                  aria-label="Email Gezahegn Worku"
+                  aria-label="Email"
                 >
                   Email
                 </a>
