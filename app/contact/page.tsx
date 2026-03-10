@@ -393,7 +393,7 @@ export default function ContactPage() {
             <div className="flex flex-col gap-3">
               <div>
                 <p className="text-base font-semibold leading-none text-gray-900">Gezahegn Worku</p>
-                <p className="mt-1 text-sm text-gray-600">Better Homes and Gardens Kansas City</p>
+                <p className="mt-1 text-sm text-gray-600">BHG Kansas City Homes</p>
               </div>
               <div className="grid gap-2 sm:grid-cols-2">
                 <p>

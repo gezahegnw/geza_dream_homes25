@@ -72,7 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               },
               brand: {
                 "@type": "Organization",
-                name: "Better Homes and Gardens Kansas City",
+                name: "BHG Kansas City Homes",
               },
             }),
           }}
