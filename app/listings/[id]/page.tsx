@@ -260,7 +260,7 @@ export default function PropertyDetailPage() {
             </a>
           </div>
           <a href="mailto:gezarealesteteagent@gmail.com" style={{color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: '500'}}>
-            📧 Email Geza
+            📧 gezarealesteteagent@gmail.com
           </a>
         </div>
         <p style={{fontSize: '0.95rem', opacity: '0.9', marginTop: '15px', margin: '15px 0 0 0'}}>
