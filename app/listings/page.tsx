@@ -45,7 +45,7 @@ const getStatusBadge = (status?: string) => {
   } else if (normalizedStatus.includes('sold') || normalizedStatus.includes('closed')) {
     badgeClass += "bg-red-100 text-red-800";
   } else if (normalizedStatus.includes('coming soon') || normalizedStatus.includes('coming_soon')) {
-    badgeClass += "bg-blue-100 text-blue-800";
+    badgeClass += "bg-green-100 text-green-800";
   } else if (normalizedStatus.includes('off market') || normalizedStatus.includes('withdrawn')) {
     badgeClass += "bg-gray-100 text-gray-800";
   } else {
@@ -233,10 +233,10 @@ export default function ListingsPage() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Property Listings</h1>
         {isAuthenticated === false && (
-          <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700">
+          <div className="mt-2 p-3 bg-green-50 border-green-200 rounded-lg">
+            <p className="text-sm text-green-700">
               <span className="font-medium">Browse freely!</span> Click on any listing to view details. 
-              <a href="/login" className="underline hover:text-blue-800 ml-1">Sign in</a> to save favorites and access full property information.
+              <a href="/login" className="underline hover:text-green-800 ml-1">Sign in</a> to save favorites and access full property information.
             </p>
           </div>
         )}
@@ -257,7 +257,7 @@ export default function ListingsPage() {
                 onChange={(e) => setQuery(e.target.value)}
                 className="flex-1 rounded border px-3 py-2"
               />
-              <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50" disabled={loading}>
+              <button type="submit" className="rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50" disabled={loading}>
                 {loading ? "Searching..." : "Search"}
               </button>
             </form>
@@ -268,12 +268,12 @@ export default function ListingsPage() {
               <div className="inline-flex rounded-md shadow-sm">
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`px-4 py-2 text-sm font-medium rounded-l-lg border ${viewMode === 'list' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+                  className={`px-4 py-2 text-sm font-medium rounded-l-lg border ${viewMode === 'list' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
                   List View
                 </button>
                 <button
                   onClick={() => setViewMode('map')}
-                  className={`px-4 py-2 text-sm font-medium rounded-r-lg border ${viewMode === 'map' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+                  className={`px-4 py-2 text-sm font-medium rounded-r-lg border ${viewMode === 'map' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
                   Map View
                 </button>
               </div>
@@ -300,7 +300,7 @@ export default function ListingsPage() {
                 <div>
                   <p className="font-medium">You must be logged in to view listings.</p>
                   <div className="mt-2 flex gap-3">
-                    <a href="/login" className="rounded bg-blue-600 px-4 py-2 text-white">Log in</a>
+                    <a href="/login" className="rounded bg-green-600 px-4 py-2 text-white">Log in</a>
                     <a href="/signup" className="rounded border px-4 py-2">Create account</a>
                   </div>
                 </div>
@@ -380,7 +380,7 @@ export default function ListingsPage() {
                 <button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={!hasMore || loading}
-                  className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+                  className="rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
                 >
                   Next
                 </button>

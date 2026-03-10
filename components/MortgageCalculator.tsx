@@ -69,7 +69,7 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+      <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
         <div className="flex items-center text-white">
           <div className="p-2 bg-white/20 rounded-lg mr-3">
             <Calculator className="h-6 w-6" />
@@ -93,7 +93,7 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
               type="number"
               value={homePrice}
               onChange={(e) => setHomePrice(e.target.value)}
-              className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg font-medium"
+              className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-lg font-medium"
               placeholder="400,000"
             />
           </div>
@@ -113,7 +113,7 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
               type="number"
               value={downPayment}
               onChange={(e) => setDownPayment(e.target.value)}
-              className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg font-medium"
+              className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-lg font-medium"
               placeholder="80,000"
             />
           </div>
@@ -131,7 +131,7 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
               step="0.1"
               value={interestRate}
               onChange={(e) => setInterestRate(e.target.value)}
-              className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg font-medium"
+              className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-lg font-medium"
               placeholder="7.0"
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -149,7 +149,7 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
           <select
             value={loanTerm}
             onChange={(e) => setLoanTerm(e.target.value)}
-            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg font-medium bg-white"
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-lg font-medium bg-white"
           >
             <option value="15">15 years</option>
             <option value="20">20 years</option>
@@ -161,7 +161,7 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
         {/* Calculate Button */}
         <button
           onClick={calculateMortgage}
-          className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-semibold text-lg shadow-lg"
+          className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 font-semibold text-lg shadow-lg"
         >
           Calculate Payment
         </button>
@@ -173,7 +173,7 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
             
             {/* Main Payment Display */}
             <div className="text-center mb-6 p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-4xl font-bold text-blue-600 mb-2">
+              <div className="text-4xl font-bold text-green-600 mb-2">
                 {formatCurrency(result.monthlyPayment)}
               </div>
               <p className="text-sm text-gray-600 font-medium">
