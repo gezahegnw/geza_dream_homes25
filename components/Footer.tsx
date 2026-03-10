@@ -38,10 +38,14 @@ export default function Footer() {
         {/* Left column: Address (hidden on contact page) */}
         {!isContactPage && (
           <div>
+            <p className="font-semibold text-gray-700">Gezahegn Worku</p>
             <p>Better Homes and Gardens Kansas City</p>
             <p>8300 College Blvd, Ste 130</p>
             <p>Overland Park, KS 66210</p>
-            <p>913-981-6050</p>
+            <p>P: 913-407-8620</p>
+            <p>O: 913-981-6050</p>
+            <p>Email: gezarealestateagent@gmail.com</p>
+            <p>Work Email: gezahegnw@knasascityhomes.com</p>
           </div>
         )}
 

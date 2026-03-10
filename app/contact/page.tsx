@@ -392,12 +392,17 @@ export default function ContactPage() {
           <div className="rounded-xl border bg-white p-4 text-sm text-gray-700 shadow-sm">
             <div className="flex flex-col gap-3">
               <div>
-                <p className="mt-1 text-sm text-gray-600">RE/MAX Beyond</p>
+                <p className="text-base font-semibold leading-none text-gray-900">Gezahegn Worku</p>
+                <p className="mt-1 text-sm text-gray-600">Better Homes and Gardens Kansas City</p>
               </div>
               <div className="grid gap-2 sm:grid-cols-2">
                 <p>
-                  <span className="font-semibold">Phone:</span>{' '}
-                  <a href="tel:+19134078620" className="hover:text-brand">(913) 407-8620</a>
+                  <span className="font-semibold">P:</span>{' '}
+                  <a href="tel:+19134078620" className="hover:text-brand">913-407-8620</a>
+                </p>
+                <p>
+                  <span className="font-semibold">O:</span>{' '}
+                  <a href="tel:+19139816050" className="hover:text-brand">913-981-6050</a>
                 </p>
                 <p>
                   <span className="font-semibold">Email:</span>{' '}
