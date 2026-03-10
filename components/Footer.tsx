@@ -49,32 +49,8 @@ export default function Footer() {
           </div>
         )}
 
-        {/* Middle column: Contact (hidden on contact page) */}
-        {!isContactPage && (
-          <div>
-            <p>
-              <span className="font-semibold">Phone:</span>{" "}
-              <a className="hover:text-brand" href="tel:+19134078620">
-                (913) 407-8620
-              </a>
-            </p>
-            <p>
-              <span className="font-semibold">Email:</span>{" "}
-              <a className="hover:text-brand" href="mailto:gezarealestateagent@gmail.com">
-                gezarealestateagent@gmail.com
-              </a>
-            </p>
-            <p>
-              <span className="font-semibold">Work Email:</span>{" "}
-              <a className="hover:text-brand" href="mailto:gezahegnw@knasascityhomes.com">
-                gezahegnw@knasascityhomes.com
-              </a>
-            </p>
-          </div>
-        )}
-
         {/* Right column: Quick Links */}
-        <div className={!isContactPage ? "md:text-right" : "md:col-span-3 md:flex md:justify-end"}>
+        <div className="md:col-span-2 md:flex md:justify-end">
           <nav className="space-y-2 text-right">
             <a href="/" className="block hover:text-brand">Home</a>
             <a href="/listings" className="block hover:text-brand">Listings</a>
