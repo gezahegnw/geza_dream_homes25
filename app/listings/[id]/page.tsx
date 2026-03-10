@@ -247,9 +247,6 @@ export default function PropertyDetailPage() {
         </h2>
         <div style={{marginBottom: '20px'}}>
           <p style={{fontSize: '1.2rem', fontWeight: '500', margin: '0 0 5px 0'}}>
-            Gezahegn Worku
-          </p>
-          <p style={{fontSize: '1rem', opacity: '0.9', margin: '0'}}>
             Better Homes and Gardens Kansas City
           </p>
         </div>
