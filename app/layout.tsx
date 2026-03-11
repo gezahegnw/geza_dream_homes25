@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     default: 'Geza Dream Homes | Kansas City Real Estate Agent',
     template: '%s | Geza Dream Homes',
   },
-  description: 'Find your dream home in the Kansas City metro area with Geza Worku, a dedicated RE/MAX real estate agent. Browse the latest property listings, get expert market insights, and start your home buying or selling journey today.',
+  description: 'Find your dream home in the Kansas City metro area with Geza Worku, a dedicated BHG Kansas City Homes real estate agent. Browse the latest property listings, get expert market insights, and start your home buying or selling journey today.',
   metadataBase: new URL('https://gezadreamhomes.com'),
   openGraph: {
     title: 'Geza Dream Homes | Kansas City Real Estate Agent',

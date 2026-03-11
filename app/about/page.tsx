@@ -49,7 +49,7 @@ export default function AboutPage() {
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-blue-900/10 z-10 pointer-events-none"></div>
             <Image
               src="/my-photo.png"
-              alt="Gezahegn Worku — RE/MAX Beyond"
+              alt="Gezahegn Worku — BHG Kansas City Homes"
               fill
               className="object-cover object-center"
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -58,7 +58,7 @@ export default function AboutPage() {
           {/* Caption */}
           <div className="mt-3 text-center text-sm text-gray-600">
             <p className="font-semibold text-gray-900">Gezahegn Worku</p>
-            <p>RE/MAX Beyond</p>
+            <p>BHG Kansas City Homes</p>
           </div>
         </div>
       </div>
