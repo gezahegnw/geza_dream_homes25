@@ -10,6 +10,8 @@ import MobileCallButton from "@/components/MobileCallButton";
 import Image from "next/image";
 import AuthStatusServer from "../components/AuthStatusServer";
 import { Metadata } from "next";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -78,63 +80,66 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${inter.className} bg-white min-h-screen flex flex-col`}>
-        <header className="sticky top-0 z-40 bg-white shadow-sm">
-          <nav className="w-full flex h-20 items-center justify-between px-0 md:px-0">
-            <a href="/" className="flex items-center leading-tight pl-4 pr-2" aria-label="Geza Dream Homes">
-              {/* Light theme SVG logo */}
-              <Image
-                src="/logo-light.svg"
-                alt="Geza Dream Homes"
-                width={300}
-                height={80}
-                priority
-                sizes="(max-width: 768px) 240px, 300px"
-                className="block dark:hidden h-16 md:h-20 w-auto"
-              />
-              {/* Dark theme SVG logo */}
-              <Image
-                src="/logo-dark.svg"
-                alt="Geza Dream Homes"
-                width={300}
-                height={80}
-                priority
-                sizes="(max-width: 768px) 240px, 300px"
-                className="hidden dark:block h-16 md:h-20 w-auto"
-              />
-            </a>
-            <div className="hidden items-center space-x-8 md:flex">
-              <a href="/" className="hover:text-brand">Home</a>
-              <a href="/listings" className="hover:text-brand">Listings</a>
-              <a href="/favorites" className="hover:text-brand">Favorites</a>
-              <a href="/gallery" className="hover:text-brand">Gallery</a>
-              <a href="/about" className="hover:text-brand">About</a>
-              <a href="/reviews" className="hover:text-brand">Write a Review</a>
-              <a 
-                href="/contact" 
-                className="rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand/90"
-              >
-                Contact
+      <body className={`${inter.className} bg-white dark:bg-gray-900 min-h-screen flex flex-col`}>
+        <ThemeProvider>
+          <header className="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-sm">
+            <nav className="w-full flex h-20 items-center justify-between px-0 md:px-0">
+              <a href="/" className="flex items-center leading-tight pl-4 pr-2" aria-label="Geza Dream Homes">
+                {/* Light theme SVG logo */}
+                <Image
+                  src="/logo-light.svg"
+                  alt="Geza Dream Homes"
+                  width={300}
+                  height={80}
+                  priority
+                  sizes="(max-width: 768px) 240px, 300px"
+                  className="block dark:hidden h-16 md:h-20 w-auto"
+                />
+                {/* Dark theme SVG logo */}
+                <Image
+                  src="/logo-dark.svg"
+                  alt="Geza Dream Homes"
+                  width={300}
+                  height={80}
+                  priority
+                  sizes="(max-width: 768px) 240px, 300px"
+                  className="hidden dark:block h-16 md:h-20 w-auto"
+                />
               </a>
-              {/* Server component pre-hydrates user so header is correct on first paint */}
-              <AuthStatusServer />
-              <a 
-                href="tel:+19134078620" 
-                className="hidden lg:inline-flex items-center text-gray-700 hover:text-brand"
-              >
-                <svg className="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                (913) 407-8620
-              </a>
-            </div>
-            <MobileMenu />
-          </nav>
-        </header>
-        <main className="flex-1">{children}</main>
-        <FloatingCTA />
-        <MobileCallButton />
-        <Footer />
+              <div className="hidden items-center space-x-8 md:flex">
+                <a href="/" className="hover:text-brand">Home</a>
+                <a href="/listings" className="hover:text-brand">Listings</a>
+                <a href="/favorites" className="hover:text-brand">Favorites</a>
+                <a href="/gallery" className="hover:text-brand">Gallery</a>
+                <a href="/about" className="hover:text-brand">About</a>
+                <a href="/reviews" className="hover:text-brand">Write a Review</a>
+                <a 
+                  href="/contact" 
+                  className="rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand/90"
+                >
+                  Contact
+                </a>
+                <ThemeToggle />
+                {/* Server component pre-hydrates user so header is correct on first paint */}
+                <AuthStatusServer />
+                <a 
+                  href="tel:+19134078620" 
+                  className="hidden lg:inline-flex items-center text-gray-700 hover:text-brand"
+                >
+                  <svg className="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  (913) 407-8620
+                </a>
+              </div>
+              <MobileMenu />
+            </nav>
+          </header>
+          <main className="flex-1">{children}</main>
+          <FloatingCTA />
+          <MobileCallButton />
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
