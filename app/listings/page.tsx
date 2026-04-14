@@ -161,7 +161,11 @@ export default function ListingsPage() {
 
   const handleListingClick = (listingId: string, e: React.MouseEvent) => {
     e.preventDefault();
-    // Navigate to listing without authentication check
+    // Check if user is authenticated before allowing access to listing details
+    if (isAuthenticated === false) {
+      window.location.href = `/login?redirect=/listings/${listingId}`;
+      return;
+    }
     window.location.href = `/listings/${listingId}`;
   };
 
@@ -235,8 +239,8 @@ export default function ListingsPage() {
         {isAuthenticated === false && (
           <div className="mt-2 p-3 bg-green-50 border-green-200 rounded-lg">
             <p className="text-sm text-green-700">
-              <span className="font-medium">Browse freely!</span> Click on any listing to view details. 
-              <a href="/login" className="underline hover:text-green-800 ml-1">Sign in</a> to save favorites and access full property information.
+              <span className="font-medium">Sign in required</span> to view listing details. 
+              <a href="/login" className="underline hover:text-green-800 ml-1">Log in</a> or <a href="/signup" className="underline hover:text-green-800 ml-1">sign up</a> to access property information.
             </p>
           </div>
         )}
