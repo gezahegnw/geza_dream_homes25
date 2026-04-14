@@ -46,8 +46,10 @@ export default function PropertyDetailPage() {
     const checkAuth = async () => {
       try {
         const res = await fetch('/api/auth/me', { cache: 'no-store' });
-        setIsAuthenticated(res.ok);
-        if (!res.ok) {
+        const data = await res.json();
+        const authenticated = data.user !== null;
+        setIsAuthenticated(authenticated);
+        if (!authenticated) {
           setError('You must be logged in to view property details. Please log in or sign up to continue.');
           setLoading(false);
           return;
