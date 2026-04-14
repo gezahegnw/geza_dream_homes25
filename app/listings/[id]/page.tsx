@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import MortgageCalculator from "@/components/MortgageCalculator";
+import ShareListing from "@/components/ShareListing";
 
 // Helper function to map property type codes to readable names
 const getPropertyTypeName = (propertyType: any): string => {
@@ -129,12 +130,21 @@ export default function PropertyDetailPage() {
       </div>
       
       <div style={{marginBottom: '30px', borderBottom: '2px solid #e5e7eb', paddingBottom: '20px'}}>
-        <h1 style={{fontSize: '2.5rem', fontWeight: 'bold', margin: '0 0 10px 0', color: '#1f2937'}}>
-          {data.address || 'Property Address'}
-        </h1>
-        <p style={{fontSize: '1.2rem', color: '#6b7280', margin: '0'}}>
-          {data.city}, {data.state} {data.zipCode}
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 style={{fontSize: '2.5rem', fontWeight: 'bold', margin: '0 0 10px 0', color: '#1f2937'}}>
+              {data.address || 'Property Address'}
+            </h1>
+            <p style={{fontSize: '1.2rem', color: '#6b7280', margin: '0'}}>
+              {data.city}, {data.state} {data.zipCode}
+            </p>
+          </div>
+          <ShareListing 
+            listingUrl={`/listings/${params?.id}`}
+            listingTitle={data.address || 'Property'}
+            listingPrice={data.price ? `$${data.price.toLocaleString()}` : undefined}
+          />
+        </div>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
