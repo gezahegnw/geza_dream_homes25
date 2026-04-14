@@ -91,6 +91,7 @@ model User {
   favorites      Favorite[]
   savedSearches  SavedSearch[]
   reviews        Review[] @relation("UserReviews")
+  notifications  Notification[]
 
   @@map("users")
   @@index([created_at])
@@ -107,4 +108,34 @@ model Favorite {
   @@unique([user_id, property_id])
   @@index([user_id])
   @@map("favorites")
+}
+
+model PropertyTracking {
+  id            String   @id @default(cuid())
+  property_id   String   @map("property_id")
+  price         Int?
+  status        String?
+  tracked_at    DateTime @default(now()) @map("tracked_at")
+
+  @@unique([property_id, tracked_at])
+  @@index([property_id])
+  @@index([tracked_at])
+  @@map("property_tracking")
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  user_id       String   @map("user_id")
+  type          String   // 'price_drop', 'status_change', 'new_listing'
+  property_id   String?  @map("property_id")
+  title         String
+  message       String
+  sent_at       DateTime @default(now()) @map("sent_at")
+  read          Boolean  @default(false)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([sent_at])
+  @@map("notifications")
 }
