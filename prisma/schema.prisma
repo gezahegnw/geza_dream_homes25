@@ -88,10 +88,11 @@ model User {
   approved       Boolean  @default(false)
   is_admin       Boolean  @default(false)
 
-  favorites      Favorite[]
-  savedSearches  SavedSearch[]
-  reviews        Review[] @relation("UserReviews")
-  notifications  Notification[]
+  favorites                Favorite[]
+  savedSearches            SavedSearch[]
+  reviews                  Review[] @relation("UserReviews")
+  notifications            Notification[]
+  notificationPreference   NotificationPreference?
 
   @@map("users")
   @@index([created_at])
@@ -138,4 +139,28 @@ model Notification {
   @@index([user_id])
   @@index([sent_at])
   @@map("notifications")
+}
+
+model NotificationPreference {
+  id                    String   @id @default(cuid())
+  user_id               String   @unique @map("user_id")
+  
+  // Email notification toggles
+  email_new_listings    Boolean  @default(true) @map("email_new_listings")
+  email_price_drops     Boolean  @default(true) @map("email_price_drops")
+  email_status_changes  Boolean  @default(true) @map("email_status_changes")
+  
+  // Price drop threshold (percentage, e.g., 5 for 5%)
+  price_drop_threshold  Int      @default(5) @map("price_drop_threshold")
+  
+  // Frequency settings
+  digest_mode           String   @default("immediate") @map("digest_mode") // 'immediate', 'daily', 'weekly'
+  
+  created_at            DateTime @default(now()) @map("created_at")
+  updated_at            DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("notification_preferences")
 }
