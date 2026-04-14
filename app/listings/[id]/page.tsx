@@ -48,9 +48,15 @@ export default function PropertyDetailPage() {
         const res = await fetch('/api/auth/me', { cache: 'no-store' });
         const data = await res.json();
         const authenticated = data.user !== null;
+        const approved = data.user?.approved === true;
         setIsAuthenticated(authenticated);
         if (!authenticated) {
           setError('You must be logged in to view property details. Please log in or sign up to continue.');
+          setLoading(false);
+          return;
+        }
+        if (!approved) {
+          setError('Your account is pending approval. You will be able to view property details once an administrator approves your account.');
           setLoading(false);
           return;
         }
@@ -91,12 +97,13 @@ export default function PropertyDetailPage() {
 
   if (loading) return <div>Loading...</div>;
   if (error) {
+    const isPending = error.includes('pending approval');
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded-lg shadow-md max-w-lg">
           <h2 className="text-2xl font-bold mb-3">Access Denied</h2>
           <p className="text-base">{error}</p>
-          {isAuthenticated === false && (
+          {isAuthenticated === false && !isPending && (
             <div className="mt-4 flex gap-3 justify-center">
               <a href="/login" className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">Log in</a>
               <a href="/signup" className="rounded border border-green-600 px-4 py-2 text-green-700 hover:bg-green-50">Create account</a>
