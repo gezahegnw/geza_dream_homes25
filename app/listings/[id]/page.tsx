@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import ShareListing from "@/components/ShareListing";
 import NeighborhoodInsights from "@/components/NeighborhoodInsights";
+import PriceHistory from "@/components/PriceHistory";
 
 // Helper function to map property type codes to readable names
 const getPropertyTypeName = (propertyType: any): string => {
@@ -282,6 +283,10 @@ export default function PropertyDetailPage() {
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-6">
             <MortgageCalculator price={data.price || 400000} />
+            <PriceHistory 
+              propertyId={params?.id as string}
+              currentPrice={data.price}
+            />
             <NeighborhoodInsights 
               propertyId={params?.id as string}
               address={data.address}
