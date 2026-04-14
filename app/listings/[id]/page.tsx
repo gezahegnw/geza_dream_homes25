@@ -39,6 +39,27 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Check authentication status on component mount
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
+        setIsAuthenticated(res.ok);
+        if (!res.ok) {
+          setError('You must be logged in to view property details. Please log in or sign up to continue.');
+          setLoading(false);
+          return;
+        }
+      } catch {
+        setIsAuthenticated(false);
+        setError('You must be logged in to view property details. Please log in or sign up to continue.');
+        setLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     async function loadProperty() {
@@ -59,8 +80,12 @@ export default function PropertyDetailPage() {
       }
       setLoading(false);
     }
-    loadProperty();
-  }, [params?.id]);
+    
+    // Only load property if authenticated
+    if (isAuthenticated === true) {
+      loadProperty();
+    }
+  }, [params?.id, isAuthenticated]);
 
   if (loading) return <div>Loading...</div>;
   if (error) {
@@ -69,6 +94,12 @@ export default function PropertyDetailPage() {
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded-lg shadow-md max-w-lg">
           <h2 className="text-2xl font-bold mb-3">Access Denied</h2>
           <p className="text-base">{error}</p>
+          {isAuthenticated === false && (
+            <div className="mt-4 flex gap-3 justify-center">
+              <a href="/login" className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">Log in</a>
+              <a href="/signup" className="rounded border border-green-600 px-4 py-2 text-green-700 hover:bg-green-50">Create account</a>
+            </div>
+          )}
           <p className="mt-4 text-sm">If you believe this is an error, please contact support.</p>
         </div>
       </div>
