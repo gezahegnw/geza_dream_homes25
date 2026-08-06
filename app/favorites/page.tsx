@@ -29,6 +29,7 @@ export default function FavoritesPage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [needsAuth, setNeedsAuth] = useState(false);
 
   useEffect(() => {
     fetchFavorites();
@@ -37,9 +38,14 @@ export default function FavoritesPage() {
   const fetchFavorites = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/favorites');
+      const res = await fetch('/api/favorites', { cache: 'no-store' });
+      if (res.status === 401) {
+        setNeedsAuth(true);
+        return;
+      }
       if (!res.ok) {
-        throw new Error('Failed to fetch favorites');
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.message || body?.error || 'Failed to fetch favorites');
       }
       const data = await res.json();
       setFavorites(data.favorites || []);
@@ -77,6 +83,10 @@ export default function FavoritesPage() {
         body: JSON.stringify({ property_id: propertyId })
       });
       
+      if (res.status === 401) {
+        setNeedsAuth(true);
+        return;
+      }
       if (res.ok) {
         setFavorites(prev => prev.filter(fav => fav.property_id !== propertyId));
       }
@@ -97,6 +107,27 @@ export default function FavoritesPage() {
               <div className="mt-2 h-3 bg-gray-200 rounded w-1/2" />
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (needsAuth) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-12">
+        <h1 className="text-3xl font-bold mb-8">My Favorites</h1>
+        <div className="text-center py-12">
+          <HeartIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-600 mb-2">Sign in to see your favorites</h2>
+          <p className="text-gray-500 mb-4">Your saved properties are tied to your account.</p>
+          <div className="flex justify-center gap-3">
+            <a href="/login?redirect=/favorites" className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors">
+              Log in
+            </a>
+            <a href="/signup" className="inline-block border border-blue-600 text-blue-600 px-6 py-2 rounded hover:bg-blue-50 transition-colors">
+              Sign up
+            </a>
+          </div>
         </div>
       </div>
     );
