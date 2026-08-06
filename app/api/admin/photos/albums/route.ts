@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { readdir, stat } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { checkAdminToken, unauthorized } from '@/lib/admin-token';
 
 export async function GET() {
   try {
@@ -51,6 +52,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    if (!checkAdminToken(req)) return unauthorized();
     const { name } = await req.json();
     
     if (!name || typeof name !== 'string') {

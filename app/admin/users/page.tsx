@@ -29,22 +29,38 @@ export default function AdminUsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ApiList | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    // Check if already authenticated
-    if (AdminAuth.isAuthenticated()) {
-      const savedToken = AdminAuth.getToken();
-      if (savedToken) {
-        setToken(savedToken);
-        load(1); // Auto-load data if authenticated
-      }
-    } else if (process.env.NODE_ENV !== "production") {
-      const t = (process.env as any).ADMIN_TOKEN as string | undefined;
-      if (t && !token) setToken(t);
+    // Re-verify any previously saved token with the server
+    const savedToken = AdminAuth.getToken();
+    if (savedToken) {
+      setToken(savedToken);
+      AdminAuth.login(savedToken).then((result) => {
+        if (result.ok) {
+          setAuthenticated(true);
+          load(1);
+        }
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function handleLogin() {
+    setVerifying(true);
+    setAuthError(null);
+    const result = await AdminAuth.login(token);
+    setVerifying(false);
+    if (result.ok) {
+      setAuthenticated(true);
+      load(1);
+    } else {
+      setAuthError(result.error ?? "Invalid admin token.");
+    }
+  }
 
   async function load(nextPage = page) {
     setLoading(true);
@@ -117,8 +133,8 @@ export default function AdminUsersPage() {
     return null; // or a loading spinner
   }
 
-  // Show authentication screen if not authenticated and no token
-  if (!AdminAuth.isAuthenticated() && !token) {
+  // Show authentication screen until the token has been verified by the server
+  if (!authenticated) {
     return (
       <div className="mx-auto max-w-md px-4 py-16">
         <div className="bg-white rounded-lg border p-8 text-center">
@@ -132,17 +148,18 @@ export default function AdminUsersPage() {
               onChange={(e) => setToken(e.target.value)}
               placeholder="Enter admin token"
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && token.trim() && !verifying) handleLogin();
+              }}
             />
             <button
-              onClick={() => {
-                AdminAuth.setToken(token);
-                load(1);
-              }}
-              disabled={!token.trim()}
+              onClick={handleLogin}
+              disabled={!token.trim() || verifying}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Access User Management
+              {verifying ? "Verifying..." : "Access User Management"}
             </button>
+            {authError && <p className="text-sm text-red-600">{authError}</p>}
           </div>
         </div>
       </div>
@@ -194,17 +211,6 @@ export default function AdminUsersPage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {!AdminAuth.isAuthenticated() && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Admin Token</label>
-                <input 
-                  value={token} 
-                  onChange={(e) => setToken(e.target.value)} 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                  placeholder="Set ADMIN_TOKEN in .env for prod" 
-                />
-              </div>
-            )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
               <input 

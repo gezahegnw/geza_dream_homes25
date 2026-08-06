@@ -1,15 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
-function checkToken(req: Request): boolean {
-  const token = process.env.ADMIN_TOKEN;
-  if (!token) return true; // allow in dev if not set
-  const header = req.headers.get("x-admin-token") || new URL(req.url).searchParams.get("token");
-  return header === token;
-}
-function unauthorized() {
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-}
+import { checkAdminToken as checkToken, unauthorized } from "@/lib/admin-token";
 
 export async function GET(req: Request) {
   try {

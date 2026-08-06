@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = 'force-dynamic';
 import { prisma } from "@/lib/prisma";
+import { checkAdminToken as checkToken, unauthorized } from "@/lib/admin-token";
 
 function ok<T>(data: T, headers?: HeadersInit) {
   return new NextResponse(JSON.stringify(data), {
@@ -10,16 +11,6 @@ function ok<T>(data: T, headers?: HeadersInit) {
   });
 }
 
-function unauthorized() {
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-}
-
-function checkToken(req: Request): boolean {
-  const token = process.env.ADMIN_TOKEN;
-  if (!token) return true; // if not set, allow for local dev
-  const h = req.headers.get("x-admin-token") || new URL(req.url).searchParams.get("token");
-  return h === token;
-}
 
 export async function GET(req: Request) {
   try {

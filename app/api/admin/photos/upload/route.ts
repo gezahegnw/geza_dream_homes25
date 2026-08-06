@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { checkAdminToken, unauthorized } from '@/lib/admin-token';
 
 export async function POST(req: Request) {
   try {
+    if (!checkAdminToken(req)) return unauthorized();
     const formData = await req.formData();
     const files = formData.getAll('photos') as File[];
     const album = formData.get('album') as string || 'general';
