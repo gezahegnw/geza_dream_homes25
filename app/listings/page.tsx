@@ -153,11 +153,26 @@ export default function ListingsPage() {
         const res = await fetch('/api/auth/me', { cache: 'no-store' });
         // /api/auth/me answers 200 with { user: null } when signed out
         const data = await res.json().catch(() => null);
-        setIsAuthenticated(res.ok && !!data?.user);
+        const authenticated = res.ok && !!data?.user;
+        setIsAuthenticated(authenticated);
+        if (authenticated) loadFavorites();
       } catch {
         setIsAuthenticated(false);
       }
     };
+
+    // Hydrate the hearts, otherwise a saved listing looks unsaved after a
+    // reload and clicking it removes the favorite instead of adding one.
+    const loadFavorites = async () => {
+      try {
+        const res = await fetch('/api/favorites', { cache: 'no-store' });
+        if (!res.ok) return;
+        const body = await res.json();
+        const saved: string[] = (body?.favorites ?? []).map((f: { property_id: string }) => f.property_id);
+        setFavorites(new Set(saved));
+      } catch {}
+    };
+
     checkAuth();
   }, []);
 
