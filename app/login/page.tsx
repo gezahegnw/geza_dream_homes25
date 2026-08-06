@@ -1,9 +1,14 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
+// Only same-site relative paths are accepted so `?redirect=` cannot be used
+// to bounce users to another origin after logging in.
+function safeRedirect(value: string | null): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/listings";
+  return value;
+}
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +27,8 @@ export default function LoginPage() {
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error || body?.message || "Login failed");
       // Force a full document navigation so server components receive the new cookie immediately
-      window.location.href = "/listings";
+      const redirect = new URLSearchParams(window.location.search).get("redirect");
+      window.location.href = safeRedirect(redirect);
     } catch (e: any) {
       setError(String(e?.message ?? e));
     } finally {
