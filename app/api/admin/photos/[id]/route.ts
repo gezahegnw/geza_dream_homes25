@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { unlink } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { checkAdminToken, unauthorized } from '@/lib/admin-token';
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    if (!checkAdminToken(req)) return unauthorized();
     const { id } = await params;
     const photoId = decodeURIComponent(id);
     

@@ -22,22 +22,33 @@ export default function AdminPage() {
   const [token, setToken] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
   const [pendingUsers, setPendingUsers] = useState<User[]>([]);
   const [pendingReviews, setPendingReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-    // Check if already authenticated
-    if (AdminAuth.isAuthenticated()) {
-      const savedToken = AdminAuth.getToken();
-      if (savedToken) {
-        setToken(savedToken);
-        setAuthenticated(true);
-      }
-    } else if (process.env.NODE_ENV !== "production") {
-      const t = (process.env as any).ADMIN_TOKEN as string | undefined;
-      if (t && !token) setToken(t);
+    // Re-verify any previously saved token with the server
+    const savedToken = AdminAuth.getToken();
+    if (savedToken) {
+      setToken(savedToken);
+      AdminAuth.login(savedToken).then((result) => {
+        if (result.ok) setAuthenticated(true);
+      });
     }
   }, []);
+
+  async function handleLogin() {
+    setVerifying(true);
+    setAuthError(null);
+    const result = await AdminAuth.login(token);
+    setVerifying(false);
+    if (result.ok) {
+      setAuthenticated(true);
+    } else {
+      setAuthError(result.error ?? 'Invalid admin token.');
+    }
+  }
 
   useEffect(() => {
     if (authenticated) {
@@ -85,17 +96,18 @@ export default function AdminPage() {
               onChange={(e) => setToken(e.target.value)}
               placeholder="Enter admin token"
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && token.trim() && !verifying) handleLogin();
+              }}
             />
             <button
-              onClick={() => {
-                AdminAuth.setToken(token);
-                setAuthenticated(true);
-              }}
-              disabled={!token.trim()}
+              onClick={handleLogin}
+              disabled={!token.trim() || verifying}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Access Admin Dashboard
+              {verifying ? 'Verifying...' : 'Access Admin Dashboard'}
             </button>
+            {authError && <p className="text-sm text-red-600">{authError}</p>}
           </div>
         </div>
       </div>
