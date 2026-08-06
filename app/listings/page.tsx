@@ -151,7 +151,9 @@ export default function ListingsPage() {
     const checkAuth = async () => {
       try {
         const res = await fetch('/api/auth/me', { cache: 'no-store' });
-        setIsAuthenticated(res.ok);
+        // /api/auth/me answers 200 with { user: null } when signed out
+        const data = await res.json().catch(() => null);
+        setIsAuthenticated(res.ok && !!data?.user);
       } catch {
         setIsAuthenticated(false);
       }
@@ -186,6 +188,12 @@ export default function ListingsPage() {
         body: JSON.stringify({ property_id: propertyId })
       });
       
+      if (res.status === 401) {
+        setIsAuthenticated(false);
+        window.location.href = `/login?redirect=/listings`;
+        return;
+      }
+
       if (res.ok) {
         const { favorited } = await res.json();
         setFavorites(prev => {
@@ -240,7 +248,7 @@ export default function ListingsPage() {
           <div className="mt-2 p-3 bg-green-50 border-green-200 rounded-lg">
             <p className="text-sm text-green-700">
               <span className="font-medium">Sign in required</span> to view listing details. 
-              <a href="/login" className="underline hover:text-green-800 ml-1">Log in</a> or <a href="/signup" className="underline hover:text-green-800 ml-1">sign up</a> to access property information.
+              <a href="/login?redirect=/listings" className="underline hover:text-green-800 ml-1">Log in</a> or <a href="/signup" className="underline hover:text-green-800 ml-1">sign up</a> to access property information.
             </p>
           </div>
         )}
@@ -304,7 +312,7 @@ export default function ListingsPage() {
                 <div>
                   <p className="font-medium">You must be logged in to view listings.</p>
                   <div className="mt-2 flex gap-3">
-                    <a href="/login" className="rounded bg-green-600 px-4 py-2 text-white">Log in</a>
+                    <a href="/login?redirect=/listings" className="rounded bg-green-600 px-4 py-2 text-white">Log in</a>
                     <a href="/signup" className="rounded border px-4 py-2">Create account</a>
                   </div>
                 </div>
