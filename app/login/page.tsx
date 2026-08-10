@@ -1,15 +1,6 @@
 "use client";
 import { useState } from "react";
-
-// Only same-site relative paths are accepted so `?redirect=` cannot be used
-// to bounce users to another origin after logging in.
-function safeRedirect(value: string | null): string {
-  if (!value) return "/listings";
-  // Browsers treat backslashes as slashes, so `/\evil.com` is off-site too.
-  const normalized = value.replace(/\\/g, "/");
-  if (!normalized.startsWith("/") || normalized.startsWith("//")) return "/listings";
-  return normalized;
-}
+import { safeRedirect } from "@/lib/redirect";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
