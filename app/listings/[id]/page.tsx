@@ -108,7 +108,7 @@ export default function PropertyDetailPage() {
           <p className="text-base">{error}</p>
           {isAuthenticated === false && !isPending && (
             <div className="mt-4 flex gap-3 justify-center">
-              <a href="/login" className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">Log in</a>
+              <a href={`/login?redirect=/listings/${params?.id}`} className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">Log in</a>
               <a href="/signup" className="rounded border border-green-600 px-4 py-2 text-green-700 hover:bg-green-50">Create account</a>
             </div>
           )}
