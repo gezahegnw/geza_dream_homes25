@@ -2,9 +2,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, createSessionToken, sessionCookie } from "@/lib/auth";
 import { sendEmail } from "@/lib/resend";
+import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
+
+const SIGNUP_LIMIT = { limit: 5, windowMs: 60 * 60_000 };
 
 export async function POST(req: Request) {
   try {
+    const check = rateLimit(`signup:ip:${getClientIp(req)}`, SIGNUP_LIMIT);
+    if (!check.allowed) return tooManyRequests(check.retryAfterSeconds);
+
     const body = await req.json().catch(() => ({} as any));
     const name = String(body?.name || "").trim();
     const email = String(body?.email || "").trim().toLowerCase();

@@ -1,13 +1,24 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword, createSessionToken, sessionCookie } from "@/lib/auth";
+import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
+
+const IP_LIMIT = { limit: 10, windowMs: 60_000 };
+// Tighter per-account cap so one target can't be attacked from many addresses.
+const EMAIL_LIMIT = { limit: 5, windowMs: 15 * 60_000 };
 
 export async function POST(req: Request) {
   try {
+    const ipCheck = rateLimit(`login:ip:${getClientIp(req)}`, IP_LIMIT);
+    if (!ipCheck.allowed) return tooManyRequests(ipCheck.retryAfterSeconds);
+
     const body = await req.json().catch(() => ({} as any));
     const email = String(body?.email || "").trim().toLowerCase();
     const password = String(body?.password || "");
     if (!email || !password) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+
+    const emailCheck = rateLimit(`login:email:${email}`, EMAIL_LIMIT);
+    if (!emailCheck.allowed) return tooManyRequests(emailCheck.retryAfterSeconds);
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 
 const leadSchema = z.object({
   name: z.string().min(2),
@@ -33,8 +34,13 @@ const leadSchema = z.object({
   token: z.string().optional(), // reCAPTCHA token (optional for now)
 });
 
+const LEAD_LIMIT = { limit: 5, windowMs: 10 * 60_000 };
+
 export async function POST(req: Request) {
   try {
+    const check = rateLimit(`leads:ip:${getClientIp(req)}`, LEAD_LIMIT);
+    if (!check.allowed) return tooManyRequests(check.retryAfterSeconds);
+
     const json = await req.json();
     const parsed = leadSchema.safeParse(json);
     if (!parsed.success) {
