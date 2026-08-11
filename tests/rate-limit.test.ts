@@ -1,5 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getClientIp, rateLimit, resetRateLimits, tooManyRequests } from "@/lib/rate-limit";
+import {
+  checkRateLimit,
+  clearRateLimit,
+  getClientIp,
+  rateLimit,
+  recordFailure,
+  resetRateLimits,
+  tooManyRequests,
+} from "@/lib/rate-limit";
 
 const OPTS = { limit: 3, windowMs: 60_000 };
 
@@ -52,6 +60,42 @@ describe("rateLimit", () => {
 
     // A caller who keeps hammering must not lock themselves out indefinitely.
     expect(rateLimit("k", OPTS).allowed).toBe(true);
+  });
+});
+
+describe("checkRateLimit / recordFailure", () => {
+  it("never blocks when nothing has failed, however many times it is called", () => {
+    for (let i = 0; i < 50; i++) {
+      expect(checkRateLimit("k", OPTS).allowed).toBe(true);
+    }
+  });
+
+  it("blocks once the failures reach the limit", () => {
+    recordFailure("k", OPTS);
+    recordFailure("k", OPTS);
+    expect(checkRateLimit("k", OPTS)).toMatchObject({ allowed: true, remaining: 1 });
+
+    recordFailure("k", OPTS);
+    const blocked = checkRateLimit("k", OPTS);
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.retryAfterSeconds).toBe(60);
+  });
+
+  it("forgives earlier failures after a success", () => {
+    recordFailure("k", OPTS);
+    recordFailure("k", OPTS);
+    clearRateLimit("k");
+
+    expect(checkRateLimit("k", OPTS)).toMatchObject({ allowed: true, remaining: 3 });
+  });
+
+  it("recovers once the window elapses", () => {
+    for (let i = 0; i < 3; i++) recordFailure("k", OPTS);
+    expect(checkRateLimit("k", OPTS).allowed).toBe(false);
+
+    vi.advanceTimersByTime(60_001);
+
+    expect(checkRateLimit("k", OPTS).allowed).toBe(true);
   });
 });
 

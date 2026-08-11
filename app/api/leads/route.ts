@@ -34,7 +34,7 @@ const leadSchema = z.object({
   token: z.string().optional(), // reCAPTCHA token (optional for now)
 });
 
-const LEAD_LIMIT = { limit: 5, windowMs: 10 * 60_000 };
+const LEAD_LIMIT = { limit: 10, windowMs: 10 * 60_000 };
 
 export async function POST(req: Request) {
   try {

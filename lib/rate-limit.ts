@@ -18,6 +18,8 @@ export type RateLimitResult = {
   retryAfterSeconds: number;
 };
 
+/** Counts the request against the budget. Use for endpoints where a *successful*
+ * call is itself the abuse (signups, lead submissions). */
 export function rateLimit(key: string, { limit, windowMs }: RateLimitOptions): RateLimitResult {
   const now = Date.now();
   pruneExpired(now);
@@ -29,11 +31,50 @@ export function rateLimit(key: string, { limit, windowMs }: RateLimitOptions): R
   }
 
   existing.count += 1;
-  const retryAfterSeconds = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
   if (existing.count > limit) {
-    return { allowed: false, remaining: 0, retryAfterSeconds };
+    return { allowed: false, remaining: 0, retryAfterSeconds: retryAfter(existing, now) };
   }
-  return { allowed: true, remaining: limit - existing.count, retryAfterSeconds };
+  return { allowed: true, remaining: limit - existing.count, retryAfterSeconds: 0 };
+}
+
+/**
+ * Reads the budget without spending it. Credential endpoints pair this with
+ * `recordFailure` so that only *wrong* guesses count -- otherwise a legitimate
+ * user locks themselves out by signing in, or by paging through the admin UI,
+ * which re-verifies the saved token on every mount.
+ */
+export function checkRateLimit(key: string, { limit, windowMs }: RateLimitOptions): RateLimitResult {
+  const now = Date.now();
+  const existing = windows.get(key);
+  if (!existing || existing.resetAt <= now) {
+    return { allowed: true, remaining: limit, retryAfterSeconds: 0 };
+  }
+  if (existing.count >= limit) {
+    return { allowed: false, remaining: 0, retryAfterSeconds: retryAfter(existing, now) };
+  }
+  return { allowed: true, remaining: limit - existing.count, retryAfterSeconds: 0 };
+}
+
+export function recordFailure(key: string, { windowMs }: RateLimitOptions): void {
+  const now = Date.now();
+  pruneExpired(now);
+
+  const existing = windows.get(key);
+  if (!existing || existing.resetAt <= now) {
+    windows.set(key, { count: 1, resetAt: now + windowMs });
+    return;
+  }
+  existing.count += 1;
+}
+
+/** Clears a budget after a genuine success, so a user who mistyped their
+ * password twice isn't still carrying those strikes. */
+export function clearRateLimit(key: string): void {
+  windows.delete(key);
+}
+
+function retryAfter(window: Window, now: number): number {
+  return Math.max(1, Math.ceil((window.resetAt - now) / 1000));
 }
 
 function pruneExpired(now: number) {

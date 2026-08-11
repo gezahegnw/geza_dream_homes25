@@ -4,7 +4,9 @@ import { hashPassword, createSessionToken, sessionCookie } from "@/lib/auth";
 import { sendEmail } from "@/lib/resend";
 import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 
-const SIGNUP_LIMIT = { limit: 5, windowMs: 60 * 60_000 };
+// Creating the account is itself the abuse here, so every call counts. Kept
+// loose enough that an office sharing one NAT address isn't blocked.
+const SIGNUP_LIMIT = { limit: 10, windowMs: 60 * 60_000 };
 
 export async function POST(req: Request) {
   try {
