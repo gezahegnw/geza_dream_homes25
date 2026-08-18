@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Kansas City Metro Real Estate Services',
   description: 'Welcome to Geza Dream Homes, your trusted partner for buying and selling real estate in the Kansas City metro area. Explore featured properties, client testimonials, and expert resources to start your journey.',
+  alternates: { canonical: '/home' },
 };
 
 export const dynamic = "force-dynamic";

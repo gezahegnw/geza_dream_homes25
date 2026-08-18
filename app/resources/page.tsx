@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Home Buying and Selling Resources",
+  description: "Mortgage calculators, market trends and guides on buying, selling, closing costs and timelines for Kansas City metro homeowners.",
+  alternates: { canonical: "/resources" },
+};
+
 export default function ResourcesPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 space-y-6">

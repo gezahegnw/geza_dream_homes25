@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import ListingsPage from "@/app/listings/page";
+import userEvent from "@testing-library/user-event";
+import ListingsClient from "@/app/listings/ListingsClient";
 
 vi.mock("next/image", () => ({
   default: (props: { src: string; alt: string }) =>
@@ -54,11 +55,11 @@ afterEach(() => {
   localStorage.clear();
 });
 
-describe("ListingsPage auth detection", () => {
+describe("ListingsClient auth detection", () => {
   it("treats 200 { user: null } as signed out", async () => {
     mockApi({ session: { user: null }, favorites: [] });
 
-    render(<ListingsPage />);
+    render(<ListingsClient />);
 
     // The banner only renders when isAuthenticated === false, which never
     // happened while the page trusted res.ok.
@@ -72,7 +73,7 @@ describe("ListingsPage auth detection", () => {
   it("treats a real session as signed in", async () => {
     mockApi({ session: { user: { id: "u1", approved: true } }, favorites: [] });
 
-    render(<ListingsPage />);
+    render(<ListingsClient />);
     await screen.findByText("1231 Dream St");
 
     expect(screen.queryByText("Sign in required")).not.toBeInTheDocument();
@@ -81,7 +82,7 @@ describe("ListingsPage auth detection", () => {
   it("does not request favorites while signed out", async () => {
     const calls = mockApi({ session: { user: null }, favorites: [] });
 
-    render(<ListingsPage />);
+    render(<ListingsClient />);
     await screen.findByText("Sign in required");
 
     expect(calls.some((url) => url.startsWith("/api/favorites"))).toBe(false);
@@ -90,12 +91,42 @@ describe("ListingsPage auth detection", () => {
   it("hydrates saved favorites on mount for a signed-in user", async () => {
     const calls = mockApi({ session: { user: { id: "u1", approved: true } }, favorites: ["1"] });
 
-    render(<ListingsPage />);
+    render(<ListingsClient />);
     await screen.findByText("1231 Dream St");
 
     await waitFor(() => expect(calls.some((url) => url.startsWith("/api/favorites"))).toBe(true));
     // Without hydration the heart renders as an outline and clicking it would
     // delete the saved property instead of adding one.
     await waitFor(() => expect(document.querySelector("svg.text-red-500")).not.toBeNull());
+  });
+});
+
+describe("ListingsClient server-rendered listings", () => {
+  it("renders listings passed from the server without refetching them", async () => {
+    const calls = mockApi({ session: { user: null }, favorites: [] });
+
+    render(<ListingsClient initialListings={[listing]} />);
+
+    // Present on first paint — this is what a crawler sees.
+    expect(screen.getByText("1231 Dream St")).toBeInTheDocument();
+    await screen.findByText("Sign in required");
+    expect(calls.some((url) => url.startsWith("/api/listings"))).toBe(false);
+  });
+
+  it("links each card to its listing so crawlers can follow it", () => {
+    mockApi({ session: { user: null }, favorites: [] });
+
+    render(<ListingsClient initialListings={[listing]} />);
+
+    expect(screen.getByRole("link", { name: /1231 Dream St/ })).toHaveAttribute("href", "/listings/1");
+  });
+
+  it("still fetches when the visitor pages past the server-rendered page", async () => {
+    const calls = mockApi({ session: { user: null }, favorites: [] });
+
+    render(<ListingsClient initialListings={[listing]} initialHasMore />);
+    await userEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => expect(calls.some((url) => url.includes("page=2"))).toBe(true));
   });
 });

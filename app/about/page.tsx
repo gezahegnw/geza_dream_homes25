@@ -1,4 +1,12 @@
 import Image from "next/image";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Gezahegn Worku, Kansas City Realtor",
+  description:
+    "Meet Gezahegn (Geza) Worku, a Kansas City metro real estate agent with BHG Kansas City Homes helping buyers and sellers in Overland Park, Olathe, Lenexa and the surrounding suburbs.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (
