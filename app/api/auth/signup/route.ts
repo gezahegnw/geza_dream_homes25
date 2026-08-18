@@ -2,9 +2,17 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, createSessionToken, sessionCookie } from "@/lib/auth";
 import { sendEmail } from "@/lib/resend";
+import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
+
+// Creating the account is itself the abuse here, so every call counts. Kept
+// loose enough that an office sharing one NAT address isn't blocked.
+const SIGNUP_LIMIT = { limit: 10, windowMs: 60 * 60_000 };
 
 export async function POST(req: Request) {
   try {
+    const check = rateLimit(`signup:ip:${getClientIp(req)}`, SIGNUP_LIMIT);
+    if (!check.allowed) return tooManyRequests(check.retryAfterSeconds);
+
     const body = await req.json().catch(() => ({} as any));
     const name = String(body?.name || "").trim();
     const email = String(body?.email || "").trim().toLowerCase();
