@@ -11,9 +11,17 @@ export const AdminAuth = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
       });
-      if (!res.ok) {
+      if (res.status === 401) {
         AdminAuth.logout();
-        return { ok: false, error: res.status === 401 ? 'Invalid admin token.' : 'Unable to verify admin token.' };
+        return { ok: false, error: 'Invalid admin token.' };
+      }
+      if (!res.ok) {
+        // Keep the stored token: a 429 or a server blip says nothing about
+        // whether the token is valid, and discarding it locks the admin out.
+        const error = res.status === 429
+          ? 'Too many attempts. Please wait a few minutes and try again.'
+          : 'Unable to verify admin token.';
+        return { ok: false, error };
       }
       AdminAuth.setToken(token);
       return { ok: true };
