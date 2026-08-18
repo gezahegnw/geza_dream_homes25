@@ -49,5 +49,8 @@ pids
 # Coverage directory used by tools like istanbul
 coverage/
 
+# TypeScript incremental build info
+tsconfig.tsbuildinfo
+
 # Backup files
 backup/
