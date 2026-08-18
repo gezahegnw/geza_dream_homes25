@@ -31,4 +31,21 @@ describe("safeRedirect", () => {
       expect(safeRedirect(value)).toBe("/listings");
     }
   });
+
+  it("rejects control characters browsers strip out of URLs", () => {
+    for (const value of [
+      "/\t/evil.com",
+      "/\n/evil.com",
+      "/\r/evil.com",
+      "/\t\\evil.com",
+      "\t//evil.com",
+      "/\u0000/evil.com",
+    ]) {
+      expect(safeRedirect(value)).toBe("/listings");
+    }
+  });
+
+  it("returns the normalized value, not the raw input", () => {
+    expect(safeRedirect("/fav\torites")).toBe("/favorites");
+  });
 });
