@@ -1,27 +1,30 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { fetchListings } from "@/lib/listings";
-import { sessionCookie, verifySessionToken } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { fetchListingById, fetchListings } from "@/lib/listings";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
-    const propertyId = id;
-    
-    // Fetch a larger set of listings using the same search approach as main page
-    // Use city-only search to match the main listings page behavior
-    const allListings = await fetchListings({ q: "Olathe", limit: 200 });
-    
-    const property = allListings.find(listing => listing.id === propertyId);
-    
+    const { id: propertyId } = await params;
+    const q = new URL(req.url).searchParams.get("q")?.trim();
+
+    let property = await fetchListingById(propertyId);
+
+    // Providers only return ids that appear in the result set for a given
+    // search, so retry within the search the visitor came from.
+    if (!property && q) {
+      const scoped = await fetchListings({ q, limit: 200 });
+      property = scoped.find((listing) => listing.id === propertyId) ?? null;
+    }
+
+    if (!property) {
+      const fallback = await fetchListings({ limit: 200 });
+      property = fallback.find((listing) => listing.id === propertyId) ?? null;
+    }
+
     if (!property) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
 
-    console.log('Property description:', property.description); // Debug log
-
-    return NextResponse.json({ 
+    return NextResponse.json({
       property: {
         ...property,
         isFavorited: false

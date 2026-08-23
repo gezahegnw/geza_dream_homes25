@@ -73,6 +73,8 @@ export default function ListingsClient({
   const [approvedBanner, setApprovedBanner] = useState(false);
   const [provider, setProvider] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  // The search the current results came from, which may lag the input box.
+  const [activeQuery, setActiveQuery] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -110,6 +112,7 @@ export default function ListingsClient({
       }
 
       const listings = body.listings || [];
+      setActiveQuery(q);
       
       
       // For pagination, we only show the current page results
@@ -181,12 +184,19 @@ export default function ListingsClient({
     checkAuth();
   }, []);
 
+  // Carries the active search so the detail route can resolve ids that only
+  // exist inside that search's result set.
+  const listingHref = (listingId: string) =>
+    activeQuery
+      ? `/listings/${listingId}?q=${encodeURIComponent(activeQuery)}`
+      : `/listings/${listingId}`;
+
   const handleListingClick = (listingId: string, e: React.MouseEvent) => {
     // The card is a real link, so navigation only needs intercepting to send a
     // signed-out visitor to login instead of the access-denied page.
     if (isAuthenticated !== false) return;
     e.preventDefault();
-    window.location.href = `/login?redirect=/listings/${listingId}`;
+    window.location.href = `/login?redirect=${encodeURIComponent(listingHref(listingId))}`;
   };
 
   const toggleFavorite = async (propertyId: string, e: React.MouseEvent) => {
@@ -357,7 +367,7 @@ export default function ListingsClient({
               ))}
             {!loading &&
               items.map((p) => (
-                <a key={p.id} href={`/listings/${p.id}`} onClick={(e) => handleListingClick(p.id, e)} className="rounded-lg border block hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out bg-white relative cursor-pointer">
+                <a key={p.id} href={listingHref(p.id)} onClick={(e) => handleListingClick(p.id, e)} className="rounded-lg border block hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out bg-white relative cursor-pointer">
                   {getStatusBadge(p.status)}
                   <button
                     onClick={(e) => toggleFavorite(p.id, e)}

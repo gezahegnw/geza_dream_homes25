@@ -121,6 +121,23 @@ describe("ListingsClient server-rendered listings", () => {
     expect(screen.getByRole("link", { name: /1231 Dream St/ })).toHaveAttribute("href", "/listings/1");
   });
 
+  it("carries the active search into each card link", async () => {
+    mockApi({ session: { user: { id: "u1", approved: true } }, favorites: [] });
+
+    render(<ListingsClient />);
+    await userEvent.type(screen.getByPlaceholderText(/Search location/), "overland park");
+    await userEvent.click(screen.getByRole("button", { name: "Search" }));
+
+    // Without the search context the detail route cannot resolve an id that
+    // only exists inside those results, and the visitor gets "Access Denied".
+    await waitFor(() =>
+      expect(screen.getByRole("link", { name: /1231 Dream St/ })).toHaveAttribute(
+        "href",
+        "/listings/1?q=overland%20park",
+      ),
+    );
+  });
+
   it("still fetches when the visitor pages past the server-rendered page", async () => {
     const calls = mockApi({ session: { user: null }, favorites: [] });
 

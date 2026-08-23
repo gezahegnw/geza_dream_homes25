@@ -43,6 +43,7 @@ export default function PropertyDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     // Check authentication status on component mount
@@ -76,13 +77,19 @@ export default function PropertyDetailPage() {
     async function loadProperty() {
       try {
         if (!params?.id) return;
-        const response = await fetch(`/api/listings/${params.id}`);
+        // The search context lets the API resolve ids that only exist inside
+        // that search's results.
+        const q = new URLSearchParams(window.location.search).get("q");
+        const query = q ? `?q=${encodeURIComponent(q)}` : "";
+        const response = await fetch(`/api/listings/${params.id}${query}`);
         if (response.ok) {
           const result = await response.json();
           console.log('Property data:', result.property); // Debug log
           setData(result.property);
         } else if (response.status === 401 || response.status === 403) {
           setError('Your account is pending approval. You will be able to view property details once your account is activated.');
+        } else if (response.status === 404) {
+          setNotFound(true);
         } else {
           setError('Failed to load property data.');
         }
@@ -99,6 +106,19 @@ export default function PropertyDetailPage() {
   }, [params?.id, isAuthenticated]);
 
   if (loading) return <div>Loading...</div>;
+  if (notFound) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded-lg shadow-md max-w-lg">
+          <h2 className="text-2xl font-bold mb-3">Listing unavailable</h2>
+          <p className="text-base">This property is no longer available or its details could not be retrieved.</p>
+          <div className="mt-4">
+            <a href="/listings" className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">Back to listings</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (error) {
     const isPending = error.includes('pending approval');
     return (
