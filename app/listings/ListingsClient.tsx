@@ -184,19 +184,20 @@ export default function ListingsClient({
     checkAuth();
   }, []);
 
-  // Carries the active search so the detail route can resolve ids that only
-  // exist inside that search's result set.
-  const listingHref = (listingId: string) =>
-    activeQuery
-      ? `/listings/${listingId}?q=${encodeURIComponent(activeQuery)}`
-      : `/listings/${listingId}`;
+  // Carries a search that contains the listing, because the provider only
+  // resolves an id from within a result set. Falling back to the property's
+  // own city keeps unsearched and shared links working too.
+  const listingHref = (listing: Pick<Listing, "id" | "city" | "state">) => {
+    const scope = activeQuery || [listing.city, listing.state].filter(Boolean).join(", ");
+    return scope ? `/listings/${listing.id}?q=${encodeURIComponent(scope)}` : `/listings/${listing.id}`;
+  };
 
-  const handleListingClick = (listingId: string, e: React.MouseEvent) => {
+  const handleListingClick = (listing: Listing, e: React.MouseEvent) => {
     // The card is a real link, so navigation only needs intercepting to send a
     // signed-out visitor to login instead of the access-denied page.
     if (isAuthenticated !== false) return;
     e.preventDefault();
-    window.location.href = `/login?redirect=${encodeURIComponent(listingHref(listingId))}`;
+    window.location.href = `/login?redirect=${encodeURIComponent(listingHref(listing))}`;
   };
 
   const toggleFavorite = async (propertyId: string, e: React.MouseEvent) => {
@@ -367,7 +368,7 @@ export default function ListingsClient({
               ))}
             {!loading &&
               items.map((p) => (
-                <a key={p.id} href={listingHref(p.id)} onClick={(e) => handleListingClick(p.id, e)} className="rounded-lg border block hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out bg-white relative cursor-pointer">
+                <a key={p.id} href={listingHref(p)} onClick={(e) => handleListingClick(p, e)} className="rounded-lg border block hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out bg-white relative cursor-pointer">
                   {getStatusBadge(p.status)}
                   <button
                     onClick={(e) => toggleFavorite(p.id, e)}

@@ -113,15 +113,20 @@ describe("ListingsClient server-rendered listings", () => {
     expect(calls.some((url) => url.startsWith("/api/listings"))).toBe(false);
   });
 
-  it("links each card to its listing so crawlers can follow it", () => {
+  it("links each card to its listing, scoped to the property's city", () => {
     mockApi({ session: { user: null }, favorites: [] });
 
     render(<ListingsClient initialListings={[listing]} />);
 
-    expect(screen.getByRole("link", { name: /1231 Dream St/ })).toHaveAttribute("href", "/listings/1");
+    // The city scope lets the detail route resolve the id even on a shared or
+    // bookmarked link, where no search context exists.
+    expect(screen.getByRole("link", { name: /1231 Dream St/ })).toHaveAttribute(
+      "href",
+      "/listings/1?q=Overland%20Park%2C%20KS",
+    );
   });
 
-  it("carries the active search into each card link", async () => {
+  it("prefers the active search over the city in each card link", async () => {
     mockApi({ session: { user: { id: "u1", approved: true } }, favorites: [] });
 
     render(<ListingsClient />);
