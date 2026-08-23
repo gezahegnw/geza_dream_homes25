@@ -60,6 +60,35 @@ function setCachedListings(cacheKey: string, data: Listing[]): void {
   listingsCache.set(cacheKey, { data, timestamp: Date.now() });
 }
 
+// Redfin marketing remarks arrive as HTML-escaped text destined for a JSX text node.
+function decodeHtmlEntities(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const named: Record<string, string> = {
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: '"',
+    apos: "'",
+    nbsp: " ",
+    mdash: "\u2014",
+    ndash: "\u2013",
+    rsquo: "\u2019",
+    lsquo: "\u2018",
+    rdquo: "\u201d",
+    ldquo: "\u201c",
+    hellip: "\u2026",
+  };
+  return value.replace(/&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity: string) => {
+    if (entity.startsWith("#x") || entity.startsWith("#X")) {
+      return String.fromCodePoint(parseInt(entity.slice(2), 16));
+    }
+    if (entity.startsWith("#")) {
+      return String.fromCodePoint(parseInt(entity.slice(1), 10));
+    }
+    return named[entity.toLowerCase()] ?? match;
+  });
+}
+
 function mockListings(): Listing[] {
   return [1, 2, 3, 4, 5, 6].map((i) => ({
     id: String(i),
@@ -408,7 +437,11 @@ export async function fetchListingById(propertyId: string): Promise<Listing | nu
   const host = process.env.RAPIDAPI_REDFIN_HOST || "redfin-com-data.p.rapidapi.com";
   if (!key) throw new Error("RAPIDAPI_REDFIN_KEY not set");
 
-  const url = `https://${host}/properties/v3/detail?propertyId=${propertyId}`;
+  // The endpoint keys off a listing page path rather than an id. Only the
+  // trailing /home/<propertyId> and a syntactically valid state segment are
+  // matched, so the street and city segments can be placeholders.
+  const path = `/${process.env.REDFIN_DETAIL_STATE || "KS"}/x/x/home/${propertyId}`;
+  const url = `https://${host}/property/detail?url=${encodeURIComponent(path)}`;
 
   const res = await fetch(url, { headers: { "x-rapidapi-key": key, "x-rapidapi-host": host } });
 
@@ -419,31 +452,42 @@ export async function fetchListingById(propertyId: string): Promise<Listing | nu
   try {
     const data = await res.json();
     const p = data?.data;
-    if (!p) {
+    const addr = p?.aboveTheFold?.addressSectionInfo;
+    if (!addr) {
       return null;
     }
 
-    // Map the detailed response to our Listing interface
+    const mainHouse = p?.mainHouseInfoPanelInfo?.mainHouseInfo;
+    const publicRecords = p?.belowTheFold?.publicRecordsInfo?.basicInfo;
+    const photos: string[] = (p?.aboveTheFold?.mediaBrowserInfo?.photos ?? [])
+      .map((photo: any) => photo?.photoUrls?.fullScreenPhotoUrl || photo?.photoUrls?.nonFullScreenPhotoUrl)
+      .filter(Boolean);
+
     const listing: Listing = {
-      id: String(p?.propertyId || propertyId),
-      address: p?.streetAddress?.formattedStreetLine || p?.streetAddress?.streetAddress,
-      city: p?.city,
-      state: p?.state,
-      zipCode: p?.zip,
-      price: p?.price?.value ?? p?.price,
-      beds: p?.beds,
-      baths: p?.baths,
-      sqft: p?.sqFt?.value,
-      photos: p?.photos?.map((photo: any) => photo.url) || [],
-      description: p?.propertyHistory?.[0]?.eventDescription || p?.remarks,
-      status: p?.listingMetadata?.listingStatus || 'Active',
-      propertyType: p?.propertyType,
-      yearBuilt: p?.yearBuilt,
-      pricePerSqft: p?.pricePerSqFt?.value,
-      hoaDues: p?.hoa?.fee,
-      lotSize: p?.lotSize?.value,
-      garage: p?.garage?.garageSpaces,
-      url: p?.url ? `https://www.redfin.com${p.url}` : undefined,
+      id: propertyId,
+      address: addr?.streetAddress?.assembledAddress || "",
+      city: addr?.city,
+      state: addr?.state,
+      zipCode: addr?.zip,
+      price: addr?.priceInfo?.amount ?? addr?.latestPriceInfo?.amount,
+      beds: addr?.beds,
+      baths: addr?.baths,
+      sqft: addr?.sqFt?.value,
+      photos: photos.length ? photos : (addr?.primaryPhotoUrl ? [addr.primaryPhotoUrl] : []),
+      description: decodeHtmlEntities(
+        (mainHouse?.marketingRemarks ?? [])
+          .map((remark: any) => remark?.marketingRemark)
+          .filter(Boolean)
+          .join("\n\n") || undefined,
+      ),
+      status: addr?.status?.displayValue || "Active",
+      propertyType: publicRecords?.propertyTypeName,
+      yearBuilt: addr?.yearBuilt ?? publicRecords?.yearBuilt,
+      pricePerSqft: addr?.pricePerSqFt,
+      lotSize: addr?.lotSize ?? publicRecords?.lotSqFt,
+      url: addr?.url ? `https://www.redfin.com${addr.url}` : undefined,
+      lat: addr?.latLong?.latitude,
+      lng: addr?.latLong?.longitude,
     };
 
     return listing;
