@@ -57,15 +57,43 @@ describe("FavoritesPage", () => {
   });
 
   it("renders saved properties for a signed-in user", async () => {
-    mockFetch((url) => {
+    const fetchMock = mockFetch((url) => {
       if (url.startsWith("/api/favorites")) return { status: 200, body: { favorites: [favorite] } };
-      return { status: 200, body: { listing: { id: "1", address: "1231 Dream St" } } };
+      return {
+        status: 200,
+        body: {
+          property: {
+            id: "1",
+            address: "1231 Dream St",
+            city: "Olathe",
+            state: "KS",
+            price: 450000,
+            photos: ["https://ssl.cdn-redfin.com/photo.jpg"],
+          },
+        },
+      };
     });
 
     render(<FavoritesPage />);
 
     expect(await screen.findByText("You have 1 saved properties")).toBeInTheDocument();
     expect(screen.getByText("1231 Dream St")).toBeInTheDocument();
+    expect(screen.getByText("Olathe, KS")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "1231 Dream St" })).toBeInTheDocument();
+    expect(screen.queryByText(/property details unavailable/i)).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith("/api/listings/1", expect.anything());
+  });
+
+  it("falls back to the id-only card when the listing can't be resolved", async () => {
+    mockFetch((url) => {
+      if (url.startsWith("/api/favorites")) return { status: 200, body: { favorites: [favorite] } };
+      return { status: 404, body: { error: "Property not found" } };
+    });
+
+    render(<FavoritesPage />);
+
+    expect(await screen.findByText("Property ID: 1")).toBeInTheDocument();
+    expect(screen.getByText("Property details unavailable")).toBeInTheDocument();
   });
 
   it("shows the empty state when nothing is saved", async () => {
