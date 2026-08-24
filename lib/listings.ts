@@ -1,3 +1,31 @@
+export interface ListingFeatureGroup {
+  section: string;
+  title: string;
+  entries: { name?: string; values: string[] }[];
+}
+
+export interface ListingSchool {
+  name: string;
+  level?: string;
+  grades?: string;
+  rating?: number;
+  distanceMiles?: number;
+  district?: string;
+  institutionType?: string;
+}
+
+export interface ListingHistoryEvent {
+  date: string;
+  event: string;
+  price?: number;
+  source?: string;
+}
+
+export interface ListingAgent {
+  name: string;
+  broker?: string;
+}
+
 export interface Listing {
   id: string;
   address: string;
@@ -20,6 +48,18 @@ export interface Listing {
   url?: string;
   lat?: number;
   lng?: number;
+  hoaName?: string;
+  hoaIncludes?: string[];
+  hoaAmenities?: string[];
+  taxesDue?: number;
+  taxYear?: number;
+  daysOnMarket?: number;
+  mlsId?: string;
+  mlsSource?: string;
+  listingAgents?: ListingAgent[];
+  featureGroups?: ListingFeatureGroup[];
+  schools?: ListingSchool[];
+  priceHistory?: ListingHistoryEvent[];
 }
 
 export type ListingsQuery = {
@@ -87,6 +127,139 @@ function decodeHtmlEntities(value: string | undefined): string | undefined {
     }
     return named[entity.toLowerCase()] ?? match;
   });
+}
+
+interface RedfinAmenityEntry {
+  amenityName?: string;
+  amenityValues?: string[];
+  referenceName?: string;
+}
+
+interface RedfinAmenityGroup {
+  groupTitle?: string;
+  amenityEntries?: RedfinAmenityEntry[];
+}
+
+interface RedfinAmenitySuperGroup {
+  titleString?: string;
+  amenityGroups?: RedfinAmenityGroup[];
+}
+
+interface RedfinSchool {
+  name?: string;
+  gradeRanges?: string;
+  greatSchoolsRating?: number;
+  distanceInMiles?: string;
+  institutionType?: string;
+  elementary?: boolean;
+  middle?: boolean;
+  high?: boolean;
+  schoolDistrict?: { districtName?: string };
+}
+
+interface RedfinHistoryEvent {
+  eventDate?: number;
+  eventDescription?: string;
+  price?: number;
+  source?: string;
+}
+
+interface RedfinListingAgent {
+  agentInfo?: { agentName?: string };
+  brokerName?: string;
+}
+
+// The MLS fact sheet: super groups (Interior, Exterior, ...) of labelled groups
+// of name/value entries. Values are HTML-escaped like the marketing remarks.
+function mapFeatureGroups(superGroups: RedfinAmenitySuperGroup[]): ListingFeatureGroup[] {
+  return superGroups.flatMap((superGroup) =>
+    (superGroup.amenityGroups ?? [])
+      .map((group) => ({
+        section: superGroup.titleString ?? "",
+        title: group.groupTitle ?? "",
+        entries: (group.amenityEntries ?? [])
+          .map((entry) => ({
+            name: decodeHtmlEntities(entry.amenityName),
+            values: (entry.amenityValues ?? [])
+              .map((value) => decodeHtmlEntities(value))
+              .filter((value): value is string => Boolean(value)),
+          }))
+          .filter((entry) => entry.values.length > 0),
+      }))
+      .filter((group) => group.section && group.title && group.entries.length > 0),
+  );
+}
+
+function amenityValues(
+  superGroups: RedfinAmenitySuperGroup[],
+  referenceName: string,
+): string[] | undefined {
+  for (const superGroup of superGroups) {
+    for (const group of superGroup.amenityGroups ?? []) {
+      for (const entry of group.amenityEntries ?? []) {
+        if (entry.referenceName === referenceName && entry.amenityValues?.length) {
+          return entry.amenityValues
+            .map((value) => decodeHtmlEntities(value))
+            .filter((value): value is string => Boolean(value));
+        }
+      }
+    }
+  }
+  return undefined;
+}
+
+const HOA_PERIODS_PER_YEAR: Record<string, number> = {
+  monthly: 12,
+  quarterly: 4,
+  "semi-annually": 2,
+  semiannually: 2,
+  annually: 1,
+  yearly: 1,
+};
+
+// MLS association fees come as a display string plus a frequency; the UI shows
+// a monthly figure so buyers can compare listings.
+function monthlyHoaDues(fee?: string, frequency?: string): number | undefined {
+  if (!fee) return undefined;
+  const amount = Number(fee.replace(/[^0-9.]/g, ""));
+  if (!Number.isFinite(amount) || amount <= 0) return undefined;
+  const periods = HOA_PERIODS_PER_YEAR[(frequency ?? "monthly").trim().toLowerCase()];
+  if (!periods) return undefined;
+  return Math.round((amount * periods) / 12);
+}
+
+function schoolLevel(school: RedfinSchool): string | undefined {
+  const levels = [
+    school.elementary ? "Elementary" : null,
+    school.middle ? "Middle" : null,
+    school.high ? "High" : null,
+  ].filter(Boolean);
+  return levels.length ? levels.join(" / ") : undefined;
+}
+
+function mapSchools(schools: RedfinSchool[]): ListingSchool[] {
+  return schools
+    .filter((school) => Boolean(school.name))
+    .map((school) => ({
+      name: school.name as string,
+      level: schoolLevel(school),
+      grades: school.gradeRanges,
+      rating: school.greatSchoolsRating,
+      distanceMiles: school.distanceInMiles ? Number(school.distanceInMiles) : undefined,
+      district: school.schoolDistrict?.districtName,
+      institutionType: school.institutionType,
+    }));
+}
+
+function mapPriceHistory(events: RedfinHistoryEvent[]): ListingHistoryEvent[] {
+  return events
+    .filter((event) => Boolean(event.eventDescription) && Boolean(event.eventDate))
+    .map((event) => ({
+      date: new Date(event.eventDate as number).toISOString(),
+      event: event.eventDescription as string,
+      price: event.price,
+      source: event.source,
+    }));
 }
 
 function mockListings(): Listing[] {
@@ -459,6 +632,23 @@ export async function fetchListingById(propertyId: string): Promise<Listing | nu
 
     const mainHouse = p?.mainHouseInfoPanelInfo?.mainHouseInfo;
     const publicRecords = p?.belowTheFold?.publicRecordsInfo?.basicInfo;
+    const taxInfo = p?.belowTheFold?.publicRecordsInfo?.taxInfo;
+    const superGroups: RedfinAmenitySuperGroup[] =
+      p?.belowTheFold?.amenitiesInfo?.superGroups ?? [];
+    const featureGroups = mapFeatureGroups(superGroups);
+    const schools = mapSchools(p?.schoolsAndDistrictsInfo?.servingThisHomeSchools ?? []);
+    const priceHistory = mapPriceHistory(p?.belowTheFold?.propertyHistoryInfo?.events ?? []);
+    const listingAgents: ListingAgent[] = (mainHouse?.listingAgents ?? [])
+      .map((agent: RedfinListingAgent) => ({
+        name: agent?.agentInfo?.agentName ?? "",
+        broker: agent?.brokerName,
+      }))
+      .filter((agent: ListingAgent) => Boolean(agent.name));
+    const hoaDues = monthlyHoaDues(
+      amenityValues(superGroups, "ASSOCIATION_FEE")?.[0],
+      amenityValues(superGroups, "ASSOCIATION_FEE_FREQUENCY")?.[0],
+    );
+    const timeOnRedfin: number | undefined = addr?.timeOnRedfin;
     const photos: string[] = (p?.aboveTheFold?.mediaBrowserInfo?.photos ?? [])
       .map((photo: any) => photo?.photoUrls?.fullScreenPhotoUrl || photo?.photoUrls?.nonFullScreenPhotoUrl)
       .filter(Boolean);
@@ -488,6 +678,21 @@ export async function fetchListingById(propertyId: string): Promise<Listing | nu
       url: addr?.url ? `https://www.redfin.com${addr.url}` : undefined,
       lat: addr?.latLong?.latitude,
       lng: addr?.latLong?.longitude,
+      garage: Number(amenityValues(superGroups, "GARAGE_SPACES")?.[0]) || undefined,
+      hoaDues,
+      hoaName: amenityValues(superGroups, "ASSOCIATION_NAME")?.[0],
+      hoaIncludes: amenityValues(superGroups, "ASSOCIATION_FEE_INCLUDES"),
+      hoaAmenities: amenityValues(superGroups, "ASSOCIATION_AMENITIES"),
+      taxesDue: taxInfo?.taxesDue,
+      taxYear: taxInfo?.rollYear,
+      daysOnMarket:
+        typeof timeOnRedfin === "number" ? Math.max(1, Math.round(timeOnRedfin / 86_400_000)) : undefined,
+      mlsId: mainHouse?.mlsId,
+      mlsSource: mainHouse?.source?.dataSourceDescription,
+      listingAgents: listingAgents.length ? listingAgents : undefined,
+      featureGroups: featureGroups.length ? featureGroups : undefined,
+      schools: schools.length ? schools : undefined,
+      priceHistory: priceHistory.length ? priceHistory : undefined,
     };
 
     return listing;
