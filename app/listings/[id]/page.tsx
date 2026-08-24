@@ -5,6 +5,28 @@ import MortgageCalculator from "@/components/MortgageCalculator";
 import ShareListing from "@/components/ShareListing";
 import NeighborhoodInsights from "@/components/NeighborhoodInsights";
 import PriceHistory from "@/components/PriceHistory";
+import type { ListingFeatureGroup } from "@/lib/listings";
+
+const DESCRIPTION_PREVIEW_LENGTH = 600;
+
+const formatEventDate = (iso: string): string => {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime())
+    ? '—'
+    : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const groupFeaturesBySection = (
+  groups: ListingFeatureGroup[],
+): [string, ListingFeatureGroup[]][] => {
+  const bySection = new Map<string, ListingFeatureGroup[]>();
+  for (const group of groups) {
+    const existing = bySection.get(group.section);
+    if (existing) existing.push(group);
+    else bySection.set(group.section, [group]);
+  }
+  return Array.from(bySection.entries());
+};
 
 // Helper function to map property type codes to readable names
 const getPropertyTypeName = (propertyType: any): string => {
@@ -140,6 +162,10 @@ export default function PropertyDetailPage() {
 
   if (!data) return <div>Property not found</div>;
 
+  const featureSections = groupFeaturesBySection(
+    (data.featureGroups ?? []) as ListingFeatureGroup[],
+  );
+
   return (
     <div style={{padding: '20px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'Arial, sans-serif'}}>
       <div style={{marginBottom: '20px'}}>
@@ -270,8 +296,58 @@ export default function PropertyDetailPage() {
                   <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>Price/Sq Ft</p>
                 </div>
               )}
+              {typeof data.taxesDue === 'number' && (
+                <div style={{minWidth: '120px'}}>
+                  <span style={{fontSize: '1.2rem', fontWeight: '600', color: '#1f2937'}}>
+                    ${Math.round(data.taxesDue).toLocaleString()}/yr
+                  </span>
+                  <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>
+                    Property Tax{data.taxYear ? ` (${data.taxYear})` : ''}
+                  </p>
+                </div>
+              )}
+              {typeof data.daysOnMarket === 'number' && (
+                <div style={{minWidth: '120px'}}>
+                  <span style={{fontSize: '1.2rem', fontWeight: '600', color: '#1f2937'}}>
+                    {data.daysOnMarket} {data.daysOnMarket === 1 ? 'day' : 'days'}
+                  </span>
+                  <p style={{margin: '0', color: '#6b7280', fontSize: '0.9rem'}}>On Market</p>
+                </div>
+              )}
             </div>
+            {(data.hoaName || data.hoaAmenities?.length || data.hoaIncludes?.length) && (
+              <p className="mt-5 text-sm text-gray-600">
+                {[
+                  data.hoaName ? `HOA: ${data.hoaName}` : null,
+                  data.hoaAmenities?.length ? `Amenities: ${data.hoaAmenities.join(', ')}` : null,
+                  data.hoaIncludes?.length ? `Dues include: ${data.hoaIncludes.join(', ')}` : null,
+                ].filter(Boolean).join(' · ')}
+              </p>
+            )}
           </div>
+
+          {/* Description */}
+          {data.description && (
+            <div>
+              <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '12px', color: '#1e293b'}}>
+                About This Home
+              </h2>
+              <p className="whitespace-pre-line text-gray-700 leading-relaxed">
+                {showFullDescription || data.description.length <= DESCRIPTION_PREVIEW_LENGTH
+                  ? data.description
+                  : `${data.description.slice(0, DESCRIPTION_PREVIEW_LENGTH).trimEnd()}…`}
+              </p>
+              {data.description.length > DESCRIPTION_PREVIEW_LENGTH && (
+                <button
+                  type="button"
+                  onClick={() => setShowFullDescription((shown) => !shown)}
+                  className="mt-2 text-green-700 font-medium hover:underline"
+                >
+                  {showFullDescription ? 'Show less' : 'Read more'}
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Photos Section */}
           {data.photos && data.photos.length > 0 && (
@@ -296,6 +372,114 @@ export default function PropertyDetailPage() {
                 ))}
               </div>
             </div>
+          )}
+
+          {/* MLS fact sheet */}
+          {Array.isArray(data.featureGroups) && data.featureGroups.length > 0 && (
+            <div>
+              <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '20px', color: '#1e293b'}}>
+                Home Facts &amp; Features
+              </h2>
+              <div className="space-y-4">
+                {featureSections.map(([section, groups]) => (
+                  <details key={section} className="rounded-lg border border-gray-200 bg-white p-4" open>
+                    <summary className="cursor-pointer text-lg font-semibold text-gray-800">{section}</summary>
+                    <div className="mt-3 space-y-4">
+                      {groups.map((group) => (
+                        <div key={group.title}>
+                          <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{group.title}</h4>
+                          <ul className="mt-1 space-y-1 text-sm text-gray-700">
+                            {group.entries.map((entry, i) => (
+                              <li key={i}>
+                                {entry.name ? <span className="font-medium">{entry.name}: </span> : null}
+                                {entry.values.join(', ')}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Schools */}
+          {Array.isArray(data.schools) && data.schools.length > 0 && (
+            <div>
+              <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '20px', color: '#1e293b'}}>
+                Nearby Schools
+              </h2>
+              <div className="space-y-3">
+                {data.schools.map((school: any, i: number) => (
+                  <div key={i} className="flex items-start justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
+                    <div>
+                      <p className="font-semibold text-gray-800">{school.name}</p>
+                      <p className="text-sm text-gray-600">
+                        {[school.level, school.grades, school.institutionType, school.district]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      {typeof school.rating === 'number' && (
+                        <p className="text-sm font-semibold text-green-700">{school.rating}/10</p>
+                      )}
+                      {typeof school.distanceMiles === 'number' && (
+                        <p className="text-sm text-gray-500">{school.distanceMiles} mi</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                School ratings provided by GreatSchools. Verify enrollment eligibility with the district.
+              </p>
+            </div>
+          )}
+
+          {/* Listing history */}
+          {Array.isArray(data.priceHistory) && data.priceHistory.length > 0 && (
+            <div>
+              <h2 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '20px', color: '#1e293b'}}>
+                Listing History
+              </h2>
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 text-gray-500">
+                    <th className="py-2 font-medium">Date</th>
+                    <th className="py-2 font-medium">Event</th>
+                    <th className="py-2 font-medium">Price</th>
+                    <th className="py-2 font-medium">Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.priceHistory.map((event: any, i: number) => (
+                    <tr key={i} className="border-b border-gray-100">
+                      <td className="py-2 text-gray-700">{formatEventDate(event.date)}</td>
+                      <td className="py-2 text-gray-700">{event.event}</td>
+                      <td className="py-2 text-gray-700">
+                        {typeof event.price === 'number' ? `$${event.price.toLocaleString()}` : '—'}
+                      </td>
+                      <td className="py-2 text-gray-500">{event.source || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* MLS attribution */}
+          {(data.mlsId || data.listingAgents?.length) && (
+            <p className="text-sm text-gray-500">
+              {data.listingAgents?.length
+                ? `Listed by ${data.listingAgents
+                    .map((agent: any) => (agent.broker ? `${agent.name} (${agent.broker})` : agent.name))
+                    .join(', ')}. `
+                : ''}
+              {data.mlsId ? `MLS# ${data.mlsId}${data.mlsSource ? ` · ${data.mlsSource}` : ''}.` : ''}
+            </p>
           )}
         </div>
 

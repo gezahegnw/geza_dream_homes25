@@ -24,6 +24,7 @@ const detailResponse = {
         latLong: { latitude: 38.948, longitude: -94.639 },
         url: "/KS/Overland-Park/9932-Roe-Ave-66207/home/83302589",
         primaryPhotoUrl: "https://cdn.example.com/primary.jpg",
+        timeOnRedfin: 5 * 86_400_000,
       },
       mediaBrowserInfo: {
         photos: [
@@ -35,10 +36,101 @@ const detailResponse = {
     mainHouseInfoPanelInfo: {
       mainHouseInfo: {
         marketingRemarks: [{ marketingRemark: "Charmer &mdash; it&rsquo;s lovely" }],
+        mlsId: "2601483",
+        source: { dataSourceDescription: "Heartland MLS" },
+        listingAgents: [
+          { agentInfo: { agentName: "Chelsea Fanders" }, brokerName: "Platinum Realty LLC" },
+        ],
       },
     },
+    schoolsAndDistrictsInfo: {
+      servingThisHomeSchools: [
+        {
+          name: "Prairie Creek Elementary School",
+          elementary: true,
+          gradeRanges: "PreK-5",
+          greatSchoolsRating: 8,
+          distanceInMiles: "2.7",
+          institutionType: "Public",
+          schoolDistrict: { districtName: "Spring Hill School District" },
+        },
+      ],
+    },
     belowTheFold: {
-      publicRecordsInfo: { basicInfo: { propertyTypeName: "Single Family Residential" } },
+      publicRecordsInfo: {
+        basicInfo: { propertyTypeName: "Single Family Residential" },
+        taxInfo: { rollYear: 2025, taxesDue: 2007.27 },
+      },
+      propertyHistoryInfo: {
+        events: [
+          {
+            eventDate: Date.UTC(2026, 0, 15),
+            eventDescription: "Price Changed",
+            price: 450000,
+            source: "Heartland MLS",
+          },
+          { eventDescription: "No date, dropped" },
+        ],
+      },
+      amenitiesInfo: {
+        superGroups: [
+          {
+            titleString: "Parking",
+            amenityGroups: [
+              {
+                groupTitle: "Parking Information",
+                amenityEntries: [
+                  {
+                    amenityName: "Parking Features",
+                    amenityValues: ["Attached", "Garage Faces Front"],
+                    referenceName: "PARKING_FEATURES",
+                  },
+                  {
+                    amenityName: "Garage Spaces",
+                    amenityValues: ["3"],
+                    referenceName: "GARAGE_SPACES",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            titleString: "Location",
+            amenityGroups: [
+              {
+                groupTitle: "HOA Information",
+                amenityEntries: [
+                  {
+                    amenityName: "Association Name",
+                    amenityValues: ["Wolf Run HOA"],
+                    referenceName: "ASSOCIATION_NAME",
+                  },
+                  {
+                    amenityName: "Association Fee",
+                    amenityValues: ["$850"],
+                    referenceName: "ASSOCIATION_FEE",
+                  },
+                  {
+                    amenityName: "Association Fee Frequency",
+                    amenityValues: ["Annually"],
+                    referenceName: "ASSOCIATION_FEE_FREQUENCY",
+                  },
+                  {
+                    amenityName: "Association Fee Includes",
+                    amenityValues: ["Trash"],
+                    referenceName: "ASSOCIATION_FEE_INCLUDES",
+                  },
+                  {
+                    amenityName: "Construction Materials",
+                    amenityValues: ["Board &amp; Batten Siding"],
+                    referenceName: "CONSTRUCTION_MATERIALS",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
     },
   },
 };
@@ -96,6 +188,60 @@ describe("fetchListingById on Redfin", () => {
       url: "https://www.redfin.com/KS/Overland-Park/9932-Roe-Ave-66207/home/83302589",
     });
     expect(listing?.description).toBe("Charmer — it’s lovely");
+  });
+
+  it("maps the MLS fact sheet, HOA, taxes, schools and history", async () => {
+    mockDetail(detailResponse);
+
+    const listing = await fetchListingById("83302589");
+
+    expect(listing).toMatchObject({
+      garage: 3,
+      hoaDues: 71,
+      hoaName: "Wolf Run HOA",
+      hoaIncludes: ["Trash"],
+      taxesDue: 2007.27,
+      taxYear: 2025,
+      daysOnMarket: 5,
+      mlsId: "2601483",
+      mlsSource: "Heartland MLS",
+      listingAgents: [{ name: "Chelsea Fanders", broker: "Platinum Realty LLC" }],
+      schools: [
+        {
+          name: "Prairie Creek Elementary School",
+          level: "Elementary",
+          grades: "PreK-5",
+          rating: 8,
+          distanceMiles: 2.7,
+          district: "Spring Hill School District",
+        },
+      ],
+    });
+
+    // Only dated events make it into the timeline.
+    expect(listing?.priceHistory).toEqual([
+      {
+        date: new Date(Date.UTC(2026, 0, 15)).toISOString(),
+        event: "Price Changed",
+        price: 450000,
+        source: "Heartland MLS",
+      },
+    ]);
+
+    expect(listing?.featureGroups).toContainEqual({
+      section: "Parking",
+      title: "Parking Information",
+      entries: [
+        { name: "Parking Features", values: ["Attached", "Garage Faces Front"] },
+        { name: "Garage Spaces", values: ["3"] },
+      ],
+    });
+
+    const location = listing?.featureGroups?.find((group) => group.section === "Location");
+    expect(location?.entries).toContainEqual({
+      name: "Construction Materials",
+      values: ["Board & Batten Siding"],
+    });
   });
 
   it("returns null when the id resolves to nothing", async () => {
