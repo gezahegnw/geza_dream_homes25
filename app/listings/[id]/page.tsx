@@ -9,6 +9,10 @@ import type { ListingFeatureGroup } from "@/lib/listings";
 
 const DESCRIPTION_PREVIEW_LENGTH = 600;
 
+// Provider lookups for a listing that no longer exists can take tens of
+// seconds, so give up rather than leaving the page spinning.
+const PROPERTY_FETCH_TIMEOUT_MS = 30_000;
+
 const formatEventDate = (iso: string): string => {
   const date = new Date(iso);
   return Number.isNaN(date.getTime())
@@ -66,6 +70,14 @@ export default function PropertyDetailPage() {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  const retry = () => {
+    setError(null);
+    setNotFound(false);
+    setLoading(true);
+    setAttempt((current) => current + 1);
+  };
 
   useEffect(() => {
     // Check authentication status on component mount
@@ -103,7 +115,9 @@ export default function PropertyDetailPage() {
         // that search's results.
         const q = new URLSearchParams(window.location.search).get("q");
         const query = q ? `?q=${encodeURIComponent(q)}` : "";
-        const response = await fetch(`/api/listings/${params.id}${query}`);
+        const response = await fetch(`/api/listings/${params.id}${query}`, {
+          signal: AbortSignal.timeout(PROPERTY_FETCH_TIMEOUT_MS),
+        });
         if (response.ok) {
           const result = await response.json();
           console.log('Property data:', result.property); // Debug log
@@ -117,6 +131,7 @@ export default function PropertyDetailPage() {
         }
       } catch (error) {
         console.error('Error loading property:', error);
+        setError('This listing is taking too long to load. Please try again.');
       }
       setLoading(false);
     }
@@ -125,9 +140,23 @@ export default function PropertyDetailPage() {
     if (isAuthenticated === true) {
       loadProperty();
     }
-  }, [params?.id, isAuthenticated]);
+  }, [params?.id, isAuthenticated, attempt]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8 animate-pulse" role="status" aria-label="Loading property">
+        <div className="h-96 rounded-lg bg-gray-200" />
+        <div className="mt-6 h-8 w-2/3 rounded bg-gray-200" />
+        <div className="mt-3 h-5 w-1/3 rounded bg-gray-200" />
+        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-20 rounded bg-gray-200" />
+          ))}
+        </div>
+        <p className="mt-6 text-sm text-gray-500">Loading property details…</p>
+      </div>
+    );
+  }
   if (notFound) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
@@ -143,15 +172,22 @@ export default function PropertyDetailPage() {
   }
   if (error) {
     const isPending = error.includes('pending approval');
+    const isAccessError = isPending || isAuthenticated === false;
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded-lg shadow-md max-w-lg">
-          <h2 className="text-2xl font-bold mb-3">Access Denied</h2>
+          <h2 className="text-2xl font-bold mb-3">{isAccessError ? 'Access Denied' : "Couldn't load this listing"}</h2>
           <p className="text-base">{error}</p>
           {isAuthenticated === false && !isPending && (
             <div className="mt-4 flex gap-3 justify-center">
               <a href={`/login?redirect=/listings/${params?.id}`} className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">Log in</a>
               <a href="/signup" className="rounded border border-green-600 px-4 py-2 text-green-700 hover:bg-green-50">Create account</a>
+            </div>
+          )}
+          {!isAccessError && (
+            <div className="mt-4 flex gap-3 justify-center">
+              <button onClick={retry} className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">Try again</button>
+              <a href="/listings" className="rounded border border-green-600 px-4 py-2 text-green-700 hover:bg-green-50">Back to listings</a>
             </div>
           )}
           <p className="mt-4 text-sm">If you believe this is an error, please contact support.</p>
