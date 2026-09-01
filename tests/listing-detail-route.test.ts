@@ -54,4 +54,14 @@ describe("GET /api/listings/[id]", () => {
 
     expect(res.status).toBe(404);
   });
+
+  it("stops after the scoped search rather than sweeping the default results", async () => {
+    const res = await GET(request("https://example.com/api/listings/999?q=olathe"), {
+      params: Promise.resolve({ id: "999" }),
+    });
+
+    expect(res.status).toBe(404);
+    expect(fetchListings).toHaveBeenCalledTimes(1);
+    expect(fetchListings).toHaveBeenCalledWith({ q: "olathe", limit: 200 });
+  });
 });

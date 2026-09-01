@@ -15,7 +15,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       property = scoped.find((listing) => listing.id === propertyId) ?? null;
     }
 
-    if (!property) {
+    // Without a search to scope the retry, the default result set is the only
+    // other place the id can turn up. Skipping it when `q` was already tried
+    // keeps a dead link from costing three provider round trips.
+    if (!property && !q) {
       const fallback = await fetchListings({ limit: 200 });
       property = fallback.find((listing) => listing.id === propertyId) ?? null;
     }
