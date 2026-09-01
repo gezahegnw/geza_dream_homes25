@@ -14,7 +14,7 @@ type Listing = {
   beds?: number;
   baths?: number;
   sqft?: number;
-  photo?: string;
+  photos?: string[];
   url?: string;
 };
 
@@ -54,10 +54,10 @@ export default function FavoritesPage() {
       if (data.favorites && data.favorites.length > 0) {
         const listingPromises = data.favorites.map(async (favorite: Favorite) => {
           try {
-            const listingRes = await fetch(`/api/listings?id=${favorite.property_id}`);
+            const listingRes = await fetch(`/api/listings/${encodeURIComponent(favorite.property_id)}`, { cache: 'no-store' });
             if (listingRes.ok) {
               const listingData = await listingRes.json();
-              return listingData.listing;
+              return listingData.property;
             }
           } catch (error) {
             console.error(`Failed to fetch listing ${favorite.property_id}:`, error);
@@ -169,9 +169,9 @@ export default function FavoritesPage() {
                   {listing ? (
                     <a href={`/listings/${listing.id}`} className="block">
                       <div className="relative">
-                        {listing.photo && (
+                        {listing.photos?.[0] && (
                           <Image
-                            src={listing.photo}
+                            src={listing.photos[0]}
                             alt={listing.address}
                             width={400}
                             height={192}
