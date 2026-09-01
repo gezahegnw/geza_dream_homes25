@@ -9,6 +9,7 @@ vi.mock("@/lib/listings", () => ({
 }));
 
 const { GET } = await import("@/app/api/listings/[id]/route");
+const { clearResolvedListings } = await import("@/lib/resolve-listing");
 
 const overlandPark = { id: "42", address: "1 Overland Park Way", city: "Overland Park" };
 
@@ -19,6 +20,7 @@ function request(url: string) {
 beforeEach(() => {
   fetchListingById.mockReset().mockResolvedValue(null);
   fetchListings.mockReset().mockResolvedValue([]);
+  clearResolvedListings();
 });
 
 describe("GET /api/listings/[id]", () => {
