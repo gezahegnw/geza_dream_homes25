@@ -9,6 +9,7 @@ const verifySessionToken = vi.fn();
 vi.mock("@/lib/listings", () => ({
   fetchListingById: (...a: unknown[]) => fetchListingById(...a),
   fetchListings: (...a: unknown[]) => fetchListings(...a),
+  clearListingCaches: () => {},
 }));
 
 vi.mock("next/headers", () => ({

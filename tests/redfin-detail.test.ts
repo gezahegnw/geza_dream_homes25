@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchListingById } from "@/lib/listings";
+import { clearListingCaches, fetchListingById } from "@/lib/listings";
 
 const originalEnv = { ...process.env };
 
@@ -144,6 +144,7 @@ function mockDetail(body: unknown, ok = true) {
 beforeEach(() => {
   process.env.LISTINGS_PROVIDER = "rapidapi_redfin";
   process.env.RAPIDAPI_REDFIN_KEY = "test-key";
+  clearListingCaches();
 });
 
 afterEach(() => {

@@ -1,3 +1,5 @@
+import { TtlCache } from "./ttl-cache";
+
 export interface ListingFeatureGroup {
   section: string;
   title: string;
@@ -76,20 +78,30 @@ export type ListingsQuery = {
   sortBy?: string;
 };
 
-// Simple in-memory cache for API responses
-const listingsCache = new Map<string, { data: Listing[]; timestamp: number }>();
+// In-memory caches for provider responses. Bounded so a crawler walking every
+// listing page can't grow them without limit.
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+const DETAIL_CACHE_DURATION = 30 * 60 * 1000;
+// A miss is cached briefly too: without it a dead or mistyped id costs a full
+// provider round trip on every hit, but a listing that just went live
+// shouldn't stay "unavailable" for long.
+const DETAIL_MISS_CACHE_DURATION = 60 * 1000;
+
+const listingsCache = new TtlCache<Listing[]>(CACHE_DURATION, 200);
+const detailCache = new TtlCache<Listing | null>(DETAIL_CACHE_DURATION, 500);
+
+/** Drops every cached provider response. Exposed for tests. */
+export function clearListingCaches(): void {
+  listingsCache.clear();
+  detailCache.clear();
+}
 
 function getCacheKey(provider: string, query: ListingsQuery): string {
   return `${provider}-${JSON.stringify(query)}`;
 }
 
 function getCachedListings(cacheKey: string): Listing[] | null {
-  const cached = listingsCache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    return cached.data;
-  }
-  return null;
+  return listingsCache.get(cacheKey) ?? null;
 }
 
 function setCachedListings(cacheKey: string, data: Listing[]): void {
@@ -97,7 +109,7 @@ function setCachedListings(cacheKey: string, data: Listing[]): void {
   if (data.length === 0) {
     return;
   }
-  listingsCache.set(cacheKey, { data, timestamp: Date.now() });
+  listingsCache.set(cacheKey, data);
 }
 
 // Redfin marketing remarks arrive as HTML-escaped text destined for a JSX text node.
@@ -598,7 +610,26 @@ export async function fetchListingsDebug(query: ListingsQuery = {}): Promise<{ i
 // Fetch a single listing by its ID with full details
 export async function fetchListingById(propertyId: string): Promise<Listing | null> {
   const provider = process.env.LISTINGS_PROVIDER || "mock";
+  const cacheKey = `${provider}-${propertyId}`;
 
+  const cached = detailCache.get(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const listing = await fetchListingByIdUncached(provider, propertyId);
+  detailCache.set(
+    cacheKey,
+    listing,
+    listing ? DETAIL_CACHE_DURATION : DETAIL_MISS_CACHE_DURATION,
+  );
+  return listing;
+}
+
+async function fetchListingByIdUncached(
+  provider: string,
+  propertyId: string,
+): Promise<Listing | null> {
   if (provider !== "rapidapi_redfin") {
     // Fallback for mock or other providers: find from the main list
     const allListings = await fetchListings({ limit: 200 }); // Fetch a larger list to increase chances
