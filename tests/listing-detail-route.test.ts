@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const fetchListingById = vi.fn();
 const fetchListings = vi.fn();
+const clearListingCaches = vi.fn();
 
 vi.mock("@/lib/listings", () => ({
   fetchListingById: (...a: unknown[]) => fetchListingById(...a),
   fetchListings: (...a: unknown[]) => fetchListings(...a),
+  clearListingCaches: () => clearListingCaches(),
 }));
 
 const { GET } = await import("@/app/api/listings/[id]/route");
