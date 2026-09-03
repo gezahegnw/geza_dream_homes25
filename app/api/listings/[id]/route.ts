@@ -1,27 +1,12 @@
 import { NextResponse } from "next/server";
-import { fetchListingById, fetchListings } from "@/lib/listings";
+import { resolveListing } from "@/lib/resolve-listing";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: propertyId } = await params;
     const q = new URL(req.url).searchParams.get("q")?.trim();
 
-    let property = await fetchListingById(propertyId);
-
-    // Providers only return ids that appear in the result set for a given
-    // search, so retry within the search the visitor came from.
-    if (!property && q) {
-      const scoped = await fetchListings({ q, limit: 200 });
-      property = scoped.find((listing) => listing.id === propertyId) ?? null;
-    }
-
-    // Without a search to scope the retry, the default result set is the only
-    // other place the id can turn up. Skipping it when `q` was already tried
-    // keeps a dead link from costing three provider round trips.
-    if (!property && !q) {
-      const fallback = await fetchListings({ limit: 200 });
-      property = fallback.find((listing) => listing.id === propertyId) ?? null;
-    }
+    const property = await resolveListing(propertyId, q);
 
     if (!property) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
